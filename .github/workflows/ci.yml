@@ -2,10 +2,13 @@ name: ci
 
 on:  
   push:
-    branches: ["main","actions"]
+    branches: ["actions"]
+  pull_request:
+    branches: ["main"]
+
 
 jobs:
-  build-and-push:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +27,12 @@ jobs:
           # TODO: Replace with actual test command
           # docker run --rm vinnare:$COMMIT_HASH dotnet test
 
+  tag-and-push:
+    needs: build-and-test
+    
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -45,7 +54,12 @@ jobs:
 
       - name: Notify deployment pipeline
         run: echo "IMAGE_TAG=$COMMIT_HASH" >> $GITHUB_ENV
+  
   deploy:
-    needs: build-and-push  # Runs after build-and-push completes
-    uses: ./.github/workflows/cd.yml  # Calls the reusable workflow
+    needs: tag-and-push
+    uses: ./.github/workflows/cd.yml
+    secrets:
+      ec2_host: ${{ secrets.EC2_HOST }}
+      ec2_user: ${{ secrets.EC2_USER }}
+      ec2_ssh_key: ${{ secrets.EC2_SSH_KEY }}
       

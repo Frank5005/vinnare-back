@@ -2,6 +2,16 @@ name: cd
 
 on:
   workflow_call:
+    inputs:
+      ec2_host:
+        required: true
+        type: string
+      ec2_user:
+        required: true
+        type: string
+    secrets:
+      ec2_ssh_key:
+        required: true
 
 jobs:
   deploy:
@@ -11,9 +21,9 @@ jobs:
       - name: SSH into server and deploy
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ inputs.ec2_host }}
+          username: ${{ inputs.ec2_user }}
+          key: ${{ secrets.ec2_ssh_key }}
           script: |
             echo "Pulling latest image..."
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
