@@ -2,10 +2,10 @@ name: ci
 
 on:  
   push:
-    branches: [ "actions" ]
+    branches: ["main","actions"]
 
 jobs:
-  build-and-test:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,7 +30,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-          
+
       - name: Log in to Amazon ECR
         if: success()  # Only runs if previous steps pass
         id: login-ecr
@@ -45,3 +45,7 @@ jobs:
 
       - name: Notify deployment pipeline
         run: echo "IMAGE_TAG=$COMMIT_HASH" >> $GITHUB_ENV
+  deploy:
+    needs: build-and-push  # Runs after build-and-push completes
+    uses: ./.github/workflows/cd.yml  # Calls the reusable workflow
+      

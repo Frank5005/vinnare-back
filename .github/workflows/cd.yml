@@ -1,11 +1,7 @@
 name: cd
 
 on:
-  workflow_run:
-    workflows: ["ci"]
-    branches: ["actions"]
-    types:
-      - completed
+  workflow_call:
 
 jobs:
   deploy:
@@ -24,4 +20,4 @@ jobs:
             docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
             docker stop vinnare || true
             docker rm vinnare || true
-            docker run -d --name vinnare -p 80:80 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+            docker run -d --name vinnare -p 8080:8080 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
