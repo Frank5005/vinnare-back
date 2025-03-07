@@ -1,0 +1,20 @@
+site_name: Vinnare
+repo_url: https://github.com/dcanasp/vinnare
+repo_name: Vinnare
+
+theme:
+  name: readthedocs
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+  icon:
+    repo: fontawesome/brands/github
+
+extra:
+  generator: false
+
+markdown_extensions:
+  - attr_list
+
+edit_uri: ""
