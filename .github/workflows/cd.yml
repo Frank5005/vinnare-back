@@ -1,16 +1,13 @@
 name: cd
 
 on:
-  workflow_call:
-    inputs:
-      ec2_host:
-        required: true
-        type: string
-      ec2_user:
-        required: true
-        type: string
+  workflow_call:              
     secrets:
       ec2_ssh_key:
+        required: true
+      ec2_host:
+        required: true        
+      ec2_user:
         required: true
 
 jobs:

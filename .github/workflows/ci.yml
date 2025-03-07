@@ -57,9 +57,8 @@ jobs:
   
   deploy:
     needs: tag-and-push
-    uses: ./.github/workflows/cd.yml
-    with:
-      ec2_host: ${{ secrets.EC2_HOST }}  # Pass as an input
-      ec2_user: ${{ secrets.EC2_USER }}  # Pass as an input
+    uses: ./.github/workflows/cd.yml    
     secrets:
-      ec2_ssh_key: ${{ secrets.EC2_SSH_KEY }}  # Pass as a secret
+      ec2_host: ${{ secrets.EC2_HOST }}
+      ec2_user: ${{ secrets.EC2_USER }}
+      ec2_ssh_key: ${{ secrets.EC2_SSH_KEY }}
