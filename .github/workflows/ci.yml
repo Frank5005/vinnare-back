@@ -1,23 +1,65 @@
 name: ci
 
 on:  
+  push:
+    branches: ["actions"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build:
-
+  build-test-push:
     runs-on: ubuntu-latest
+    outputs:
+      commit_hash: ${{ steps.extract_commit.outputs.commit_hash }}
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract commit hash
+        id: extract_commit
+        run: echo "commit_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        run: docker build -t vinnare:${{ steps.extract_commit.outputs.commit_hash }} . -f ./Api/Dockerfile
+
+      - name: Run tests (placeholder)
+        run: |
+          echo "Running tests..."
+          # TODO: Replace with actual test command
+          # docker run --rm vinnare:${{ steps.extract_commit.outputs.commit_hash }} dotnet test
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+  
+      - name: Log in to Amazon ECR
+        if: success()
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+
+      - name: Tag and push Docker image to AWS ECR
+        run: |
+          docker tag vinnare:${{ steps.extract_commit.outputs.commit_hash }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ steps.extract_commit.outputs.commit_hash }}
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ steps.extract_commit.outputs.commit_hash }}
+
+      - name: Notify deployment pipeline
+        run: echo "IMAGE_TAG=${{ steps.extract_commit.outputs.commit_hash }}" >> $GITHUB_ENV
+
+  deploy:
+    needs: build-test-push
+    uses: ./.github/workflows/cd.yml    
+    with:
+      image_tag: ${{ needs.build-test-push.outputs.commit_hash }}
+    secrets:
+      ec2_host: ${{ secrets.EC2_HOST }}
+      ec2_user: ${{ secrets.EC2_USER }}
+      ec2_ssh_key: ${{ secrets.EC2_SSH_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }} 
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}        
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}    
