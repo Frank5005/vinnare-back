@@ -60,3 +60,6 @@ jobs:
       ec2_host: ${{ secrets.EC2_HOST }}
       ec2_user: ${{ secrets.EC2_USER }}
       ec2_ssh_key: ${{ secrets.EC2_SSH_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }} 
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}        
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}         
