@@ -8,7 +8,7 @@ on:
 
 
 jobs:
-  build-and-test:
+  build-test-push:
     runs-on: ubuntu-latest
     outputs:
       commit_hash: ${{ steps.extract_commit.outputs.commit_hash }}
@@ -30,20 +30,13 @@ jobs:
           echo "Running tests..."
           # TODO: Replace with actual test command
           # docker run --rm vinnare:${{ steps.extract_commit.outputs.commit_hash }} dotnet test
-
-  tag-and-push:
-    needs: build-and-test
-    
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
+          - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v2
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ secrets.AWS_REGION }}
+  
       - name: Log in to Amazon ECR
         if: success()  # Only runs if previous steps pass
         id: login-ecr
@@ -58,9 +51,11 @@ jobs:
 
       - name: Notify deployment pipeline
         run: echo "IMAGE_TAG=${{ needs.build-and-test.outputs.commit_hash }}" >> $GITHUB_ENV
+
+  
   
   deploy:
-    needs: tag-and-push
+    needs: build-test-push
     uses: ./.github/workflows/cd.yml    
     with:
       image_tag: ${{ needs.build-and-test.outputs.commit_hash }}  # Pass commit hash as image tag
