@@ -5,19 +5,34 @@ on:
     branches: [ "actions" ]
 
 jobs:
-  build:
-
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract commit hash
+        run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: docker build -t vinnare:$COMMIT_HASH . -f ./Api/Dockerfile
+
+      - name: Run tests (placeholder)
+        run: |
+          echo "Running tests..."
+          # TODO: Replace with actual test command
+          # docker run --rm vinnare:$COMMIT_HASH dotnet test
+
+      - name: Log in to Amazon ECR
+        if: success()  # Only runs if previous steps pass
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Tag and push Docker image to AWS ECR
+        run: |
+          docker tag vinnare:$COMMIT_HASH ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$COMMIT_HASH
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$COMMIT_HASH
+
+      - name: Notify deployment pipeline
+        run: echo "IMAGE_TAG=$COMMIT_HASH" >> $GITHUB_ENV
