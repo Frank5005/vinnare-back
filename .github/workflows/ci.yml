@@ -28,6 +28,8 @@ jobs:
         if: success()  # Only runs if previous steps pass
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+        env:
+            AWS_REGION: ${{ secrets.AWS_REGION }}
 
       - name: Tag and push Docker image to AWS ECR
         run: |
