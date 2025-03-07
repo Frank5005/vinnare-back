@@ -26,6 +26,11 @@ jobs:
           username: ${{ secrets.ec2_user }}
           key: ${{ secrets.ec2_ssh_key }}
           script: |
+            echo "AWS_REGION=${{ secrets.AWS_REGION }}"
+            echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}"
+            echo "ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}"
+            echo "IMAGE_TAG=${{ inputs.image_tag }}"
+
             export AWS_REGION="${{ secrets.AWS_REGION }}"
             export AWS_ACCOUNT_ID="${{ secrets.AWS_ACCOUNT_ID }}"
             export ECR_REPOSITORY="${{ secrets.ECR_REPOSITORY }}"
