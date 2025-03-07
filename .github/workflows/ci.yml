@@ -6,12 +6,12 @@ on:
   pull_request:
     branches: ["main"]
 
-
 jobs:
   build-test-push:
     runs-on: ubuntu-latest
     outputs:
       commit_hash: ${{ steps.extract_commit.outputs.commit_hash }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,13 +21,13 @@ jobs:
         run: echo "commit_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
-        run: docker build -t vinnare:$commit_hash . -f ./Api/Dockerfile
+        run: docker build -t vinnare:${{ steps.extract_commit.outputs.commit_hash }} . -f ./Api/Dockerfile
 
       - name: Run tests (placeholder)
         run: |
           echo "Running tests..."
           # TODO: Replace with actual test command
-          # docker run --rm vinnare:$commit_hash dotnet test
+          # docker run --rm vinnare:${{ steps.extract_commit.outputs.commit_hash }} dotnet test
       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -37,20 +37,20 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
   
       - name: Log in to Amazon ECR
-        if: success()  # Only runs if previous steps pass
+        if: success()
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
         env:
-            AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
 
       - name: Tag and push Docker image to AWS ECR
         run: |
-          docker tag vinnare:$commit_hash ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$commit_hash
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$commit_hash
+          docker tag vinnare:${{ steps.extract_commit.outputs.commit_hash }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ steps.extract_commit.outputs.commit_hash }}
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ steps.extract_commit.outputs.commit_hash }}
 
       - name: Notify deployment pipeline
-        run: echo "IMAGE_TAG=$commit_hash" >> $GITHUB_ENV
-  
+        run: echo "IMAGE_TAG=${{ steps.extract_commit.outputs.commit_hash }}" >> $GITHUB_ENV
+
   deploy:
     needs: build-test-push
     uses: ./.github/workflows/cd.yml    
@@ -62,4 +62,4 @@ jobs:
       ec2_ssh_key: ${{ secrets.EC2_SSH_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }} 
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}        
-      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}         
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}    
