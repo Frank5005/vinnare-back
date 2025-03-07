@@ -11,23 +11,23 @@ jobs:
   build-test-push:
     runs-on: ubuntu-latest
     outputs:
-      COMMIT_HASH: ${{ steps.extract_commit.outputs.COMMIT_HASH }}
+      commit_hash: ${{ steps.extract_commit.outputs.commit_hash }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Extract commit hash
         id: extract_commit
-        run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        run: echo "commit_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
-        run: docker build -t vinnare:$COMMIT_HASH . -f ./Api/Dockerfile
+        run: docker build -t vinnare:$commit_hash . -f ./Api/Dockerfile
 
       - name: Run tests (placeholder)
         run: |
           echo "Running tests..."
           # TODO: Replace with actual test command
-          # docker run --rm vinnare:$COMMIT_HASH dotnet test
+          # docker run --rm vinnare:$commit_hash dotnet test
       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -45,11 +45,11 @@ jobs:
 
       - name: Tag and push Docker image to AWS ECR
         run: |
-          docker tag vinnare:$COMMIT_HASH ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$COMMIT_HASH
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$COMMIT_HASH
+          docker tag vinnare:$commit_hash ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$commit_hash
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$commit_hash
 
       - name: Notify deployment pipeline
-        run: echo "IMAGE_TAG=$COMMIT_HASH" >> $GITHUB_ENV
+        run: echo "IMAGE_TAG=$commit_hash" >> $GITHUB_ENV
   
   deploy:
     needs: build-test-push
