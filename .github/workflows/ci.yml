@@ -11,7 +11,7 @@ jobs:
   build-test-push:
     runs-on: ubuntu-latest
     outputs:
-      commit_hash: ${{ steps.extract_commit.outputs.commit_hash }}
+      COMMIT_HASH: ${{ steps.extract_commit.outputs.COMMIT_HASH }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
