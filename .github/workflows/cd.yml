@@ -2,12 +2,16 @@ name: cd
 
 on:
   workflow_call:              
-    secrets:
-      ec2_ssh_key:
+    inputs:
+      image_tag:
         required: true
+        type: string
+    secrets:
       ec2_host:
         required: true        
       ec2_user:
+        required: true
+      ec2_ssh_key:
         required: true
 
 jobs:
@@ -18,13 +22,13 @@ jobs:
       - name: SSH into server and deploy
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ inputs.ec2_host }}
-          username: ${{ inputs.ec2_user }}
+          host: ${{ secrets.ec2_host }}
+          username: ${{ secrets.ec2_user }}
           key: ${{ secrets.ec2_ssh_key }}
           script: |
             echo "Pulling latest image..."
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-            docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+            docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ inputs.image_tag }}
             docker stop vinnare || true
             docker rm vinnare || true
-            docker run -d --name vinnare -p 8080:8080 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+            docker run -d --name vinnare -p 8080:8080 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ inputs.image_tag }}
