@@ -1,3 +1,7 @@
+using Api.Extensions;
+using Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +10,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Modular Configuration
+builder.Services.AddDatabaseConfiguration(builder.Configuration);
+builder.Services.AddApplicationServices();
+builder.Services.AddLoggingConfiguration(builder.Configuration);
+builder.Services.AddAuthenticationConfiguration();
 
 var app = builder.Build();
 
