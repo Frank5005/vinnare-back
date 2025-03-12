@@ -11,6 +11,7 @@ namespace Services
         private readonly VinnareDbContext _context;
         private readonly IPasswordHasher _passwordHasher;
 
+
         public UserService(VinnareDbContext context, IPasswordHasher passwordHasher)
         {
             _context = context;

@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Data;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Services;
-using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Enums;
 using Xunit;
@@ -20,7 +15,6 @@ public class UserService_test
 
     public UserService_test()
     {
-        // ✅ Use an in-memory database instead of Moq for DbContext
         var options = new DbContextOptionsBuilder<VinnareDbContext>()
             .UseInMemoryDatabase(databaseName: "TestDatabase")
             .Options;
@@ -28,7 +22,6 @@ public class UserService_test
         _dbContext = new VinnareDbContext(options);
         _dbContext.Database.EnsureCreated();
 
-        // ✅ Seed test data
         _dbContext.Users.Add(new User
         {
             Id = Guid.NewGuid(),
@@ -40,18 +33,30 @@ public class UserService_test
 
         _dbContext.SaveChanges();
 
-        // ✅ Mock PasswordHasher
         _mockPasswordHasher = new Mock<IPasswordHasher>();
         _mockPasswordHasher.Setup(p => p.HashPassword(It.IsAny<string>()))
                            .Returns("hashedPassword123");
 
-        // ✅ Initialize UserService with real DbContext and mock PasswordHasher
         _userService = new UserService(_dbContext, _mockPasswordHasher.Object);
     }
 
     [Fact]
     public async Task GetAllUsersAsync_ShouldReturnUsers()
     {
+
+        _dbContext.Database.EnsureDeleted();
+        _dbContext.Database.EnsureCreated();
+
+        _dbContext.Users.Add(new User
+        {
+            Id = Guid.NewGuid(),
+            Email = "test1@example.com",
+            Username = "testuser1",
+            Password = "hashedpassword",
+            Role = RoleType.Admin
+        });
+
+        _dbContext.SaveChanges();
         // Act
         var users = await _userService.GetAllUsersAsync();
 

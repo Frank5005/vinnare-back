@@ -1,6 +1,4 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Api.Extensions
 {
@@ -8,13 +6,17 @@ namespace Api.Extensions
     {
         public static IServiceCollection AddLoggingConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .Enrich.FromLogContext()
+                .Enrich.WithThreadId()
+                .Enrich.WithMachineName()
+                .CreateLogger();
+
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();
-                loggingBuilder.AddConsole();
-
-                // Placeholder for Cloud Logging (Example: Serilog, AWS CloudWatch, etc.)
-                // loggingBuilder.AddSerilog();
+                loggingBuilder.AddSerilog();
             });
 
             return services;

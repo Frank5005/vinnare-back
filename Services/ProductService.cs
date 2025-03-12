@@ -1,6 +1,7 @@
 using Data;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Services.Interfaces;
 using Shared.DTOs;
 
@@ -9,14 +10,17 @@ namespace Services
     public class ProductService : IProductService
     {
         private readonly VinnareDbContext _context;
+        private readonly ILogger<ProductService> _logger;
 
-        public ProductService(VinnareDbContext context)
+        public ProductService(VinnareDbContext context, ILogger<ProductService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
         {
+            _logger.LogInformation("TESING");
             return await _context.Products
                 .Select(p => new ProductDto
                 {
