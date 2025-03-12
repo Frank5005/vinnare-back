@@ -41,5 +41,25 @@ namespace Api.Controllers
             var createdUser = await _userService.CreateUserAsync(userDto);
             return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
         }
+
+        // UPDATE: api/users/{id}
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserDto userDto)
+        {
+            if (userDto == null) return BadRequest("User data is required.");
+
+            var updatedUser = await _userService.UpdateUserAsync(id, userDto);
+            if (updatedUser == null) return NotFound();
+            return Ok(updatedUser);
+        }
+
+        // DELETE: api/users/{id}
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var deletedUser = await _userService.DeleteUserAsync(id);
+            if (deletedUser == null) return NotFound();
+            return Ok(deletedUser);
+        }
     }
 }
