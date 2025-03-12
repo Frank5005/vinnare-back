@@ -1,5 +1,6 @@
 using Services;
 using Services.Interfaces;
+using Services.Utils;
 
 namespace Api.Extensions
 {
@@ -9,6 +10,7 @@ namespace Api.Extensions
         {
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
             return services;
         }

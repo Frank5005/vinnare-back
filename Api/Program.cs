@@ -1,4 +1,5 @@
 using Api.Extensions;
+using Shared.Configuration;
 using Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,8 @@ builder.Services.AddDatabaseConfiguration(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddLoggingConfiguration(builder.Configuration);
 builder.Services.AddAuthenticationConfiguration();
+builder.Services.Configure<SecuritySettings>(builder.Configuration.GetSection("Security"));
+
 
 var app = builder.Build();
 

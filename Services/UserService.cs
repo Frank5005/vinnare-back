@@ -9,10 +9,12 @@ namespace Services
     public class UserService : IUserService
     {
         private readonly VinnareDbContext _context;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public UserService(VinnareDbContext context)
+        public UserService(VinnareDbContext context, IPasswordHasher passwordHasher)
         {
             _context = context;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
@@ -44,11 +46,13 @@ namespace Services
 
         public async Task<UserDto> CreateUserAsync(UserDto userDto)
         {
+            string hashedPassword = _passwordHasher.HashPassword(userDto.Password);
+
             var user = new User
             {
                 Email = userDto.Email,
                 Username = userDto.Username,
-                Password = userDto.Password, // In real-world, hash this!
+                Password = hashedPassword,
                 Role = userDto.Role
             };
 

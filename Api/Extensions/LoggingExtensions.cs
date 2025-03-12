@@ -11,7 +11,7 @@ namespace Api.Extensions
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();
-                loggingBuilder.AddConsole(); // Basic Console Logging
+                loggingBuilder.AddConsole();
 
                 // Placeholder for Cloud Logging (Example: Serilog, AWS CloudWatch, etc.)
                 // loggingBuilder.AddSerilog();
