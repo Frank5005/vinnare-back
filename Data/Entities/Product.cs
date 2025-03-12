@@ -32,8 +32,8 @@ namespace Data.Entities
         [ForeignKey("OwnerId")]
         public User Owner { get; set; }
 
-        [ForeignKey("Category")]
-        public Category Categori { get; set; }
+        //[ForeignKey("Category")]
+        //public Category Categori { get; set; }
 
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }

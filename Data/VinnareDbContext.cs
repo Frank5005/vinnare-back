@@ -35,10 +35,8 @@ namespace Data
             // Relationship
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Owner)
-                //.HasOne(u => u.Category)
                 .WithMany(u => u.Products)
                 .HasForeignKey(p => p.OwnerId)
-                .HasForeignKey(s => s.Category)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Inventory>()
