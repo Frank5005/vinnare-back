@@ -41,5 +41,25 @@ namespace Api.Controllers
             var createdProduct = await _productService.CreateProductAsync(productDto);
             return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
         }
+
+        // UPDATE: api/products/{id}
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductDto productDto)
+        {
+            if (productDto == null) return BadRequest("Product data is required.");
+
+            var updatedProduct = await _productService.UpdateProductAsync(id, productDto);
+            if (updatedProduct == null) return NotFound();
+            return Ok(updatedProduct);
+        }
+
+        // DELETE: api/products/{id}
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var deletedProduct = await _productService.DeleteProductAsync(id);
+            if (deletedProduct == null) return NotFound();
+            return Ok(deletedProduct);
+        }
     }
 }

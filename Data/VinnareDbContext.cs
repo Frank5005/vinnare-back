@@ -13,6 +13,12 @@ namespace Data
         public DbSet<User> Users { get; set; }
         public DbSet<Product> Products { get; set; }
 
+        public DbSet<Category> Categories { get; set; }
+
+        public DbSet<Inventory> Inventories { get; set; }
+
+        public DbSet<Review> Reviews { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -32,6 +38,32 @@ namespace Data
                 .WithMany(u => u.Products)
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Inventory>()
+                .HasOne(i => i.Product)
+                .WithMany()
+                .HasForeignKey(i => i.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Inventory>()
+                .Property(i => i.ProductId)
+                .IsRequired();
+
+            modelBuilder.Entity<Review>(entity =>
+            {
+                //entity.HasKey(r => r.Id);
+
+                entity.HasOne(r => r.User)
+                    .WithMany(u => u.Reviews)
+                    .HasForeignKey(r => r.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(r => r.Product)
+                    .WithMany(p => p.Reviews)
+                    .HasForeignKey(r => r.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
         }
     }
 

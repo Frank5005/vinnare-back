@@ -87,5 +87,43 @@ namespace Services
                 Role = user.Role
             };
         }
+
+        public async Task<UserDto?> UpdateUserAsync(Guid id, UserDto userDto)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return null;
+
+            user.Email = userDto.Email;
+            user.Username = userDto.Username;
+            user.Role = userDto.Role;
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                Role = user.Role
+            };
+        }
+
+        public async Task<UserDto?> DeleteUserAsync(Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return null;
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                Role = user.Role
+            };
+        }
     }
 }

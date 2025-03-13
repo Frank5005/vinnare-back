@@ -11,6 +11,9 @@ namespace Api.Extensions
         {
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IInventoryService, InventoryService>();
+            services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<ITokenService, TokenService>();
 

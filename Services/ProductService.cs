@@ -66,5 +66,40 @@ namespace Services
 
             return productDto;
         }
+
+        public async Task<ProductDto?> UpdateProductAsync(int id, ProductDto productDto)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return null;
+
+            product.OwnerId = productDto.OwnerId;
+            product.Title = productDto.Title;
+            product.Price = productDto.Price;
+            product.Category = productDto.Category;
+            product.Approved = productDto.Approved;
+
+            await _context.SaveChangesAsync();
+
+            return productDto;
+        }
+
+        public async Task<ProductDto?> DeleteProductAsync(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return null;
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+
+            return new ProductDto
+            {
+                Id = product.Id,
+                OwnerId = product.OwnerId,
+                Title = product.Title,
+                Price = product.Price,
+                Category = product.Category,
+                Approved = product.Approved
+            };
+        }
     }
 }

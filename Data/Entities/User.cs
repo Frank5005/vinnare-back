@@ -21,6 +21,7 @@ namespace Data.Entities
         public RoleType Role { get; set; }
 
         // Navigation Property
-        public List<Product> Products { get; set; } = new();
+        public ICollection<Product> Products { get; set; }
+        public ICollection<Review> Reviews { get; set; }
     }
 }
