@@ -7,10 +7,13 @@ namespace Data.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column(TypeName = "serial")]
+        //[Column(TypeName = "serial")]
         public int Id { get; set; }
 
         [Required]
         public string Name { get; set; }
+
+        //Navigation Property
+        public ICollection<Product> Products { get; set; } //= new List<Product>();
     }
 }

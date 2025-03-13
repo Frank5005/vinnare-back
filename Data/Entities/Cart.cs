@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Data.Entities
 {
-    public class Review
+    public class Cart
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -17,16 +17,14 @@ namespace Data.Entities
         public int ProductId { get; set; }
 
         [Required]
-        public string Comment { get; set; } = string.Empty;
-
-        public int Rate { get; set; }
-
+        public int Quantity { get; set; }
 
         // Navigation Property
         [ForeignKey("UserId")]
         public User User { get; set; }
 
-        [ForeignKey("ProductId")]
+        [ForeignKey("ProductId")]	
         public Product Product { get; set; }
+
     }
 }

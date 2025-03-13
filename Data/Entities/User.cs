@@ -23,5 +23,9 @@ namespace Data.Entities
         // Navigation Property
         public ICollection<Product> Products { get; set; }
         public ICollection<Review> Reviews { get; set; }
+        public ICollection<WishList> WishLists { get; set; } //= new List<WishList>();
+        //public ICollection<Purchase> Purchases { get; set; } //= new List<Purchase>();
+        //public ICollection<Job> Jobs { get; set; } //= new List<Job>();
+        public ICollection<Cart> Carts { get; set; } //= new List<Cart>();
     }
 }
