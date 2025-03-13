@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Serilog.Context;
 using Shared.Exceptions;
 
@@ -22,13 +23,17 @@ namespace Api.Middleware
             {
                 await _next(context);
             }
+            catch (DbUpdateException ex)
+            {
+                await HandleExceptionAsync(context, new NotFoundException("Database error occurred. Resource not found."), (int)HttpStatusCode.NotFound);
+            }
             catch (Exception ex)
             {
                 await HandleExceptionAsync(context, ex);
             }
         }
 
-        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception, int? statusCodeOverride = null)
         {
             var traceId = context.TraceIdentifier;
             using (LogContext.PushProperty("TraceId", traceId))
@@ -39,29 +44,17 @@ namespace Api.Middleware
             var response = context.Response;
             response.ContentType = "application/json";
 
+            var statusCode = statusCodeOverride ?? (exception is CustomException customException ? customException.StatusCode : (int)HttpStatusCode.InternalServerError);
+
+            response.StatusCode = statusCode;
+
             var problemDetails = new
             {
                 type = "https://tools.ietf.org/html/rfc9110#section-15.6.1",
-                title = "An error occurred while processing your request.",
-                status = (int)HttpStatusCode.InternalServerError,
+                title = exception.Message,
+                status = statusCode,
                 traceId
             };
-
-            if (exception is CustomException customException)
-            {
-                response.StatusCode = customException.StatusCode;
-                problemDetails = new
-                {
-                    type = customException.ErrorType,
-                    title = customException.Message,
-                    status = customException.StatusCode,
-                    traceId
-                };
-            }
-            else
-            {
-                response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            }
 
             var json = JsonSerializer.Serialize(problemDetails);
             await response.WriteAsync(json);

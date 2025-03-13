@@ -29,4 +29,9 @@ namespace Shared.Exceptions
         public BadRequestException(string message = "Bad request.")
             : base(message, 400, "https://tools.ietf.org/html/rfc9110#section-15.5.1") { }
     }
+    public class ForbiddenException : CustomException
+    {
+        public ForbiddenException(string message = "Forbidden access.")
+            : base(message, 403, "https://tools.ietf.org/html/rfc9110#section-15.5.4") { }
+    }
 }

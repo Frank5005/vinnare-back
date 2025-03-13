@@ -1,5 +1,4 @@
 using Shared.DTOs;
-using Data.Entities;
 
 namespace Services.Interfaces
 {
@@ -7,6 +6,7 @@ namespace Services.Interfaces
     {
         Task<IEnumerable<UserDto>> GetAllUsersAsync();
         Task<UserDto?> GetUserByIdAsync(Guid id);
+        Task<UserDto?> GetUserByUsername(string username);
         Task<UserDto> CreateUserAsync(UserDto userDto);
     }
 }
