@@ -24,7 +24,7 @@ namespace Api.Controllers
         }
 
         // GET: api/product/store
-        [HttpGet]
+        [HttpGet("store")]
         public async Task<IActionResult> GetAvailableProducts()
         {
             var products = await _productService.GetAvailableProductsAsync();
