@@ -7,6 +7,7 @@ namespace Data.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        //[Column(TypeName = "serial")]
         public int Id { get; set; }
 
         [Required]
@@ -28,13 +29,16 @@ namespace Data.Entities
 
         public bool Approved { get; set; } = false;
 
+        public int Quantity { get; set; } = 0;
+
+        public int Available { get; set; } = 0;
+
         // Navigation Property
         [ForeignKey("OwnerId")]
         public User Owner { get; set; }
+        public ICollection<Review> Reviews { get; set; } //= new List<Review>();
+        public ICollection<WishList> WishLists { get; set; } //= new List<WishList>();
+        public ICollection<Cart> Carts { get; set; } //= new List<Cart>();
 
-        //[ForeignKey("Category")]
-        //public Category Categori { get; set; }
-
-        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }

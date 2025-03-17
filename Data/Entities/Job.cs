@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Shared.Enums;
 
 namespace Data.Entities
 {
-    public class Review
+    public class Job
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -11,22 +12,21 @@ namespace Data.Entities
         public int Id { get; set; }
 
         [Required]
-        public Guid UserId { get; set; }
+        public JobType Type { get; set; }
 
         [Required]
-        public int ProductId { get; set; }
+        public OperationType Operation { get; set; }
 
         [Required]
-        public string Comment { get; set; } = string.Empty;
+        public ActionType Action { get; set; }
 
-        public int Rate { get; set; }
+        public Guid CreatorId { get; set; }
 
+        [Required]
+        public DateTime Date { get; set; } = DateTime.Now;
 
         // Navigation Property
-        [ForeignKey("UserId")]
+        [ForeignKey("CreatorId")]
         public User User { get; set; }
-
-        [ForeignKey("ProductId")]
-        public Product Product { get; set; }
     }
 }

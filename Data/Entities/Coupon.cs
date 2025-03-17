@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Data.Entities
 {
-    public class Category
+    public class Coupon
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -11,9 +11,9 @@ namespace Data.Entities
         public int Id { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        public string Code { get; set; }
 
-        //Navigation Property
-        public ICollection<Product> Products { get; set; } //= new List<Product>();
+        [Required]
+        public int DiscountPercentage { get; set; }
     }
 }
