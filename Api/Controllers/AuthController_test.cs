@@ -4,174 +4,144 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Services.Interfaces;
 using Shared.DTOs;
-using Shared.Enums;
 using Shared.Exceptions;
 using Xunit;
 
-public class AuthController_test
+public class UserController_test
 {
-    private readonly Mock<ITokenService> _mockTokenService;
     private readonly Mock<IUserService> _mockUserService;
-    private readonly Mock<IPasswordHasher> _mockPasswordHasher;
-    private readonly AuthController _authController;
+    private readonly UserController _userController;
 
-    public AuthController_test()
+    public UserController_test()
     {
-        _mockTokenService = new Mock<ITokenService>();
         _mockUserService = new Mock<IUserService>();
-        _mockPasswordHasher = new Mock<IPasswordHasher>();
-
-        _authController = new AuthController(
-            _mockTokenService.Object,
-            _mockUserService.Object,
-            _mockPasswordHasher.Object
-        );
+        _userController = new UserController(_mockUserService.Object);
     }
 
-    // ===== LOGIN TESTS =====
+    // ===== GET ALL USERS TEST =====
 
     [Fact]
-    public async Task Login_ShouldReturnOk_WhenCredentialsAreValid()
+    public async Task GetAllUsers_ShouldReturnOk_WithUserList()
     {
         // Arrange
-        var request = new LoginRequest { Username = "testuser", Password = "validpassword" };
-        var user = new UserDto { Username = "testuser", Password = "hashedpassword", Role = RoleType.Admin };
+        var users = new List<UserDtoString>
+        {
+            new UserDtoString { Username = "user1", Email = "user1@example.com", Role = "Admin" },
+            new UserDtoString { Username = "user2", Email = "user2@example.com", Role = "Customer" }
+        };
 
-        _mockUserService.Setup(s => s.GetUserByUsername(request.Username)).ReturnsAsync(user);
-        _mockPasswordHasher.Setup(h => h.VerifyPassword(request.Password, user.Password)).Returns(true);
-        _mockTokenService.Setup(t => t.GenerateToken(request.Username, "Admin")).Returns("valid_token");
+        _mockUserService.Setup(s => s.GetAllUsersAsync()).ReturnsAsync(users);
 
         // Act
-        var result = await _authController.Login(request);
+        var result = await _userController.GetAllUsers();
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var tokenResponse = Assert.IsType<LoginResponse>(okResult.Value);
-        Assert.Equal("valid_token", tokenResponse.Token);
+        var returnedUsers = Assert.IsType<List<UserDtoString>>(okResult.Value);
+        Assert.Equal(2, returnedUsers.Count);
     }
 
-    [Fact]
-    public async Task Login_ShouldThrowNotFoundException_WhenUserDoesNotExist()
-    {
-        // Arrange
-        var request = new LoginRequest { Username = "nonexistentuser", Password = "password" };
-        _mockUserService.Setup(s => s.GetUserByUsername(request.Username)).ReturnsAsync((UserDto)null);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => _authController.Login(request));
-    }
+    // ===== UPDATE USER TESTS =====
 
     [Fact]
-    public async Task Login_ShouldThrowUnauthorizedException_WhenPasswordIsIncorrect()
+    public async Task UpdateUser_ShouldReturnOk_WhenUserIsUpdated()
     {
         // Arrange
-        var request = new LoginRequest { Username = "testuser", Password = "wrongpassword" };
-        var user = new UserDto { Username = "testuser", Password = "hashedpassword", Role = RoleType.Admin };
-
-        _mockUserService.Setup(s => s.GetUserByUsername(request.Username)).ReturnsAsync(user);
-        _mockPasswordHasher.Setup(h => h.VerifyPassword(request.Password, user.Password)).Returns(false);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedException>(() => _authController.Login(request));
-    }
-
-    // ===== CREATE USER TESTS (ADMIN) =====
-
-    [Fact]
-    public async Task CreateUser_ShouldReturnCreated_WhenValidRequest()
-    {
-        // Arrange
-        var request = new UserCreateRequest
+        var updateRequest = new UpdateUserRequest
         {
-            Email = "admin@example.com",
-            Username = "adminUser",
-            Password = "securepassword",
-            Role = "Admin"
+            Username = "existinguser",
+            Email = "newemail@example.com",
+            Name = "Updated Name"
         };
 
-        var createdUser = new UserDto
+        var userId = Guid.NewGuid();
+        _mockUserService.Setup(s => s.GetIdByUsername(updateRequest.Username)).ReturnsAsync(userId);
+        _mockUserService.Setup(s => s.UpdateUserAsync(userId, It.IsAny<UserDto>())).ReturnsAsync(new UserDto
         {
-            Id = Guid.NewGuid(),
-            Email = request.Email,
-            Username = request.Username,
-            Password = request.Password,
-            Role = RoleType.Admin
-        };
-
-        _mockUserService.Setup(s => s.CreateUserAsync(It.IsAny<UserDto>())).ReturnsAsync(createdUser);
+            Id = userId,
+            Username = "existinguser",
+            Email = "newemail@example.com",
+            Name = "Updated Name"
+        });
 
         // Act
-        var result = await _authController.CreateUser(request);
+        var result = await _userController.UpdateUser(updateRequest);
 
         // Assert
-        var createdResult = Assert.IsType<CreatedResult>(result);
-        var responseUser = Assert.IsType<UserResponse>(createdResult.Value);
-        Assert.Equal(request.Email, responseUser.Email);
-        Assert.Equal(request.Username, responseUser.Username);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var response = Assert.IsType<DefaultResponse>(okResult.Value);
+        Assert.Equal("User existinguser has been updated successfully", response.message);
     }
 
     [Fact]
-    public async Task CreateUser_ShouldThrowBadRequestException_WhenRoleIsInvalid()
+    public async Task UpdateUser_ShouldReturnNotFound_WhenUserDoesNotExist()
     {
         // Arrange
-        var request = new UserCreateRequest
-        {
-            Email = "admin@example.com",
-            Username = "adminUser",
-            Password = "securepassword",
-            Role = "InvalidRole" // Invalid role
-        };
+        var updateRequest = new UpdateUserRequest { Username = "nonexistentuser" };
+
+        _mockUserService.Setup(s => s.GetIdByUsername(updateRequest.Username)).ReturnsAsync((Guid?)null);
 
         // Act & Assert
-        await Assert.ThrowsAsync<BadRequestException>(() => _authController.CreateUser(request));
+        await Assert.ThrowsAsync<BadRequestException>(() => _userController.UpdateUser(updateRequest));
     }
 
-    // ===== CREATE SHOPPER TESTS =====
+    [Fact]
+    public async Task UpdateUser_ShouldReturnBadRequest_WhenRequestIsNull()
+    {
+        // Act
+        var result = await _userController.UpdateUser(null);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User data is required.", badRequestResult.Value);
+    }
+
+    // ===== DELETE USERS TESTS =====
 
     [Fact]
-    public async Task CreateShopper_ShouldReturnCreated_WhenValidRequest()
+    public async Task DeleteUsers_ShouldReturnNoContent_WhenUsersAreDeleted()
     {
         // Arrange
-        var request = new UserCreateShopperRequest
+        var deleteRequest = new DeleteUserRequest { Users = new List<string> { "user1", "user2" } };
+        var deletedUsers = new List<UserDto>
         {
-            Email = "shopper@example.com",
-            Username = "shopperUser",
-            Password = "securepassword"
+            new UserDto { Username = "user1" },
+            new UserDto { Username = "user2" }
         };
 
-        var createdUser = new UserDto
-        {
-            Id = Guid.NewGuid(),
-            Email = request.Email,
-            Username = request.Username,
-            Password = request.Password,
-            Role = RoleType.Shopper
-        };
-
-        _mockUserService.Setup(s => s.CreateUserAsync(It.IsAny<UserDto>())).ReturnsAsync(createdUser);
+        _mockUserService.Setup(s => s.DeleteUsersAsync(deleteRequest.Users)).ReturnsAsync(deletedUsers);
 
         // Act
-        var result = await _authController.CreateShopper(request);
+        var result = await _userController.DeleteUsers(deleteRequest);
 
         // Assert
-        var createdResult = Assert.IsType<CreatedResult>(result);
-        var responseUser = Assert.IsType<UserResponse>(createdResult.Value);
-        Assert.Equal(request.Email, responseUser.Email);
-        Assert.Equal(request.Username, responseUser.Username);
+        Assert.IsType<NoContentResult>(result);
     }
 
     [Fact]
-    public async Task CreateShopper_ShouldThrowBadRequestException_WhenEmailIsInvalid()
+    public async Task DeleteUsers_ShouldReturnNotFound_WhenUsersNotFound()
     {
         // Arrange
-        var request = new UserCreateShopperRequest
-        {
-            Email = "invalid-email",
-            Username = "shopperUser",
-            Password = "securepassword"
-        };
+        var deleteRequest = new DeleteUserRequest { Users = new List<string> { "user1", "user2" } };
 
-        // Act & Assert
-        await Assert.ThrowsAsync<BadRequestException>(() => _authController.CreateShopper(request));
+        _mockUserService.Setup(s => s.DeleteUsersAsync(deleteRequest.Users)).ReturnsAsync(new List<UserDto>());
+
+        // Act
+        var result = await _userController.DeleteUsers(deleteRequest);
+
+        // Assert
+        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+        Assert.Equal("No matching users found to delete.", notFoundResult.Value);
+    }
+
+    [Fact]
+    public async Task DeleteUsers_ShouldReturnBadRequest_WhenRequestIsNull()
+    {
+        // Act
+        var result = await _userController.DeleteUsers(null);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("At least one username must be provided.", badRequestResult.Value);
     }
 }

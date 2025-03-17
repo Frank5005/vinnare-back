@@ -18,15 +18,16 @@ namespace Services
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserDtoString>> GetAllUsersAsync()
         {
             return await _context.Users
-                .Select(user => new UserDto
+                .Select(user => new UserDtoString
                 {
-                    Id = user.Id,
+                    Name = user.Name,
                     Email = user.Email,
                     Username = user.Username,
-                    Role = user.Role
+                    Password = user.Password,
+                    Role = user.Role.ToString(),
                 })
                 .ToListAsync();
         }
@@ -47,12 +48,13 @@ namespace Services
 
         public async Task<UserDto?> GetUserByUsername(string username)
         {
-
             var userQuery = from n in _context.Users
                             where n.Username == username
                             select n;
 
             var user = await userQuery.FirstOrDefaultAsync();
+
+            if (user == null) return null;
 
             return new UserDto
             {
@@ -62,6 +64,18 @@ namespace Services
                 Password = user.Password,
                 Role = user.Role
             };
+        }
+
+        public async Task<Guid?> GetIdByUsername(string username)
+        {
+
+            var userQuery = from n in _context.Users
+                            where n.Username == username
+                            select n.Id;
+
+            var id = await userQuery.FirstOrDefaultAsync();
+
+            return id == Guid.Empty ? null : id;
         }
 
         public async Task<UserDto> CreateUserAsync(UserDto userDto)
@@ -93,20 +107,20 @@ namespace Services
             var user = await _context.Users.FindAsync(id);
             if (user == null) return null;
 
-            user.Email = userDto.Email;
-            user.Username = userDto.Username;
-            user.Role = userDto.Role;
+            // Update only non-null or non-empty fields
+            if (!string.IsNullOrWhiteSpace(userDto.Username))
+                user.Username = userDto.Username; // Username is mandatory, already validated in controller
 
-            var test = await _context.Users
-                            .Include(x => x.Products).ToListAsync();
+            if (!string.IsNullOrWhiteSpace(userDto.Email))
+                user.Email = userDto.Email;
 
+            if (!string.IsNullOrWhiteSpace(userDto.Password))
+                user.Password = _passwordHasher.HashPassword(userDto.Password); // Hash password before saving
 
+            if (!string.IsNullOrWhiteSpace(userDto.Name))
+                user.Name = userDto.Name; // Optional field, update if provided
 
-
-
-
-
-
+            // Update in DB
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
@@ -115,26 +129,30 @@ namespace Services
                 Id = user.Id,
                 Email = user.Email,
                 Username = user.Username,
+                Name = user.Name,
                 Role = user.Role
             };
         }
 
-        public async Task<UserDto?> DeleteUserAsync(Guid id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null) return null;
 
-            _context.Users.Remove(user);
+        public async Task<List<UserDto>> DeleteUsersAsync(List<string> usernames)
+        {
+            var users = await _context.Users.Where(u => usernames.Contains(u.Username)).ToListAsync();
+
+            if (!users.Any()) return new List<UserDto>(); // No users found
+
+            _context.Users.RemoveRange(users);
             await _context.SaveChangesAsync();
 
-            return new UserDto
+            return users.Select(user => new UserDto
             {
                 Id = user.Id,
                 Email = user.Email,
                 Username = user.Username,
                 Role = user.Role
-            };
+            }).ToList();
         }
+
 
     }
 }

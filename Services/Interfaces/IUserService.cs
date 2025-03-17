@@ -4,13 +4,13 @@ namespace Services.Interfaces
 {
     public interface IUserService
     {
-        Task<IEnumerable<UserDto>> GetAllUsersAsync();
+        Task<IEnumerable<UserDtoString>> GetAllUsersAsync();
         Task<UserDto?> GetUserByIdAsync(Guid id);
         Task<UserDto?> GetUserByUsername(string username);
+        Task<Guid?> GetIdByUsername(string username);
         Task<UserDto> CreateUserAsync(UserDto userDto);
 
         Task<UserDto?> UpdateUserAsync(Guid id, UserDto userDto);
-
-        Task<UserDto?> DeleteUserAsync(Guid id);
+        Task<List<UserDto>> DeleteUsersAsync(List<string> usernames);
     }
 }

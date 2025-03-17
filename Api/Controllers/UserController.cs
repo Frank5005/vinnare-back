@@ -1,6 +1,9 @@
+using Api.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Exceptions;
 namespace Api.Controllers
 {
     [Route("api/user")]
@@ -15,6 +18,7 @@ namespace Api.Controllers
         }
 
         // GET: api/users
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -22,33 +26,61 @@ namespace Api.Controllers
             return Ok(users);
         }
 
-        // GET: api/user/{id}
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetUserById(Guid id)
-        {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null) return NotFound();
-            return Ok(user);
-        }
+        //// GET: api/user/{id}
+        //[HttpGet("{id:guid}")]
+        //public async Task<IActionResult> GetUserById(Guid id)
+        //{
+        //    var user = await _userService.GetUserByIdAsync(id);
+        //    if (user == null) return NotFound();
+        //    return Ok(user);
+        //}
 
-        // UPDATE: api/user/{id}
-        [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserDto userDto)
+        // UPDATE: api/user
+        [Authorize(Roles = "Admin")]
+        [HttpPut]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest UpdateRequest)
         {
-            if (userDto == null) return BadRequest("User data is required.");
+            if (UpdateRequest == null || string.IsNullOrWhiteSpace(UpdateRequest.Username))
+                return BadRequest("User data is required.");
 
-            var updatedUser = await _userService.UpdateUserAsync(id, userDto);
+            if (UpdateRequest.Email != null || !string.IsNullOrWhiteSpace(UpdateRequest.Username))
+            {
+                UpdateRequest.Validate();
+            }
+            var Id = await _userService.GetIdByUsername(UpdateRequest.Username) ?? throw new NotFoundException("user does not exists");
+            var userDto = new UserDto
+            {
+                Id = Id,
+                Username = UpdateRequest.Username,
+                Email = UpdateRequest.Email,
+                Password = UpdateRequest.Password,
+                Name = UpdateRequest.Name,
+
+            };
+            var updatedUser = await _userService.UpdateUserAsync(Id, userDto);
             if (updatedUser == null) return NotFound();
-            return Ok(updatedUser);
+            return Ok(new DefaultResponse
+            {
+                message = $"User {UpdateRequest.Username} has been updated successfully"
+            });
+
         }
 
-        // DELETE: api/user/{id}
-        [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        // DELETE: api/user
+        [Authorize(Roles = "Admin")]
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteUsers([FromBody] DeleteUserRequest deleteRequest)
         {
-            var deletedUser = await _userService.DeleteUserAsync(id);
-            if (deletedUser == null) return NotFound();
-            return Ok(deletedUser);
+            if (deleteRequest == null || deleteRequest.Users == null || !deleteRequest.Users.Any())
+                return BadRequest("At least one username must be provided.");
+
+            var deletedUsers = await _userService.DeleteUsersAsync(deleteRequest.Users);
+
+            if (!deletedUsers.Any())
+                return NotFound("No matching users found to delete.");
+
+            return NoContent(); // 204 No Content, indicating success with no response body
         }
     }
 }
