@@ -15,8 +15,7 @@ namespace Api.Controllers
             _userService = userService;
         }
 
-        // GET: api/user
-        [Authorize(Roles = "Admin")]
+        // GET: api/users
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -33,8 +32,9 @@ namespace Api.Controllers
             return Ok(user);
         }
 
-        // POST: api/user
-        [HttpPost]
+        // POST: api/users/create
+        [Authorize(Roles = "Admin")]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] UserDto userDto)
         {
             if (userDto == null) return BadRequest("User data is required.");

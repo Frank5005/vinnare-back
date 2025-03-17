@@ -14,8 +14,9 @@ builder.Services.AddEndpointsApiExplorer();
 // Modular Configuration
 builder.Services.Configure<SecuritySettings>(builder.Configuration.GetSection("Security"));
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("Database"));
 builder.Services.AddSwaggerConfiguration();
-builder.Services.AddDatabaseConfiguration(builder.Configuration);
+builder.Services.AddDatabaseConfiguration();
 builder.Services.AddApplicationServices();
 builder.Services.AddLoggingConfiguration(builder.Configuration);
 builder.Services.AddAuthenticationConfiguration();

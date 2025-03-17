@@ -1,14 +1,19 @@
 using Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Shared.Configuration;
 
 namespace Api.Extensions
 {
     public static class DatabaseExtensions
     {
-        public static IServiceCollection AddDatabaseConfiguration(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddDatabaseConfiguration(this IServiceCollection services)
         {
-            services.AddDbContext<VinnareDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContextPool<VinnareDbContext>((serviceProvider, options) =>
+            {
+                var databaseSettings = serviceProvider.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+                options.UseNpgsql(databaseSettings.DefaultConnection);
+            });
 
             return services;
         }

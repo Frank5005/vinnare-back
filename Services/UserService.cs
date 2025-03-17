@@ -97,6 +97,16 @@ namespace Services
             user.Username = userDto.Username;
             user.Role = userDto.Role;
 
+            var test = await _context.Users
+                            .Include(x => x.Products).ToListAsync();
+
+
+
+
+
+
+
+
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
@@ -125,5 +135,6 @@ namespace Services
                 Role = user.Role
             };
         }
+
     }
 }
