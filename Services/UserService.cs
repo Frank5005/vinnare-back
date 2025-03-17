@@ -45,6 +45,25 @@ namespace Services
             };
         }
 
+        public async Task<UserDto?> GetUserByUsername(string username)
+        {
+
+            var userQuery = from n in _context.Users
+                            where n.Username == username
+                            select n;
+
+            var user = await userQuery.FirstOrDefaultAsync();
+
+            return new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                Password = user.Password,
+                Role = user.Role
+            };
+        }
+
         public async Task<UserDto> CreateUserAsync(UserDto userDto)
         {
             string hashedPassword = _passwordHasher.HashPassword(userDto.Password);

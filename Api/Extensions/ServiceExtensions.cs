@@ -1,3 +1,4 @@
+using Api.Services;
 using Services;
 using Services.Interfaces;
 using Services.Utils;
@@ -17,7 +18,8 @@ namespace Api.Extensions
             services.AddScoped<ICouponService, CouponService>();
             services.AddScoped<IPurchaseService, PurchaseService>();
             services.AddScoped<IJobService, JobService>();
-            services.AddSingleton<IPasswordHasher, PasswordHasher>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
+            services.AddScoped<ITokenService, TokenService>();
 
             return services;
         }

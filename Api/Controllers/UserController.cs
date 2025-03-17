@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using Shared.DTOs;
-
 namespace Api.Controllers
 {
     [Route("api/users")]
@@ -16,6 +16,7 @@ namespace Api.Controllers
         }
 
         // GET: api/users
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
