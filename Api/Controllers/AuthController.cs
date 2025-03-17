@@ -1,12 +1,15 @@
 using Api.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
+using Shared.DTOs;
+using Shared.Enums;
 using Shared.Exceptions;
 
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/auth")]
+    [Route("api/")]
     public class AuthController : ControllerBase
     {
         private readonly ITokenService _tokenService;
@@ -32,10 +35,65 @@ namespace Api.Controllers
             {
                 throw new UnauthorizedException("Wrong password");
             };
-            //string token = _tokenService.GenerateToken(request.Username, user.Role);
-            string token = _tokenService.GenerateToken(request.Username, "Admin"); //TODO: implement actual user.Role
+            string token = _tokenService.GenerateToken(request.Username, user.Role.ToString());
+            //string token = _tokenService.GenerateToken(request.Username, "Admin"); //TODO: implement actual user.Role
 
-            return Ok(new TokenResponse { AccessToken = token });
+            return Ok(new LoginResponse { Token = token, Email = user.Email, Username = user.Username });
+        }
+
+        // POST: api/admin/auth
+        [Authorize(Roles = "Admin")]
+        [HttpPost("admin/auth")]
+        public async Task<IActionResult> CreateUser([FromBody] UserCreateRequest userRequest)
+        {
+            userRequest.Validate();
+
+            var userDto = new UserDto
+            {
+                Id = Guid.NewGuid(),
+                Email = userRequest.Email,
+                Username = userRequest.Username,
+                Password = userRequest.Password,
+                Role = userRequest.GetRoleType()
+            };
+
+            var createdUser = await _userService.CreateUserAsync(userDto);
+
+            var responseUser = new UserResponse
+            {
+                Id = createdUser.Id,
+                Email = createdUser.Email,
+                Username = createdUser.Username,
+            };
+            return Created("", responseUser);
+        }
+
+
+
+        // POST: api/auth
+        [HttpPost("auth")]
+        public async Task<IActionResult> CreateShopper([FromBody] UserCreateShopperRequest userRequest)
+        {
+            userRequest.Validate();
+
+            var userDto = new UserDto
+            {
+                Id = Guid.NewGuid(),
+                Email = userRequest.Email,
+                Username = userRequest.Username,
+                Password = userRequest.Password,
+                Role = RoleType.Shopper
+            };
+
+            var createdUser = await _userService.CreateUserAsync(userDto);
+
+            var responseUser = new UserResponse
+            {
+                Id = createdUser.Id,
+                Email = createdUser.Email,
+                Username = createdUser.Username,
+            };
+            return Created("", responseUser);
         }
     }
 }

@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using Shared.DTOs;
@@ -30,17 +29,6 @@ namespace Api.Controllers
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
             return Ok(user);
-        }
-
-        // POST: api/users/create
-        [Authorize(Roles = "Admin")]
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateUser([FromBody] UserDto userDto)
-        {
-            if (userDto == null) return BadRequest("User data is required.");
-
-            var createdUser = await _userService.CreateUserAsync(userDto);
-            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
         }
 
         // UPDATE: api/user/{id}
