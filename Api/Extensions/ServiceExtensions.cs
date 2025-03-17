@@ -14,6 +14,9 @@ namespace Api.Extensions
             services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<IWishListService, WishListService>();
             services.AddScoped<ICartService, CartService>();
+            services.AddScoped<ICouponService, CouponService>();
+            services.AddScoped<IPurchaseService, PurchaseService>();
+            services.AddScoped<IJobService, JobService>();
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
             return services;

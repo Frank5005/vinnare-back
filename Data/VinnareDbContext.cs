@@ -21,11 +21,11 @@ namespace Data
 
         public DbSet<Cart> Carts { get; set; }
 
-        //public DbSet<Coupon> Coupons { get; set; }
+        public DbSet<Coupon> Coupons { get; set; }
 
-        //public DbSet<Purchase> Purchases { get; set; }
+        public DbSet<Purchase> Purchases { get; set; }
 
-        //public DbSet<Job> Jobs { get; set; }
+        public DbSet<Job> Jobs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -111,11 +111,34 @@ namespace Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             //Coupons
-
+            modelBuilder.Entity<Coupon>()
+                .Property(c => c.Id)
+                .HasColumnType("integer")
+                .UseIdentityColumn();
 
             //Purchases
+            modelBuilder.Entity<Purchase>()
+                .Property(p => p.Id)
+                .HasColumnType("integer")
+                .UseIdentityColumn();
+            
+            modelBuilder.Entity<Purchase>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.Purchases)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             //Jobs
+            modelBuilder.Entity<Job>()
+                .Property(j => j.Id)
+                .HasColumnType("integer")
+                .UseIdentityColumn();
+            
+            modelBuilder.Entity<Job>()
+                .HasOne(j => j.User)
+                .WithMany(u => u.Jobs)
+                .HasForeignKey(j => j.CreatorId)
+                .OnDelete(DeleteBehavior.Cascade);
 
         }
     }
