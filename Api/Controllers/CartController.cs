@@ -5,7 +5,7 @@ using Shared.DTOs;
 
 namespace Api.Controllers
 {
-    [Route("api/wishlists")]
+    [Route("api/carts")]
     [ApiController]
     public class CartController : ControllerBase
     {
