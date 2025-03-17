@@ -4,7 +4,7 @@ using Shared.DTOs;
 
 namespace Api.Controllers
 {
-    [Route("api/categories")]
+    [Route("api/category")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -15,7 +15,7 @@ namespace Api.Controllers
             _categoryService = categoryService;
         }
 
-        // GET: api/categories
+        // GET: api/category
         [HttpGet]
         public async Task<IActionResult> GetAllCategories()
         {
@@ -23,7 +23,7 @@ namespace Api.Controllers
             return Ok(categories);
         }
 
-        // GET: api/categories/{id}
+        // GET: api/category/{id}
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetCategoryById(int id)
         {
@@ -32,7 +32,7 @@ namespace Api.Controllers
             return Ok(category);
         }
 
-        // POST: api/categories
+        // POST: api/category
         [HttpPost]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryDto categoryDto)
         {
@@ -42,7 +42,7 @@ namespace Api.Controllers
             return CreatedAtAction(nameof(GetCategoryById), new { id = createdCategory.Id }, createdCategory);
         }
 
-        // UPDATE: api/categories/{id}
+        // UPDATE: api/category/{id}
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto categoryDto)
         {
@@ -53,7 +53,7 @@ namespace Api.Controllers
             return Ok(updatedCategory);
         }
 
-        // DELETE: api/categories/{id}
+        // DELETE: api/category/{id}
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {

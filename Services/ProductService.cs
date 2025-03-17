@@ -34,6 +34,22 @@ namespace Services
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<ProductDto>> GetAvailableProductsAsync()
+        {
+            return await _context.Products
+                .Where(p => p.Available > 0)
+                .Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    OwnerId = p.OwnerId,
+                    Title = p.Title,
+                    Price = p.Price,
+                    Category = p.Category,
+                    Approved = p.Approved
+                })
+                .ToListAsync();
+        }
+
         public async Task<ProductDto?> GetProductByIdAsync(int id)
         {
             var product = await _context.Products.FindAsync(id);

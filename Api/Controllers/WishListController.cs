@@ -5,7 +5,7 @@ using Shared.DTOs;
 
 namespace Api.Controllers
 {
-    [Route("api/wishlists")]
+    [Route("api/user/wishlists")]
     [ApiController]
     public class WishListController : ControllerBase
     {
@@ -16,7 +16,7 @@ namespace Api.Controllers
             _wishListService = wishListService;
         }
 
-        // GET: api/wishlists
+        // GET: api/user/wishlists
         [HttpGet]
         public async Task<IActionResult> GetAllWishLists()
         {
@@ -24,7 +24,7 @@ namespace Api.Controllers
             return Ok(wishLists);
         }
 
-        // GET: api/wishlists/{id}
+        // GET: api/user/wishlists/{id}
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetWishListById(int id)
         {
@@ -33,7 +33,7 @@ namespace Api.Controllers
             return Ok(wishList);
         }
 
-        // POST: api/wishlists
+        // POST: api/user/wishlists
         [HttpPost]
         public async Task<IActionResult> CreateWishList([FromBody] WishListDto wishListDto)
         {
@@ -43,7 +43,7 @@ namespace Api.Controllers
             return CreatedAtAction(nameof(GetWishListById), new { id = createdWishList.Id }, createdWishList);
         }
 
-        // UPDATE: api/wishlists/{id}
+        // UPDATE: api/user/wishlists/{id}
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateWishList(int id, [FromBody] WishListDto wishListDto)
         {
@@ -54,7 +54,7 @@ namespace Api.Controllers
             return Ok(updatedWishList);
         }
 
-        // DELETE: api/wishlists/{id}
+        // DELETE: api/user/wishlists/{id}
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteWishList(int id)
         {

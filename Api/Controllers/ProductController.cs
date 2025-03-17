@@ -4,7 +4,7 @@ using Shared.DTOs;
 
 namespace Api.Controllers
 {
-    [Route("api/products")]
+    [Route("api/product")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -15,7 +15,7 @@ namespace Api.Controllers
             _productService = productService;
         }
 
-        // GET: api/products
+        // GET: api/product
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
@@ -23,7 +23,15 @@ namespace Api.Controllers
             return Ok(products);
         }
 
-        // GET: api/products/{id}
+        // GET: api/product/store
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableProducts()
+        {
+            var products = await _productService.GetAvailableProductsAsync();
+            return Ok(products);
+        }
+
+        // GET: api/product/{id}
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetProductById(int id)
         {
@@ -32,7 +40,7 @@ namespace Api.Controllers
             return Ok(product);
         }
 
-        // POST: api/products
+        // POST: api/product
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] ProductDto productDto)
         {
@@ -42,7 +50,7 @@ namespace Api.Controllers
             return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
         }
 
-        // UPDATE: api/products/{id}
+        // UPDATE: api/product/{id}
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductDto productDto)
         {
@@ -53,7 +61,7 @@ namespace Api.Controllers
             return Ok(updatedProduct);
         }
 
-        // DELETE: api/products/{id}
+        // DELETE: api/product/{id}
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {

@@ -4,7 +4,7 @@ using Services.Interfaces;
 using Shared.DTOs;
 namespace Api.Controllers
 {
-    [Route("api/users")]
+    [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -15,7 +15,7 @@ namespace Api.Controllers
             _userService = userService;
         }
 
-        // GET: api/users
+        // GET: api/user
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
@@ -24,7 +24,7 @@ namespace Api.Controllers
             return Ok(users);
         }
 
-        // GET: api/users/{id}
+        // GET: api/user/{id}
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetUserById(Guid id)
         {
@@ -33,7 +33,7 @@ namespace Api.Controllers
             return Ok(user);
         }
 
-        // POST: api/users
+        // POST: api/user
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] UserDto userDto)
         {
@@ -43,7 +43,7 @@ namespace Api.Controllers
             return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
         }
 
-        // UPDATE: api/users/{id}
+        // UPDATE: api/user/{id}
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserDto userDto)
         {
@@ -54,7 +54,7 @@ namespace Api.Controllers
             return Ok(updatedUser);
         }
 
-        // DELETE: api/users/{id}
+        // DELETE: api/user/{id}
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {

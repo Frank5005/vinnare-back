@@ -5,7 +5,7 @@ using Shared.DTOs;
 
 namespace Api.Controllers
 {
-    [Route("api/carts")]
+    [Route("api/cart")]
     [ApiController]
     public class CartController : ControllerBase
     {
@@ -16,7 +16,7 @@ namespace Api.Controllers
             _cartService = cartService;
         }
 
-        // GET: api/carts
+        // GET: api/cart
         [HttpGet]
         public async Task<IActionResult> GetAllCarts()
         {
@@ -24,7 +24,7 @@ namespace Api.Controllers
             return Ok(carts);
         }
 
-        // GET: api/carts/{id}
+        // GET: api/cart/{id}
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetCartById(int id)
         {
@@ -33,7 +33,7 @@ namespace Api.Controllers
             return Ok(cart);
         }
 
-        // POST: api/carts
+        // POST: api/cart
         [HttpPost]
         public async Task<IActionResult> CreateCart([FromBody] CartDto cartDto)
         {
@@ -43,7 +43,7 @@ namespace Api.Controllers
             return CreatedAtAction(nameof(GetCartById), new { id = createdCart.Id }, createdCart);
         }
 
-        // UPDATE: api/carts/{id}
+        // UPDATE: api/cart/{id}
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateCart(int id, [FromBody] CartDto cartDto)
         {
@@ -54,7 +54,7 @@ namespace Api.Controllers
             return Ok(updatedCart);
         }
 
-        // DELETE: api/carts/{id}
+        // DELETE: api/cart/{id}
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteCart(int id)
         {
