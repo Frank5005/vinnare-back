@@ -1,4 +1,5 @@
 ﻿using Api.Utils;
+using Shared.DTOs;
 using Shared.Enums;
 using Shared.Exceptions;
 
@@ -16,11 +17,8 @@ namespace Api.DTOs
         public string Email { get; set; }
         public string Username { get; set; }
     }
-    public abstract class UserRequestBase
+    public abstract class UserRequestBase : UserBase
     {
-        public string Username { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
         public void Validate()
         {
             if (!EmailValidator.IsValidEmail(Email))

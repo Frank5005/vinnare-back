@@ -57,6 +57,11 @@ namespace Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Approved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -94,7 +99,7 @@ namespace Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Action")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("CreatorId")
@@ -106,12 +111,19 @@ namespace Data.Migrations
                     b.Property<int>("Operation")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("CreatorId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("Jobs");
                 });
@@ -125,7 +137,9 @@ namespace Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Approved")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("Available")
                         .HasColumnType("integer");
@@ -303,11 +317,25 @@ namespace Data.Migrations
 
             modelBuilder.Entity("Data.Entities.Job", b =>
                 {
+                    b.HasOne("Data.Entities.Category", "Category")
+                        .WithMany("Jobs")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("Data.Entities.User", "User")
                         .WithMany("Jobs")
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Data.Entities.Product", "Product")
+                        .WithMany("Jobs")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Product");
 
                     b.Navigation("User");
                 });
@@ -378,12 +406,16 @@ namespace Data.Migrations
 
             modelBuilder.Entity("Data.Entities.Category", b =>
                 {
+                    b.Navigation("Jobs");
+
                     b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Data.Entities.Product", b =>
                 {
                     b.Navigation("Carts");
+
+                    b.Navigation("Jobs");
 
                     b.Navigation("Reviews");
 
