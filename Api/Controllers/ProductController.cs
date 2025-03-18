@@ -1,4 +1,7 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Services.Interfaces;
 using Shared.DTOs;
 
@@ -40,14 +43,23 @@ namespace Api.Controllers
             return Ok(product);
         }
 
-        // POST: api/product
-        [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductDto productDto)
+        // POST: api/product/create
+        [Authorize(Roles = "Admin, Seller")]
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateProduct([FromBody] ProductRequest productDto)
         {
             if (productDto == null) return BadRequest("Product data is required.");
 
-            var createdProduct = await _productService.CreateProductAsync(productDto);
-            return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
+            var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            var createdProduct = await _productService.CreateProductAsync(productDto, tokenRole);
+            if (createdProduct.Approved == false){
+                return Ok(new ProductResponse { Id = createdProduct.Id, message = "Waiting to approve" });
+            }
+            if (createdProduct.Approved == true)
+            {
+                return Ok(new ProductResponse { Id = createdProduct.Id, message = "Product created successfully" });
+            }
+            return BadRequest("Product not created");
         }
 
         // UPDATE: api/product/{id}

@@ -1,4 +1,5 @@
 using Shared.DTOs;
+using Data.Entities;
 
 namespace Services.Interfaces
 {
@@ -7,7 +8,7 @@ namespace Services.Interfaces
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
         Task<IEnumerable<ProductDto>> GetAvailableProductsAsync();
         Task<ProductDto?> GetProductByIdAsync(int id);
-        Task<ProductDto> CreateProductAsync(ProductDto productDto);
+        Task<Product> CreateProductAsync(ProductRequest productDto, string? tokenRole);
 
         Task<ProductDto?> UpdateProductAsync(int id, ProductDto productDto);
 
