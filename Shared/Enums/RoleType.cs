@@ -2,8 +2,8 @@ namespace Shared.Enums
 {
     public enum RoleType
     {
-        Admin,
-        Seller,
-        Customer
+        Admin, //0
+        Seller, //1
+        Customer //2
     }
 }
