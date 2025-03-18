@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Api.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -80,7 +81,72 @@ namespace Api.Controllers
             if (!deletedUsers.Any())
                 return NotFound("No matching users found to delete.");
 
-            return NoContent(); // 204 No Content, indicating success with no response body
+            return NoContent();
+        }
+
+        // UPDATE: api/user/shopper
+        [Authorize]
+        [HttpPut("shopper")]
+        public async Task<IActionResult> UpdateShopper([FromBody] UpdateShoppperRequest updateRequest)
+        {
+
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(tokenUsername))
+            {
+                throw new UnauthorizedException("Token does not contain a username.");
+            }
+
+            if (updateRequest == null)// || string.IsNullOrWhiteSpace(updateRequest.Username))
+                throw new BadRequestException("User data is required.");
+
+            //if (!tokenUsername.Equals(updateRequest.Username, StringComparison.OrdinalIgnoreCase))
+            //{
+            //    throw new ForbiddenException("You are not authorized to update this user.");
+            //}
+
+            if (updateRequest.Email != null || !string.IsNullOrWhiteSpace(tokenUsername))
+            {
+                updateRequest.Validate();
+            }
+
+            var Id = await _userService.GetIdByUsername(tokenUsername) ?? throw new NotFoundException("user does not exists");
+            var userDto = new UserDto
+            {
+                Id = Id,
+                Username = tokenUsername,
+                Email = updateRequest.Email,
+                Password = updateRequest.Password,
+                Name = updateRequest.Name,
+
+            };
+            var updatedUser = await _userService.UpdateUserAsync(Id, userDto);
+            if (updatedUser == null) return NotFound();
+            return Ok(new DefaultResponse
+            {
+                message = $"User {tokenUsername} has been updated successfully"
+            });
+
+        }
+
+        // DELETE: api/user/shopper
+        [Authorize]
+        [HttpDelete("shopper")]
+        public async Task<IActionResult> DeleteShopper()
+        {
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(tokenUsername))
+            {
+                throw new UnauthorizedException("Token does not contain a username.");
+            }
+
+            var deletedUsers = await _userService.DeleteUsersAsync([tokenUsername]);
+
+            if (!deletedUsers.Any())
+                throw new NotFoundException("How did we get here? you are a user but not really");
+
+            return NoContent();
         }
     }
 }

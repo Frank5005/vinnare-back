@@ -3,10 +3,9 @@ using Shared.Exceptions;
 
 namespace Api.DTOs
 {
-    public class UpdateUserRequest
+    public class BaseUpdateUserRequest
     {
         public string? Name { get; set; }
-        public string Username { get; set; } = "";
         public string? Email { get; set; }
         public string? Password { get; set; }
         public void Validate()
@@ -17,6 +16,15 @@ namespace Api.DTOs
             }
         }
     }
+    public class UpdateUserRequest : BaseUpdateUserRequest
+    {
+        public string Username { get; set; } = "";
+    }
+
+    public class UpdateShoppperRequest : BaseUpdateUserRequest
+    {
+    }
+
     public class DeleteUserRequest
     {
         public List<string> Users { get; set; } = new List<string>();
