@@ -25,11 +25,13 @@ namespace Services
                 .Select(p => new ProductDto
                 {
                     Id = p.Id,
-                    OwnerId = p.OwnerId,
+                    //OwnerId = p.OwnerId,
                     Title = p.Title,
                     Price = p.Price,
-                    Category = p.Category,
-                    Approved = p.Approved
+                    Description = p.Description,
+                    Image = p.Image,
+                    Category = p.Category
+                    //Approved = p.Approved
                 })
                 .ToListAsync();
         }
@@ -41,11 +43,13 @@ namespace Services
                 .Select(p => new ProductDto
                 {
                     Id = p.Id,
-                    OwnerId = p.OwnerId,
+                    //OwnerId = p.OwnerId,
                     Title = p.Title,
                     Price = p.Price,
-                    Category = p.Category,
-                    Approved = p.Approved
+                    Description = p.Description,
+                    Image = p.Image,
+                    Category = p.Category
+                    //Approved = p.Approved
                 })
                 .ToListAsync();
         }
@@ -58,11 +62,13 @@ namespace Services
             return new ProductDto
             {
                 Id = product.Id,
-                OwnerId = product.OwnerId,
-                Title = product.Title,
-                Price = product.Price,
-                Category = product.Category,
-                Approved = product.Approved
+                    //OwnerId = product.OwnerId,
+                    Title = product.Title,
+                    Price = product.Price,
+                    Description = product.Description,
+                    Image = product.Image,
+                    Category = product.Category
+                    //Approved = p.Approved
             };
         }
 
@@ -74,7 +80,11 @@ namespace Services
                 Title = productDto.Title,
                 Price = productDto.Price,
                 Category = productDto.Category,
-                Approved = productDto.Approved
+                Approved = productDto.Approved,
+                Description = productDto.Description,
+                Image = productDto.Image,
+                Quantity = productDto.Quantity,
+                Available = productDto.Available
             };
 
             _context.Products.Add(product);
@@ -93,6 +103,10 @@ namespace Services
             product.Price = productDto.Price;
             product.Category = productDto.Category;
             product.Approved = productDto.Approved;
+            product.Description = productDto.Description;
+            product.Image = productDto.Image;
+            product.Quantity = productDto.Quantity;
+            product.Available = productDto.Available;
 
             await _context.SaveChangesAsync();
 
@@ -114,7 +128,11 @@ namespace Services
                 Title = product.Title,
                 Price = product.Price,
                 Category = product.Category,
-                Approved = product.Approved
+                Approved = product.Approved,
+                Description = product.Description,
+                Image = product.Image,
+                Quantity = product.Quantity,
+                Available = product.Available
             };
         }
     }

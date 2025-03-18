@@ -16,10 +16,10 @@ namespace Data.Entities
         [Required]
         public int ProductId { get; set; }
 
-        [Required]
         public string Comment { get; set; } = string.Empty;
 
-        public int Rate { get; set; }
+        [Required]
+        public int Rate { get; set; } = 0;
 
 
         // Navigation Property

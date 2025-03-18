@@ -11,7 +11,7 @@ namespace Data.Entities
         public int Id { get; set; }
 
         [Required]
-        public Guid OwnerId { get; set; }
+        public Guid OwnerId { get; set; } = Guid.Empty;
 
         [Required]
         public string Title { get; set; } = string.Empty;
