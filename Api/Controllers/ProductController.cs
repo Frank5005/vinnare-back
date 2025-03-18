@@ -19,7 +19,8 @@ namespace Api.Controllers
         }
 
         // GET: api/product
-        [HttpGet]
+        [Authorize(Roles = "Admin, Seller")]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllProducts()
         {
             var products = await _productService.GetAllProductsAsync();
@@ -63,14 +64,15 @@ namespace Api.Controllers
         }
 
         // UPDATE: api/product/{id}
+        [Authorize(Roles = "Admin, Seller")]
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductDto productDto)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductUpdate productDto)
         {
             if (productDto == null) return BadRequest("Product data is required.");
 
             var updatedProduct = await _productService.UpdateProductAsync(id, productDto);
             if (updatedProduct == null) return NotFound();
-            return Ok(updatedProduct);
+            return Ok(new ProductResponse { Id = updatedProduct.Id, message = "Product updated successfully" });
         }
 
         // DELETE: api/product/{id}

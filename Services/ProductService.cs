@@ -25,19 +25,25 @@ namespace Services
                 .Select(p => new ProductDto
                 {
                     Id = p.Id,
+                    OwnerId = p.OwnerId,
                     Title = p.Title,
                     Price = p.Price,
-                    Category = p.Category
+                    Category = p.Category,
+                    Description = p.Description,
+                    Image = p.Image,
+                    Approved = p.Approved,
+                    Quantity = p.Quantity,
+                    Available = p.Available
                 })
                 .ToListAsync();
         }
 
 
-        public async Task<IEnumerable<ProductDto>> GetAvailableProductsAsync()
+        public async Task<IEnumerable<ProductView>> GetAvailableProductsAsync()
         {
             return await _context.Products
                 .Where(p => p.Available > 0)
-                .Select(p => new ProductDto
+                .Select(p => new ProductView
                 {
                     Id = p.Id,
                     Title = p.Title,
@@ -91,24 +97,28 @@ namespace Services
             return product;
         }
 
-        public async Task<ProductDto?> UpdateProductAsync(int id, ProductDto productDto)
+        public async Task<Product> UpdateProductAsync(int id, ProductUpdate productDto)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null) return null;
 
-            product.OwnerId = productDto.OwnerId;
-            product.Title = productDto.Title;
-            product.Price = productDto.Price;
-            product.Category = productDto.Category;
-            product.Approved = productDto.Approved;
-            product.Description = productDto.Description;
-            product.Image = productDto.Image;
-            product.Quantity = productDto.Quantity;
-            product.Available = productDto.Available;
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                throw new Exception("Producto no encontrado.");
+            }
+
+            product.OwnerId = productDto.OwnerId ?? product.OwnerId;
+            product.Title = productDto.Title ?? product.Title;
+            product.Price = productDto.Price ?? product.Price;
+            product.Category = productDto.Category ?? product.Category;
+            product.Approved = productDto.Approved ?? product.Approved;
+            product.Description = productDto.Description ?? product.Description;
+            product.Image = productDto.Image ?? product.Image;
+            product.Quantity = productDto.Quantity ?? product.Quantity;
+            product.Available = productDto.Available ?? product.Available;
 
             await _context.SaveChangesAsync();
 
-            return productDto;
+            return product;
         }
 
         public async Task<ProductDto?> DeleteProductAsync(int id)

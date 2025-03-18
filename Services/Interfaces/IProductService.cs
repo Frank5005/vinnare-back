@@ -6,11 +6,11 @@ namespace Services.Interfaces
     public interface IProductService
     {
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
-        Task<IEnumerable<ProductDto>> GetAvailableProductsAsync();
+        Task<IEnumerable<ProductView>> GetAvailableProductsAsync();
         Task<ProductDto?> GetProductByIdAsync(int id);
         Task<Product> CreateProductAsync(ProductRequest productDto, string? tokenRole);
 
-        Task<ProductDto?> UpdateProductAsync(int id, ProductDto productDto);
+        Task<Product> UpdateProductAsync(int id, ProductUpdate productDto);
 
         Task<ProductDto?> DeleteProductAsync(int id);
     }
