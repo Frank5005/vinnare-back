@@ -306,23 +306,23 @@ namespace Api.Controllers
             {
                 if (accepted)
                 {
-                    await _productService.ApproveProduct(job.ProductId.Value, true);
+                    await _productService.ApproveProduct((int)job.ProductId, true);
                     await _jobService.RemoveJob(job.Id);
                 }
                 else
                 {
-                    await _productService.DeleteProductAsync(job.ProductId.Value);
+                    await _productService.DeleteProductAsync((int)job.ProductId);
                 }
             }
             else
             {
                 if (accepted)
                 {
-                    await _productService.DeleteProductAsync(job.ProductId.Value);
+                    await _productService.DeleteProductAsync((int)job.ProductId);
                 }
                 else
                 {
-                    await _productService.ApproveProduct(job.ProductId.Value, true);
+                    await _productService.ApproveProduct((int)job.ProductId, true);
                     await _jobService.RemoveJob(job.Id);
                 }
             }
@@ -330,17 +330,32 @@ namespace Api.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         public async Task HandleCategoryJob(JobDto job, bool accepted, bool isCreate)
         {
-            if (isCreate && accepted)
+            if (isCreate)
             {
-                await _categoryService.ApproveCategory(job.CategoryId.Value, true);
-                await _jobService.RemoveJob(job.Id);
+                if (accepted)
+                {
+                    await _categoryService.ApproveCategory((int)job.CategoryId, true);
+                    await _jobService.RemoveJob(job.Id);
+                }
+                else
+                {
+                    await _categoryService.DeleteCategoryAsync((int)job.CategoryId);
+                }
             }
-            else if (!isCreate && !accepted)
+            else
             {
-                await _categoryService.ApproveCategory(job.CategoryId.Value, false);
-                await _jobService.RemoveJob(job.Id);
+                if (accepted)
+                {
+                    await _categoryService.DeleteCategoryAsync((int)job.CategoryId);
+                }
+                else
+                {
+                    await _categoryService.ApproveCategory((int)job.CategoryId, true);
+                    await _jobService.RemoveJob(job.Id);
+                }
             }
         }
+
 
 
     }

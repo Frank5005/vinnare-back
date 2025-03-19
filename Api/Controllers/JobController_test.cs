@@ -122,7 +122,7 @@ public class JobController_test
         // Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => _controller.ReviewJob("Product", request));
     }
-    //===TEST FOR HANDLE PRODUCT JOB HELPER
+    //==== TEST FOR HANDLE PRODUCT JOB HELPER ====
 
     [Fact]
     public async Task HandleProductJob_ShouldApproveAndRemoveJob_WhenProductIsCreatedAndApproved()
@@ -131,7 +131,7 @@ public class JobController_test
         var job = new JobDto { Id = 1, ProductId = 10, Operation = OperationType.Create };
 
         // Act
-        await _controller.HandleProductJob(job, true, true);
+        await _controller.HandleProductJob(job, accepted: true, isCreate: true);
 
         // Assert
         _mockProductService.Verify(s => s.ApproveProduct(10, true), Times.Once);
@@ -141,59 +141,80 @@ public class JobController_test
     [Fact]
     public async Task HandleProductJob_ShouldDeleteProduct_WhenProductIsCreatedAndDeclined()
     {
-        // Arrange
         var job = new JobDto { Id = 2, ProductId = 20, Operation = OperationType.Create };
 
-        // Act
-        await _controller.HandleProductJob(job, false, true);
+        await _controller.HandleProductJob(job, accepted: false, isCreate: true);
 
-        // Assert
         _mockProductService.Verify(s => s.DeleteProductAsync(20), Times.Once);
     }
 
     [Fact]
-    public async Task HandleProductJob_ShouldRestoreProduct_WhenProductIsDeletedAndDeclined()
+    public async Task HandleProductJob_ShouldDeleteProduct_WhenProductDeletionIsApproved()
     {
-        // Arrange
         var job = new JobDto { Id = 3, ProductId = 30, Operation = OperationType.Delete };
 
-        // Act
-        await _controller.HandleProductJob(job, false, false);
+        await _controller.HandleProductJob(job, accepted: true, isCreate: false);
 
-        // Assert
-        _mockProductService.Verify(s => s.ApproveProduct(30, true), Times.Once);
-        _mockJobService.Verify(s => s.RemoveJob(3), Times.Once);
+        _mockProductService.Verify(s => s.DeleteProductAsync(30), Times.Once);
     }
+
+    [Fact]
+    public async Task HandleProductJob_ShouldRestoreProductAndRemoveJob_WhenProductDeletionIsDeclined()
+    {
+        var job = new JobDto { Id = 4, ProductId = 40, Operation = OperationType.Delete };
+
+        await _controller.HandleProductJob(job, accepted: false, isCreate: false);
+
+        _mockProductService.Verify(s => s.ApproveProduct(40, true), Times.Once);
+        _mockJobService.Verify(s => s.RemoveJob(4), Times.Once);
+    }
+
 
 
     //=== test for HandleCategoryJob
     [Fact]
     public async Task HandleCategoryJob_ShouldApproveAndRemoveJob_WhenCategoryIsCreatedAndApproved()
     {
-        // Arrange
-        var job = new JobDto { Id = 4, CategoryId = 40, Operation = OperationType.Create };
+        var job = new JobDto { Id = 5, CategoryId = 50, Operation = OperationType.Create };
 
-        // Act
-        await _controller.HandleCategoryJob(job, true, true);
+        await _controller.HandleCategoryJob(job, accepted: true, isCreate: true);
 
-        // Assert
-        _mockCategoryService.Verify(s => s.ApproveCategory(40, true), Times.Once);
-        _mockJobService.Verify(s => s.RemoveJob(4), Times.Once);
+        _mockCategoryService.Verify(s => s.ApproveCategory(50, true), Times.Once);
+        _mockJobService.Verify(s => s.RemoveJob(5), Times.Once);
     }
 
     [Fact]
-    public async Task HandleCategoryJob_ShouldRestoreCategory_WhenCategoryIsDeletedAndDeclined()
+    public async Task HandleCategoryJob_ShouldDoNothing_WhenCategoryCreationIsDeclined()
     {
-        // Arrange
-        var job = new JobDto { Id = 5, CategoryId = 50, Operation = OperationType.Delete };
+        var job = new JobDto { Id = 6, CategoryId = 60, Operation = OperationType.Create };
 
-        // Act
-        await _controller.HandleCategoryJob(job, false, false);
+        await _controller.HandleCategoryJob(job, accepted: false, isCreate: true);
 
-        // Assert
-        _mockCategoryService.Verify(s => s.ApproveCategory(50, false), Times.Once);
-        _mockJobService.Verify(s => s.RemoveJob(5), Times.Once);
+        _mockCategoryService.Verify(s => s.ApproveCategory(It.IsAny<int>(), It.IsAny<bool>()), Times.Never);
+        _mockJobService.Verify(s => s.RemoveJob(It.IsAny<int>()), Times.Never);
     }
+
+    [Fact]
+    public async Task HandleCategoryJob_ShouldDeleteCategory_WhenCategoryDeletionIsApproved()
+    {
+        var job = new JobDto { Id = 7, CategoryId = 70, Operation = OperationType.Delete };
+
+        await _controller.HandleCategoryJob(job, accepted: true, isCreate: false);
+
+        _mockCategoryService.Verify(s => s.DeleteCategoryAsync(70), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleCategoryJob_ShouldRestoreCategoryAndRemoveJob_WhenCategoryDeletionIsDeclined()
+    {
+        var job = new JobDto { Id = 8, CategoryId = 80, Operation = OperationType.Delete };
+
+        await _controller.HandleCategoryJob(job, accepted: false, isCreate: false);
+
+        _mockCategoryService.Verify(s => s.ApproveCategory(80, true), Times.Once);
+        _mockJobService.Verify(s => s.RemoveJob(8), Times.Once);
+    }
+
 
 
 }
