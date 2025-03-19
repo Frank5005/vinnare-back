@@ -42,7 +42,7 @@ namespace Services
         public async Task<IEnumerable<ProductView>> GetAvailableProductsAsync()
         {
             return await _context.Products
-                .Where(p => p.Available > 0)
+                .Where(p => p.Available > 0 && p.Approved == true)
                 .Select(p => new ProductView
                 {
                     Id = p.Id,
@@ -121,27 +121,29 @@ namespace Services
             return product;
         }
 
-        public async Task<ProductDto?> DeleteProductAsync(int id)
+        public async Task<string> DeleteProductAsync(int id, string? tokenRole)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null) return null;
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
-            return new ProductDto
+            string message = "Product deleted successfully";
+            // Verify if the product exists
+            var productExists = await _context.Products.AnyAsync(u => u.Id == id);
+            if (!productExists)
             {
-                Id = product.Id,
-                OwnerId = product.OwnerId,
-                Title = product.Title,
-                Price = product.Price,
-                Category = product.Category,
-                Approved = product.Approved,
-                Description = product.Description,
-                Image = product.Image,
-                Quantity = product.Quantity,
-                Available = product.Available
-            };
+                throw new Exception("The product doesn't exists.");
+            }
+
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return "null";
+
+            if (tokenRole == "Admin")
+            {
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+            }
+            else {
+                message = "You don't have permission to delete this product.";
+                throw new Exception("You don't have permission to delete this product.");
+            }
+            return message;
         }
     }
 }

@@ -76,12 +76,13 @@ namespace Api.Controllers
         }
 
         // DELETE: api/product/{id}
+        [Authorize(Roles = "Admin, Seller")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var deletedProduct = await _productService.DeleteProductAsync(id);
-            if (deletedProduct == null) return NotFound();
-            return Ok(deletedProduct);
+            var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            var deletedProduct = await _productService.DeleteProductAsync(id, tokenRole);
+            return Ok(new ProductDelete { message = deletedProduct });
         }
     }
 }

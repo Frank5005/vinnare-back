@@ -40,6 +40,11 @@ namespace Shared.DTOs
         public int? Available { get; set; }
     }
 
+    public class ProductDelete
+    {
+        public string message { get; set; }
+    }
+
     public class ProductDto
     {
         public int Id { get; set; }
