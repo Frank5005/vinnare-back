@@ -12,6 +12,6 @@ namespace Services.Interfaces
 
         Task<Product> UpdateProductAsync(int id, ProductUpdate productDto);
 
-        Task<string> DeleteProductAsync(int id, string? tokenRole);
+        Task<string> DeleteProductAsync(int id);
     }
 }

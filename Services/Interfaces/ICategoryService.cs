@@ -1,15 +1,17 @@
 using Shared.DTOs;
+using Data.Entities;
 
 namespace Services.Interfaces
 {
     public interface ICategoryService
     {
         Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync();
+        Task<IEnumerable<CategoryView>> GetAvailableCategoriesAsync();
         Task<CategoryDto?> GetCategoryByIdAsync(int id);
-        Task<CategoryDto> CreateCategoryAsync(CategoryDto categoryDto);
+        Task<Category> CreateCategoryAsync(CategoryRequest categoryDto);
 
-        Task<CategoryDto?> UpdateCategoryAsync(int id, CategoryDto categoryDto);
+        Task<Category?> UpdateCategoryAsync(int id, CategoryUpdated categoryDto);
 
-        Task<CategoryDto?> DeleteCategoryAsync(int id);
+        Task<string> DeleteCategoryAsync(int id);
     }
 }

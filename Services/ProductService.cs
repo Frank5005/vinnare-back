@@ -20,6 +20,11 @@ namespace Services
 
         public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
         {
+
+            /*/var products = await _context.Products
+            .Include(p => p.Category)
+            .ToListAsync();*/
+
             _logger.LogInformation("TESING");
             return await _context.Products
                 .Select(p => new ProductDto
@@ -78,12 +83,22 @@ namespace Services
                 throw new Exception("The owner doesn't exists.");
             }
 
+            //Verify if the category exists
+            var categoryExists = await _context.Categories.FirstOrDefaultAsync(c => c.Name == productDto.Category);
+            if(categoryExists == null)
+            {
+                throw new Exception("The category doesn't exists.");
+            }
+
+
+
             var product = new Product
             {
                 OwnerId = productDto.OwnerId,
                 Title = productDto.Title,
                 Price = productDto.Price,
                 Category = productDto.Category,
+                CategoryId = categoryExists.Id,
                 Approved = tokenRole == "Admin",
                 Description = productDto.Description,
                 Image = productDto.Image,
@@ -100,28 +115,37 @@ namespace Services
         public async Task<Product> UpdateProductAsync(int id, ProductUpdate productDto)
         {
 
+            //Verify if the category exists
+            var categoryExists = await _context.Categories.FirstOrDefaultAsync(c => c.Name == productDto.Category);
+            if(categoryExists == null)
+            {
+                throw new Exception("The category doesn't exists.");
+            }
+
+            //Verify if the product exists
             var product = await _context.Products.FindAsync(id);
             if (product == null)
             {
-                throw new Exception("Producto no encontrado.");
+                throw new Exception("The product doesn't exists.");
             }
 
             product.OwnerId = productDto.OwnerId ?? product.OwnerId;
             product.Title = productDto.Title ?? product.Title;
             product.Price = productDto.Price ?? product.Price;
-            product.Category = productDto.Category ?? product.Category;
             product.Approved = productDto.Approved ?? product.Approved;
             product.Description = productDto.Description ?? product.Description;
             product.Image = productDto.Image ?? product.Image;
             product.Quantity = productDto.Quantity ?? product.Quantity;
             product.Available = productDto.Available ?? product.Available;
+            product.Category = productDto.Category ?? product.Category;
+            product.CategoryId = categoryExists.Id;
 
             await _context.SaveChangesAsync();
 
             return product;
         }
 
-        public async Task<string> DeleteProductAsync(int id, string? tokenRole)
+        public async Task<string> DeleteProductAsync(int id)
         {
             string message = "Product deleted successfully";
             // Verify if the product exists
@@ -133,16 +157,9 @@ namespace Services
 
             var product = await _context.Products.FindAsync(id);
             if (product == null) return "null";
-
-            if (tokenRole == "Admin")
-            {
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
-            }
-            else {
-                message = "You don't have permission to delete this product.";
-                throw new Exception("You don't have permission to delete this product.");
-            }
+            
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
             return message;
         }
     }

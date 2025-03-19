@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Exceptions;
 
 namespace Services
 {
@@ -29,6 +30,18 @@ namespace Services
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<CategoryView>> GetAvailableCategoriesAsync()
+        {
+            return await _context.Categories
+                .Where(c => c.Approved == true)
+                .Select(c => new CategoryView
+                {
+                    Id = c.Id,
+                    Name = c.Name
+                })
+                .ToListAsync();
+        }
+
         public async Task<CategoryDto?> GetCategoryByIdAsync(int id)
         {
             var category = await _context.Categories.FindAsync(id);
@@ -41,7 +54,7 @@ namespace Services
             };
         }
 
-        public async Task<CategoryDto> CreateCategoryAsync(CategoryDto categoryDto)
+        public async Task<Category> CreateCategoryAsync(CategoryRequest categoryDto)
         {
             var category = new Category
             {
@@ -51,34 +64,54 @@ namespace Services
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            return categoryDto;
+            return category;
         }
 
-        public async Task<CategoryDto?> UpdateCategoryAsync(int id, CategoryDto categoryDto)
+        public async Task<Category> UpdateCategoryAsync(int id, CategoryUpdated categoryDto)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null) return null;
 
-            category.Name = categoryDto.Name;
+            //Verify if the category exists
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+            {
+                throw new NotFoundException("The category doesn't exists.");
+            }
+
+            //Verify if we have a category with the same name
+            var existingCategory = await _context.Categories
+            .FirstOrDefaultAsync(c => c.Name == categoryDto.Name);
+            if (existingCategory != null)
+            {
+                throw new Exception("A category with this name already exists.");
+            }
+
+            category.Name = categoryDto.Name ?? category.Name;
+            category.Approved = categoryDto.Approved ?? category.Approved;
 
             await _context.SaveChangesAsync();
 
-            return categoryDto;
+            return category;
         }
 
-        public async Task<CategoryDto?> DeleteCategoryAsync(int id)
+        public async Task<string> DeleteCategoryAsync(int id)
         {
+            string message = "Category deleted successfully";
+            //Verify if the category exists
             var category = await _context.Categories.FindAsync(id);
-            if (category == null) return null;
+            if (category == null)
+            {
+                throw new NotFoundException("The category doesn't exists.");
+            }
+
+            var hasProducts = await _context.Products.AnyAsync(p => p.CategoryId == id);
+            if (hasProducts)
+            {
+                throw new Exception("You can't delete the category because it has products associated.");
+            }
 
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
-
-            return new CategoryDto
-            {
-                Id = category.Id,
-                Name = category.Name
-            };
+            return message;
         }
     }
 }

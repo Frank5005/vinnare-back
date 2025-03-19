@@ -1,9 +1,11 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Exceptions;
 
 namespace Api.Controllers
 {
@@ -49,7 +51,7 @@ namespace Api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductRequest productDto)
         {
-            if (productDto == null) return BadRequest("Product data is required.");
+            if (productDto == null) throw new BadRequestException("Product data is required.");
 
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
             var createdProduct = await _productService.CreateProductAsync(productDto, tokenRole);
@@ -68,10 +70,10 @@ namespace Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductUpdate productDto)
         {
-            if (productDto == null) return BadRequest("Product data is required.");
+            if (productDto == null) throw new BadRequestException("Product data is required.");
 
             var updatedProduct = await _productService.UpdateProductAsync(id, productDto);
-            if (updatedProduct == null) return NotFound();
+            if (updatedProduct == null) throw new NotFoundException("Product not found.");
             return Ok(new ProductResponse { Id = updatedProduct.Id, message = "Product updated successfully" });
         }
 
@@ -80,9 +82,14 @@ namespace Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
+            var deletedProduct = "";
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            var deletedProduct = await _productService.DeleteProductAsync(id, tokenRole);
-            return Ok(new ProductDelete { message = deletedProduct });
+            if (tokenRole == "Admin")
+            {
+                deletedProduct = await _productService.DeleteProductAsync(id);
+                return Ok(new ProductDelete { message = deletedProduct });
+            }
+            return Ok(new ProductDelete { message = "You can't delete a product."});
         }
     }
 }
