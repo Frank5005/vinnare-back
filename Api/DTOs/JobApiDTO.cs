@@ -6,6 +6,13 @@ namespace Api.DTOs
 
     public class CreateJobRequest : BaseJob
     {
+        public int AssociatedId { get; set; }
+        public void Validate()
+        {
+            GetJobType();
+            GetOperationType();
+
+        }
         public JobType GetJobType()
         {
             if (Enum.TryParse<JobType>(JobType, true, out var parsedJob))
@@ -27,17 +34,16 @@ namespace Api.DTOs
 
     public class CreateJobResponse : BaseJob
     {
+
     }
 
     public class ReviewJobRequest
     {
         public int Id { get; set; }
-        public string Operation { get; set; } = "";
         public string Action { get; set; } = "";
         public void Validate()
         {
             GetActionType();
-            GetOperationType();
 
         }
 
@@ -51,14 +57,6 @@ namespace Api.DTOs
             throw new BadRequestException("Invalid Action type.");
         }
 
-        public OperationType GetOperationType()
-        {
-            if (Enum.TryParse<OperationType>(Operation, true, out var parsedOperation))
-            {
-                return parsedOperation;
-            }
-            throw new BadRequestException("Invalid Operation type.");
-        }
     }
 
 }

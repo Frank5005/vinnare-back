@@ -2,7 +2,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Exceptions;
@@ -55,7 +54,8 @@ namespace Api.Controllers
 
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
             var createdProduct = await _productService.CreateProductAsync(productDto, tokenRole);
-            if (createdProduct.Approved == false){
+            if (createdProduct.Approved == false)
+            {
                 return Ok(new ProductResponse { Id = createdProduct.Id, message = "Waiting to approve" });
             }
             if (createdProduct.Approved == true)

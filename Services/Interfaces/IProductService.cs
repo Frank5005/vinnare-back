@@ -1,5 +1,5 @@
-using Shared.DTOs;
 using Data.Entities;
+using Shared.DTOs;
 
 namespace Services.Interfaces
 {

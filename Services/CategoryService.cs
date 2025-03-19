@@ -113,5 +113,12 @@ namespace Services
             await _context.SaveChangesAsync();
             return message;
         }
+
+        public async Task ApproveCategory(int categoryId, bool approve)
+        {
+            var category = await _context.Categories.FindAsync(categoryId);
+            category!.Approved = approve;
+            await _context.SaveChangesAsync();
+        }
     }
 }

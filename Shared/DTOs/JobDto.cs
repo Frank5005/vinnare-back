@@ -20,14 +20,14 @@ namespace Shared.DTOs
         [JsonPropertyName("type")]
 
         public string JobType { get; set; } = "";
-        public int id { get; set; }
         public string Operation { get; set; } = "";
-        public int ElementId { get; set; }
-        public int AssociatedId { get; set; }
 
     }
     public class ViewJobResponse : BaseJob
     {
+        public int id { get; set; }
+        public int AssociatedId { get; set; }
+
 
     }
 }

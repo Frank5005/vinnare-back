@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Exceptions;
 
 namespace Services
 {
@@ -147,12 +148,11 @@ namespace Services
 
         public async Task<string> DeleteProductAsync(int id)
         {
-            string message = "Product deleted successfully";
             // Verify if the product exists
             var productExists = await _context.Products.AnyAsync(u => u.Id == id);
             if (!productExists)
             {
-                throw new Exception("The product doesn't exists.");
+                throw new NotFoundException("The product doesn't exists.");
             }
 
             var product = await _context.Products.FindAsync(id);
