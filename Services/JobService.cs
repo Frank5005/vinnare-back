@@ -27,6 +27,7 @@ namespace Services
                     id = p.Id,
                     JobType = p.Type.ToString(),
                     Operation = p.Operation.ToString(),
+                    AssociatedId = (int)(p.ProductId ?? p.CategoryId),
                 })
                 .ToListAsync();
         }
@@ -46,7 +47,9 @@ namespace Services
                 Type = job.Type,
                 Operation = job.Operation,
                 CreatorId = job.CreatorId,
-                Date = job.Date
+                Date = job.Date,
+                ProductId = job.ProductId,
+                CategoryId = job.CategoryId,
             };
         }
 
@@ -77,79 +80,20 @@ namespace Services
             };
         }
 
-        public async Task<JobDto?> UpdateJobAsync(int id, JobDto jobDto)
-        {
-            var job = await _context.Jobs.FindAsync(id);
-
-            if (job == null)
-            {
-                return null;
-            }
-
-            job.Type = jobDto.Type;
-            job.Operation = jobDto.Operation;
-            job.CreatorId = jobDto.CreatorId;
-            job.Date = jobDto.Date;
-
-            await _context.SaveChangesAsync();
-
-            return new JobDto
-            {
-                Id = job.Id,
-                Type = job.Type,
-                Operation = job.Operation,
-                CreatorId = job.CreatorId,
-                Date = job.Date
-            };
-        }
-
-        public async Task<JobDto?> DeleteJobAsync(int id)
-        {
-            var job = await _context.Jobs.FindAsync(id);
-
-            if (job == null)
-            {
-                return null;
-            }
-
-            _context.Jobs.Remove(job);
-            await _context.SaveChangesAsync();
-
-            return new JobDto
-            {
-                Id = job.Id,
-                Type = job.Type,
-                Operation = job.Operation,
-                CreatorId = job.CreatorId,
-                Date = job.Date
-            };
-        }
-
-        public async Task<bool> ReviewJobCategory(int categoryId, bool approve)
-        {
-
-            var category = await _context.Categories.FindAsync(categoryId);
-            category!.Approved = approve;
-            await _context.SaveChangesAsync();
-            return true;
-        }
-        public async Task<bool> ReviewJobProduct(int productId, bool approve)
-        {
-
-            var product = await _context.Products.FindAsync(productId);
-            product!.Approved = approve;
-            await _context.SaveChangesAsync();
-            return true;
-
-        }
 
         public async Task<bool> RemoveJob(int jobId)
         {
             var job = await _context.Jobs.FindAsync(jobId);
-            _context.Jobs.Remove(job!);
+
+            if (job == null)
+            {
+                return false;
+            }
+
+            _context.Jobs.Remove(job);
             await _context.SaveChangesAsync();
             return true;
-
         }
+
     }
 }

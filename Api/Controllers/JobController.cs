@@ -15,11 +15,17 @@ namespace Api.Controllers
     {
         private readonly IJobService _jobService;
         private readonly IUserService _userService;
+        private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
+        private readonly ILogger<JobController> _logger;
 
-        public JobController(IJobService jobService, IUserService userService)
+        public JobController(IJobService jobService, IUserService userService, IProductService productService, ICategoryService categoryService, ILogger<JobController> logger)
         {
             _jobService = jobService;
             _userService = userService;
+            _productService = productService;
+            _categoryService = categoryService;
+            _logger = logger;
         }
 
         // GET: api/jobs
@@ -41,6 +47,7 @@ namespace Api.Controllers
             {
                 throw new BadRequestException("Job details is empty");
             }
+            jobRequest.Validate();
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(tokenUsername))
@@ -76,6 +83,20 @@ namespace Api.Controllers
             }
             var createdJob = await _jobService.CreateJobAsync(jobDto);
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            bool isCreate;
+            if (jobRequest.GetOperationType() == OperationType.Create)
+            {
+                isCreate = true;
+            }
+            else if (jobRequest.GetOperationType() == OperationType.Delete)
+            {
+                isCreate = false;
+            }
+            else
+            {
+                throw new BadRequestException("How did we get here");
+            }
+
             if (!string.IsNullOrEmpty(tokenRole) && tokenRole.Equals("Admin", StringComparison.OrdinalIgnoreCase))
             {
 
@@ -83,8 +104,15 @@ namespace Api.Controllers
                 {
                     if (createdJob.ProductId != null)
                     {
-                        await _jobService.ReviewJobProduct((int)createdJob.ProductId, true);
-                        await _jobService.RemoveJob(createdJob.Id);
+                        if (isCreate)
+                        {
+                            await _productService.ApproveProduct((int)createdJob.ProductId, isCreate);
+                            await _jobService.RemoveJob(createdJob.Id);
+                        }
+                        else
+                        {
+                            await _productService.DeleteProductAsync((int)createdJob.ProductId);
+                        }
                     }
                     else
                     {
@@ -96,9 +124,15 @@ namespace Api.Controllers
                 {
                     if (createdJob.CategoryId != null)
                     {
-                        await _jobService.ReviewJobCategory((int)createdJob.CategoryId, true);
-                        await _jobService.RemoveJob(createdJob.Id);
-
+                        if (isCreate)
+                        {
+                            await _categoryService.ApproveCategory((int)createdJob.CategoryId, isCreate);
+                            await _jobService.RemoveJob(createdJob.Id);
+                        }
+                        else
+                        {
+                            await _categoryService.DeleteCategoryAsync((int)createdJob.CategoryId);
+                        }
                     }
                     else
                     {
@@ -119,72 +153,195 @@ namespace Api.Controllers
             return Created("", createJobResponse);
         }
 
-        // UPDATE: api/jobs/{id}
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateJob(int id, [FromBody] JobDto jobDto)
-        {
-            if (jobDto == null) return BadRequest("Job data is required.");
 
-            var updatedJob = await _jobService.UpdateJobAsync(id, jobDto);
-            if (updatedJob == null) return NotFound();
-            return Ok(updatedJob);
-        }
+        // [Authorize(Roles = "Admin")]
+        // [HttpPost("/api/reviewJob")]
+        // public async Task<IActionResult> ReviewJob([FromQuery] string type, [FromBody] ReviewJobRequest request)
+        // {
+        //     request.Validate();
+        //     if (string.IsNullOrEmpty(type))
+        //     {
+        //         throw new BadRequestException("Type is required.");
+        //     }
 
-        // DELETE: api/jobs/{id}
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteJob(int id)
-        {
-            var deletedJob = await _jobService.DeleteJobAsync(id);
-            if (deletedJob == null) return NotFound();
-            return Ok(deletedJob);
-        }
+
+        //     bool accepted;
+        //     if (request.Action.Equals(ActionType.Approve.ToString()))
+        //     {
+        //         accepted = true;
+        //     }
+        //     else if (request.Action.Equals(ActionType.Decline.ToString()))
+        //     {
+        //         accepted = false;
+        //     }
+        //     else
+        //     {
+        //         throw new BadRequestException("Incorrect action");
+        //     }
+
+        //     var job = await _jobService.GetJobByIdAsync(request.Id);
+        //     if (job == null)
+        //     {
+        //         throw new NotFoundException("Job not found");
+        //     };
+        //     bool isCreate;
+        //     if (job.Operation == OperationType.Create)
+        //     {
+        //         isCreate = true;
+        //     }
+        //     else if (job.Operation == OperationType.Delete)
+        //     {
+        //         isCreate = false;
+        //     }
+        //     else
+        //     {
+        //         throw new BadRequestException("How did we get here");
+        //     }
+        //     if (!type.Equals(job.Type.ToString()))
+        //     {
+        //         throw new BadRequestException("Type should match the job type.");
+        //     }
+        //     if (job.Type == JobType.Product && job.ProductId != null)
+        //     {
+
+        //         if (isCreate)
+        //         {
+        //             if (accepted)
+        //             {
+        //                 await _productService.ApproveProduct((int)job.ProductId, accepted);
+        //                 await _jobService.RemoveJob(job.Id);
+        //             }
+        //             else
+        //             {
+        //                 await _productService.DeleteProductAsync((int)job.ProductId);
+        //             }
+        //         }
+        //         else
+        //         {
+        //             if (!accepted)
+        //             {
+        //                 await _productService.ApproveProduct((int)job.ProductId, !accepted);
+        //                 await _jobService.RemoveJob(job.Id);
+        //             }
+        //             else
+        //             {
+        //                 await _productService.DeleteProductAsync((int)job.ProductId);
+        //             }
+        //         }
+
+        //     }
+        //     else if (job.Type == JobType.Category && job.CategoryId != null)
+        //     {
+        //         if (isCreate)
+        //         {
+        //             if (accepted)
+        //             {
+        //                 await _categoryService.ApproveCategory((int)job.CategoryId, accepted);
+        //                 await _jobService.RemoveJob(job.Id);
+        //             }
+        //             if (!accepted)
+        //             {
+        //                 //await _categoryService.DeleteCategoryAsync((int)job.CategoryId);
+        //                 //temporarly categories can't be deleted cause of fk constrains
+        //             }
+
+        //         }
+        //         else
+        //         {
+        //             if (!accepted)
+        //             {
+        //                 await _categoryService.ApproveCategory((int)job.CategoryId, !accepted);
+        //                 await _jobService.RemoveJob(job.Id);
+        //             }
+        //             if (accepted)
+        //             {
+        //                 //await _categoryService.DeleteCategoryAsync((int)job.CategoryId);
+        //             }
+        //         }
+        //     }
+
+
+        //     return Ok(new DefaultResponse { message = $"Success {request.Action}" });
+        // }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("/Api/reviewJob")]
+        [HttpPost("/api/reviewJob")]
         public async Task<IActionResult> ReviewJob([FromQuery] string type, [FromBody] ReviewJobRequest request)
         {
             request.Validate();
+
             if (string.IsNullOrEmpty(type))
             {
                 throw new BadRequestException("Type is required.");
             }
 
+            var actionType = request.GetActionType();
+            var accepted = actionType == ActionType.Approve;
 
-            bool accepted;
-            if (request.Action.Equals(ActionType.Approve.ToString()))
+            var job = await _jobService.GetJobByIdAsync(request.Id)
+                       ?? throw new NotFoundException("Job not found");
+
+            if (!type.Equals(job.Type.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                accepted = true;
+                throw new BadRequestException("Type should match the job type.");
             }
-            else if (request.Action.Equals(ActionType.Decline.ToString()))
+
+            var isCreate = job.Operation == OperationType.Create;
+
+            if (job.Type == JobType.Product && job.ProductId.HasValue)
             {
-                accepted = false;
+                await HandleProductJob(job, accepted, isCreate);
+            }
+            else if (job.Type == JobType.Category && job.CategoryId.HasValue)
+            {
+                await HandleCategoryJob(job, accepted, isCreate);
+            }
+
+            return Ok(new DefaultResponse { message = $"Success {request.Action}" });
+        }
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public async Task HandleProductJob(JobDto job, bool accepted, bool isCreate)
+        {
+            if (isCreate)
+            {
+                if (accepted)
+                {
+                    await _productService.ApproveProduct(job.ProductId.Value, true);
+                    await _jobService.RemoveJob(job.Id);
+                }
+                else
+                {
+                    await _productService.DeleteProductAsync(job.ProductId.Value);
+                }
             }
             else
             {
-                throw new BadRequestException("Incorrect action");
+                if (accepted)
+                {
+                    await _productService.DeleteProductAsync(job.ProductId.Value);
+                }
+                else
+                {
+                    await _productService.ApproveProduct(job.ProductId.Value, true);
+                    await _jobService.RemoveJob(job.Id);
+                }
             }
-
-            var job = await _jobService.GetJobByIdAsync(request.Id);
-            if (job == null)
-            {
-                throw new NotFoundException("Job not found");
-            };
-            if (type.Equals(JobType.Product.ToString(), StringComparison.OrdinalIgnoreCase) && job.ProductId != null)
-            {
-
-                await _jobService.ReviewJobProduct((int)job.ProductId, accepted);
-                await _jobService.RemoveJob(job.Id);
-
-            }
-            else if (type.Equals(JobType.Category.ToString(), StringComparison.OrdinalIgnoreCase) && job.CategoryId != null)
-            {
-                await _jobService.ReviewJobCategory((int)job.CategoryId, accepted);
-                await _jobService.RemoveJob(job.Id);
-
-            }
-
-
-            return Ok(new DefaultResponse());
         }
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public async Task HandleCategoryJob(JobDto job, bool accepted, bool isCreate)
+        {
+            if (isCreate && accepted)
+            {
+                await _categoryService.ApproveCategory(job.CategoryId.Value, true);
+                await _jobService.RemoveJob(job.Id);
+            }
+            else if (!isCreate && !accepted)
+            {
+                await _categoryService.ApproveCategory(job.CategoryId.Value, false);
+                await _jobService.RemoveJob(job.Id);
+            }
+        }
+
+
     }
 }

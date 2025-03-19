@@ -133,5 +133,14 @@ namespace Services
                 Available = product.Available
             };
         }
+
+        public async Task ApproveProduct(int productId, bool approve)
+        {
+
+            var product = await _context.Products.FindAsync(productId);
+            product!.Approved = approve;
+            await _context.SaveChangesAsync();
+
+        }
     }
 }

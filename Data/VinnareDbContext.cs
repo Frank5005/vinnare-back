@@ -66,6 +66,11 @@ namespace Data
                 .Property(c => c.Approved)
                 .HasDefaultValue(false);
 
+            //modelBuilder.Entity<Product>()
+            //    .HasOne<Category>()
+            //    .WithMany(c => c.Products)
+            //    .HasForeignKey(p => p.Category)
+            //    .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Review>(entity =>
             {
 

@@ -11,5 +11,7 @@ namespace Services.Interfaces
         Task<CategoryDto?> UpdateCategoryAsync(int id, CategoryDto categoryDto);
 
         Task<CategoryDto?> DeleteCategoryAsync(int id);
+        Task ApproveCategory(int categoryId, bool approve);
+
     }
 }

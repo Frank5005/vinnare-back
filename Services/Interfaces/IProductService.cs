@@ -1,5 +1,5 @@
-using Shared.DTOs;
 using Data.Entities;
+using Shared.DTOs;
 
 namespace Services.Interfaces
 {
@@ -13,5 +13,6 @@ namespace Services.Interfaces
         Task<ProductDto?> UpdateProductAsync(int id, ProductDto productDto);
 
         Task<ProductDto?> DeleteProductAsync(int id);
+        Task ApproveProduct(int productId, bool approve);
     }
 }

@@ -47,6 +47,10 @@ namespace Api.Controllers
         public async Task<IActionResult> CreateUser([FromBody] UserCreateRequest userRequest)
         {
             userRequest.Validate();
+            if (userRequest.GetRoleType() == RoleType.Admin)
+            {
+                throw new BadRequestException("sadly admins can't be created");
+            }
 
             var userDto = new UserDto
             {
@@ -54,7 +58,7 @@ namespace Api.Controllers
                 Email = userRequest.Email,
                 Username = userRequest.Username,
                 Password = userRequest.Password,
-                Role = userRequest.GetRoleType()
+                Role = userRequest.GetRoleType(),
             };
 
             var createdUser = await _userService.CreateUserAsync(userDto);

@@ -86,7 +86,7 @@ public class AuthController_test
             Email = "admin@example.com",
             Username = "adminUser",
             Password = "securepassword",
-            Role = "Admin"
+            Role = "Seller"
         };
 
         var createdUser = new UserDto
@@ -95,7 +95,7 @@ public class AuthController_test
             Email = request.Email,
             Username = request.Username,
             Password = request.Password,
-            Role = RoleType.Admin
+            Role = RoleType.Seller
         };
 
         _mockUserService.Setup(s => s.CreateUserAsync(It.IsAny<UserDto>())).ReturnsAsync(createdUser);
@@ -120,6 +120,21 @@ public class AuthController_test
             Username = "adminUser",
             Password = "securepassword",
             Role = "InvalidRole" // Invalid role
+        };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<BadRequestException>(() => _authController.CreateUser(request));
+    }
+    [Fact]
+    public async Task CreateUser_ShouldThrowBadRequestException_WhenRoleIsAdmin()
+    {
+        // Arrange
+        var request = new UserCreateRequest
+        {
+            Email = "admin@example.com",
+            Username = "adminUser",
+            Password = "securepassword",
+            Role = "Admin"
         };
 
         // Act & Assert
