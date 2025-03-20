@@ -12,7 +12,7 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Vinnare Documentation";
+        var mkdocs_page_name = "Vinnare eCommerce Project Documentation";
         var mkdocs_page_input_path = "index.md";
         var mkdocs_page_url = null;
       </script>
@@ -40,9 +40,13 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Vinnare Documentation</a>
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Vinnare eCommerce Project Documentation</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#product-overview">Product Overview</a>
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#project-structure">Project Structure</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#programcs-overview">Program.cs Overview</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#how-to-run-the-project">How to Run the Project</a>
         <ul>
@@ -62,10 +66,6 @@
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="how_to_run/">How to run</a>
-                </li>
-              </ul>
-              <ul>
                 <li class="toctree-l1"><a class="reference internal" href="technical_issues/">Technical issues</a>
                 </li>
               </ul>
@@ -73,12 +73,9 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="code/ci_cd/">CI/CD Pipelines</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="code/code/">Code</a>
+                  <li class="toctree-l1"><a class="reference internal" href="code/code/">Code Structure</a>
                   </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Diagrams</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="diagrams/diagrams/">Diagrams</a>
+                  <li class="toctree-l1"><a class="reference internal" href="code/db/">Database Structure</a>
                   </li>
               </ul>
       </div>
@@ -95,7 +92,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Vinnare Documentation</li>
+      <li class="breadcrumb-item active">Vinnare eCommerce Project Documentation</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -104,9 +101,39 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="vinnare-documentation">Vinnare Documentation</h1>
-<h2 id="product-overview">Product Overview</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vehicula, urna sed tincidunt vestibulum, velit quam feugiat nisi, et placerat lectus neque at sapien.</p>
+                <h1 id="vinnare-ecommerce-project-documentation">Vinnare eCommerce Project Documentation</h1>
+<h2 id="overview">Overview</h2>
+<p>Vinnare is an eCommerce API built using .NET, structured into multiple layers for maintainability and scalability. It follows a modular approach, separating concerns across different projects.</p>
+<h2 id="project-structure">Project Structure</h2>
+<ul>
+<li><strong>Api/</strong>: Contains the API layer with controllers, DTOs, middleware, and extensions.</li>
+<li><strong>Data/</strong>: Manages the database context, entities, and migrations.</li>
+<li><strong>Services/</strong>: Implements business logic with service classes and interfaces.</li>
+<li><strong>Shared/</strong>: Contains shared configurations, DTOs, enums, and exceptions.</li>
+<li><strong>ConsoleAppMigration/</strong>: A console application for managing database migrations.</li>
+<li><strong>docs/</strong>: Documentation files for the project using MkDocs.</li>
+<li><strong>.github/</strong>: CI/CD workflows for automated builds and deployments.</li>
+<li><strong>logs/</strong>: Contains application logs.</li>
+</ul>
+<h2 id="programcs-overview">Program.cs Overview</h2>
+<p>The <code>Program.cs</code> file serves as the entry point of the API, configuring essential components:</p>
+<ul>
+<li><strong>Service Registration</strong></li>
+<li>Controllers</li>
+<li>Swagger for API documentation</li>
+<li>Security settings (JWT, authentication, authorization)</li>
+<li>Database configuration using Entity Framework Core</li>
+<li>
+<p>Logging configuration</p>
+</li>
+<li>
+<p><strong>Middleware Configuration</strong></p>
+</li>
+<li>Custom middleware for authentication and error handling</li>
+<li>HTTPS redirection</li>
+<li>Authentication &amp; Authorization enforcement</li>
+<li>API routing</li>
+</ul>
 <h2 id="how-to-run-the-project">How to Run the Project</h2>
 <p>To run the project, ensure you are in the <strong>root folder</strong>.</p>
 <h3 id="using-docker">Using Docker:</h3>
@@ -118,16 +145,13 @@ dotnet build
 dotnet Api/bin/Debug/net8.0/Api.dll
 </code></pre>
 <h2 id="documentation-structure">Documentation Structure</h2>
-<p>This documentation is organized into multiple sections:</p>
-<ul>
-<li><a href="how_to_run/">How to Run the Project</a></li>
-<li><a href="code/ci_cd/">CI/CD Pipelines</a></li>
-<li><a href="diagrams/diagrams/">Diagrams</a></li>
-<li><a href="technical_issues/">Technical Issues</a></li>
-<li><a href="code/code/">Code</a></li>
-<li><a href="features/">Features</a></li>
-</ul>
-<p>Refer to the respective pages for detailed information.</p>
+<p>The documentation is managed using MkDocs, with sections covering:
+- <strong>Features</strong> (<code>features.md</code>)
+- <strong>Setup and Execution</strong> (<code>how_to_run.md</code>)
+- <strong>Code Structure</strong> (<code>code.md</code>)
+- <strong>CI/CD Processes</strong> (<code>ci_cd.md</code>)
+- <strong>Technical Issues and Troubleshooting</strong> (<code>technical_issues.md</code>)
+- <strong>Architecture Diagrams</strong> (<code>diagrams.md</code>)</p>
               
             </div>
           </div><footer>
@@ -180,5 +204,5 @@ dotnet Api/bin/Debug/net8.0/Api.dll
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-03-10 15:55:40.376100+00:00
+Build Date UTC : 2025-03-19 23:37:28.807297+00:00
 -->
