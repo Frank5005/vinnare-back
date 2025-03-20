@@ -59,9 +59,9 @@ namespace Services
             };
         }
 
-        public async Task<Category> CreateCategoryByEmployeeAsync(CategoryRequest categoryDto, string userToken)
+        public async Task<Category> CreateCategoryByEmployeeAsync(CategoryRequest categoryDto)
         {
-            Guid userId = await _userService.GetUserIdFromToken(userToken);
+            Guid userId = (Guid) await _userService.GetIdByUsername(categoryDto.Username);
 
             if (userId == Guid.Empty)
             {
@@ -76,6 +76,9 @@ namespace Services
             };
 
             _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+
+
             await _jobService.CreateJobAsync(new JobDto
             {
                 Type = JobType.Category,
@@ -83,7 +86,8 @@ namespace Services
                 CreatorId = userId,
                 CategoryId = category.Id
             });
-            await _context.SaveChangesAsync();
+
+            //await _context.SaveChangesAsync();
 
             return category;
         }
@@ -149,7 +153,7 @@ namespace Services
             return message;
         }
 
-        public async Task<string> DeleteCategoryByEmployeeAsync(int id, string userToken)
+        public async Task<string> DeleteCategoryByEmployeeAsync(int id, string username)
         {
             string message = "You can't delete a category.";
             //Verify if the category exists
@@ -165,12 +169,14 @@ namespace Services
                 throw new Exception("You can't delete the category because it has products associated.");
             }
 
-            Guid userId = await _userService.GetUserIdFromToken(userToken);
+            Guid userId = (Guid)await _userService.GetIdByUsername(username);
 
             if (userId == Guid.Empty)
             {
                 throw new NotFoundException("User not found.");
             }
+
+            await _context.SaveChangesAsync();
 
             await _jobService.CreateJobAsync(new JobDto
             {
@@ -181,7 +187,7 @@ namespace Services
             });
 
             //_context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return message;
         }
 

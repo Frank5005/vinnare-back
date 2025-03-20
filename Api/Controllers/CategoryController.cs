@@ -46,7 +46,7 @@ namespace Api.Controllers
         // POST: api/category
         [Authorize(Roles = "Admin, Seller")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromBody] CategoryRequest categoryDto, [FromHeader] string userToken)
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryRequest categoryDto)
         {
             if (categoryDto == null) throw new BadRequestException("Category data is required.");
 
@@ -58,7 +58,7 @@ namespace Api.Controllers
             }
             else
             {
-                var createdCategory = await _categoryService.CreateCategoryByEmployeeAsync(categoryDto, userToken);
+                var createdCategory = await _categoryService.CreateCategoryByEmployeeAsync(categoryDto);
                 //createdCategory.Approved = false;
                 return Ok(new CategoryResponse { Id = createdCategory.Id, Message = "Waiting to approve" });
             }
@@ -79,7 +79,7 @@ namespace Api.Controllers
 
         // DELETE: api/category/{id}
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteCategory(int id, [FromHeader] string userToken)
+        public async Task<IActionResult> DeleteCategory(int id, [FromHeader] string username)
         {
             var deletedCategory = "";
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -88,7 +88,7 @@ namespace Api.Controllers
                 deletedCategory = await _categoryService.DeleteCategoryAsync(id);
                 return Ok(new CategoryDelete { Message = deletedCategory });
             }
-            deletedCategory = await _categoryService.DeleteCategoryByEmployeeAsync(id, userToken);
+            deletedCategory = await _categoryService.DeleteCategoryByEmployeeAsync(id, username);
             return Ok(new ProductDelete { message = deletedCategory});
         }
     }

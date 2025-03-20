@@ -49,7 +49,7 @@ namespace Api.Controllers
         // POST: api/product/create
         [Authorize(Roles = "Admin, Seller")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductRequest productDto, [FromHeader] string userToken)
+        public async Task<IActionResult> CreateProduct([FromBody] ProductRequest productDto)
         {
             if (productDto == null) throw new BadRequestException("Product data is required.");
 
@@ -61,7 +61,7 @@ namespace Api.Controllers
             }
             else
             {
-                var createdProduct = await _productService.CreateProductByEmployeeAsync(productDto, userToken);
+                var createdProduct = await _productService.CreateProductByEmployeeAsync(productDto);
                 return Ok(new ProductResponse { Id = createdProduct.Id, message = "Waiting to approve" });
             }
         }
@@ -81,7 +81,7 @@ namespace Api.Controllers
         // DELETE: api/product/{id}
         [Authorize(Roles = "Admin, Seller")]
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteProduct(int id, [FromHeader] string userToken)
+        public async Task<IActionResult> DeleteProduct(int id, [FromHeader] string username)
         {
             var deletedProduct = "";
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -90,7 +90,7 @@ namespace Api.Controllers
                 deletedProduct = await _productService.DeleteProductAsync(id);
                 return Ok(new ProductDelete { message = deletedProduct });
             }
-            deletedProduct = await _productService.DeleteProductByEmployeeAsync(id, userToken);
+            deletedProduct = await _productService.DeleteProductByEmployeeAsync(id, username);
             return Ok(new ProductDelete { message = deletedProduct});
         }
     }

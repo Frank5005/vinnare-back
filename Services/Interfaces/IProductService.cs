@@ -9,12 +9,12 @@ namespace Services.Interfaces
         Task<IEnumerable<ProductView>> GetAvailableProductsAsync();
         Task<ProductDto?> GetProductByIdAsync(int id);
         Task<Product> CreateProductAsync(ProductRequest productDto);
-        Task<Product> CreateProductByEmployeeAsync(ProductRequest productDto, string userToken);
+        Task<Product> CreateProductByEmployeeAsync(ProductRequest productDto);
 
         Task<Product> UpdateProductAsync(int id, ProductUpdate productDto);
 
         Task<string> DeleteProductAsync(int id);
-        Task<string> DeleteProductByEmployeeAsync(int id, string userToken);
+        Task<string> DeleteProductByEmployeeAsync(int id, string username);
         Task ApproveProduct(int productId, bool approve);
     }
 }
