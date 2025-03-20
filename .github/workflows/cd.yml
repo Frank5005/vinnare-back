@@ -33,6 +33,10 @@ jobs:
           key: ${{ secrets.ec2_ssh_key }}
           script: |
             echo "Pulling latest image..."
+            if [[ -z "${{ inputs.image_tag }}" ]]; then
+              echo "❌ ERROR: image_tag is empty! Exiting..."
+              exit 1
+            fi
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
             docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ inputs.image_tag }}
             echo "Pulled successfully"
