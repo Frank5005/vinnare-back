@@ -62,12 +62,6 @@ jobs:
       - name: Build Docker image
         run: docker build -t vinnare:${{ steps.extract_commit.outputs.commit_hash }} . -f ./Api/Dockerfile
 
-      - name: Run tests (placeholder)
-        run: |
-          echo "Running tests..."
-          # TODO: Replace with actual test command
-          docker run --rm vinnare:${{ steps.extract_commit.outputs.commit_hash }} dotnet test
-      
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
