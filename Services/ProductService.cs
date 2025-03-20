@@ -192,7 +192,7 @@ namespace Services
             product.OwnerId = productDto.OwnerId ?? product.OwnerId;
             product.Title = productDto.Title ?? product.Title;
             product.Price = productDto.Price ?? product.Price;
-            product.Approved = productDto.Approved ?? product.Approved;
+            //product.Approved = productDto.Approved ?? product.Approved;
             product.Description = productDto.Description ?? product.Description;
             product.Image = productDto.Image ?? product.Image;
             product.Quantity = productDto.Quantity ?? product.Quantity;
