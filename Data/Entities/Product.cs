@@ -22,8 +22,11 @@ namespace Data.Entities
 
         public string? Description { get; set; }
 
+         //[Required]
+        //public int CategoryId { get; set; } = 1;
+
         [Required]
-        public string Category { get; set; } = string.Empty;
+        public string Category{ get; set; } = string.Empty;
 
         public string? Image { get; set; }
 
@@ -33,9 +36,15 @@ namespace Data.Entities
 
         public int Available { get; set; } = 0;
 
+        [Required]
+        public int CategoryId { get; set; }
+
         // Navigation Property
         [ForeignKey("OwnerId")]
         public User Owner { get; set; }
+
+        [ForeignKey("CategoryId")]
+        public Category CategoryType { get; set; }
         public ICollection<Review> Reviews { get; set; } //= new List<Review>();
         public ICollection<WishList> WishLists { get; set; } //= new List<WishList>();
         public ICollection<Cart> Carts { get; set; } //= new List<Cart>();

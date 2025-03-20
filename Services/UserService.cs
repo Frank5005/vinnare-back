@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Data;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -76,6 +78,20 @@ namespace Services
             var id = await userQuery.FirstOrDefaultAsync();
 
             return id == Guid.Empty ? null : id;
+        }
+        public async Task<Guid> GetUserIdFromToken(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+
+            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
+            {
+                throw new Exception("User ID not found or invalid in token");
+            }
+
+            return userId;
         }
 
         public async Task<UserDto> CreateUserAsync(UserDto userDto)

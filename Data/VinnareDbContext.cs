@@ -57,7 +57,15 @@ namespace Data
                 .UseIdentityColumn();
 
             modelBuilder.Entity<Product>()
+                //.HasOne(p => p.Owner)
+                .HasOne(p => p.CategoryType)
+                .WithMany(u => u.Products)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<Product>()
                 .HasOne(p => p.Owner)
+                //.HasOne(p => p.CategoryType)
                 .WithMany(u => u.Products)
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);

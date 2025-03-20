@@ -148,7 +148,7 @@ namespace Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("CategoryId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
@@ -342,15 +342,19 @@ namespace Data.Migrations
 
             modelBuilder.Entity("Data.Entities.Product", b =>
                 {
-                    b.HasOne("Data.Entities.Category", null)
+                    b.HasOne("Data.Entities.Category", "CategoryType")
                         .WithMany("Products")
-                        .HasForeignKey("CategoryId");
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Data.Entities.User", "Owner")
                         .WithMany("Products")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CategoryType");
 
                     b.Navigation("Owner");
                 });

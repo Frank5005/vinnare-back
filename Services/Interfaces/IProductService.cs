@@ -8,11 +8,13 @@ namespace Services.Interfaces
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
         Task<IEnumerable<ProductView>> GetAvailableProductsAsync();
         Task<ProductDto?> GetProductByIdAsync(int id);
-        Task<Product> CreateProductAsync(ProductRequest productDto, string? tokenRole);
+        Task<Product> CreateProductAsync(ProductRequest productDto);
+        Task<Product> CreateProductByEmployeeAsync(ProductRequest productDto, string userToken);
 
         Task<Product> UpdateProductAsync(int id, ProductUpdate productDto);
 
-        Task<bool> DeleteProductAsync(int id);
+        Task<string> DeleteProductAsync(int id);
+        Task<string> DeleteProductByEmployeeAsync(int id, string userToken);
         Task ApproveProduct(int productId, bool approve);
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Enums;
 using Shared.Exceptions;
 
 namespace Services
@@ -12,15 +13,32 @@ namespace Services
     {
         private readonly VinnareDbContext _context;
         private readonly ILogger<ProductService> _logger;
+        private readonly IJobService _jobService;
+        private readonly IUserService _userService;
+        private VinnareDbContext dbContext;
+        private ILogger<ProductService> @object;
 
-        public ProductService(VinnareDbContext context, ILogger<ProductService> logger)
+        public ProductService(VinnareDbContext context, ILogger<ProductService> logger, IJobService jobService, IUserService userService)
         {
             _context = context;
             _logger = logger;
+            _jobService = jobService;
+            _userService = userService;
+        }
+
+        public ProductService(VinnareDbContext dbContext, ILogger<ProductService> @object)
+        {
+            this.dbContext = dbContext;
+            this.@object = @object;
         }
 
         public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
         {
+
+            /*/var products = await _context.Products
+            .Include(p => p.Category)
+            .ToListAsync();*/
+
             _logger.LogInformation("TESING");
             return await _context.Products
                 .Select(p => new ProductDto
@@ -69,7 +87,7 @@ namespace Services
             };
         }
 
-        public async Task<Product> CreateProductAsync(ProductRequest productDto, string? tokenRole)
+        public async Task<Product> CreateProductAsync(ProductRequest productDto)
         {
 
             // Verify if the user exists
@@ -79,13 +97,21 @@ namespace Services
                 throw new Exception("The owner doesn't exists.");
             }
 
+            //Verify if the category exists
+            var categoryExists = await _context.Categories.FirstOrDefaultAsync(c => c.Name == productDto.Category);
+            if(categoryExists == null)
+            {
+                throw new Exception("The category doesn't exists.");
+            }
+
             var product = new Product
             {
                 OwnerId = productDto.OwnerId,
                 Title = productDto.Title,
                 Price = productDto.Price,
                 Category = productDto.Category,
-                Approved = tokenRole == "Admin",
+                CategoryId = categoryExists.Id,
+                Approved = true,
                 Description = productDto.Description,
                 Image = productDto.Image,
                 Quantity = productDto.Quantity,
@@ -98,32 +124,94 @@ namespace Services
             return product;
         }
 
+        public async Task<Product> CreateProductByEmployeeAsync(ProductRequest productDto, string userToken)
+        {
+
+            // Verify if the user exists
+            var userExists = await _context.Users.AnyAsync(u => u.Id == productDto.OwnerId);
+            if (!userExists)
+            {
+                throw new Exception("The owner doesn't exists.");
+            }
+
+            //Verify if the category exists
+            var categoryExists = await _context.Categories.FirstOrDefaultAsync(c => c.Name == productDto.Category);
+            if(categoryExists == null)
+            {
+                throw new Exception("The category doesn't exists.");
+            }
+
+            Guid userId = await _userService.GetUserIdFromToken(userToken);
+
+            if (userId == Guid.Empty)
+            {
+                throw new NotFoundException("User not found.");
+                //Console.WriteLine($"User ID: {userId}");
+            }
+
+            var product = new Product
+            {
+                OwnerId = productDto.OwnerId,
+                Title = productDto.Title,
+                Price = productDto.Price,
+                Category = productDto.Category,
+                CategoryId = categoryExists.Id,
+                Approved = false,
+                Description = productDto.Description,
+                Image = productDto.Image,
+                Quantity = productDto.Quantity,
+                Available = productDto.Available
+            };
+
+            _context.Products.Add(product);
+            await _jobService.CreateJobAsync(new JobDto
+            {
+                Type = JobType.Product,
+                Operation = OperationType.Create,
+                CreatorId = userId,
+                ProductId = product.Id
+            });
+            await _context.SaveChangesAsync();
+
+            return product;
+        }
+
         public async Task<Product> UpdateProductAsync(int id, ProductUpdate productDto)
         {
 
+            //Verify if the category exists
+            var categoryExists = await _context.Categories.FirstOrDefaultAsync(c => c.Name == productDto.Category);
+            if(categoryExists == null)
+            {
+                throw new Exception("The category doesn't exists.");
+            }
+
+            //Verify if the product exists
             var product = await _context.Products.FindAsync(id);
             if (product == null)
             {
-                throw new Exception("Producto no encontrado.");
+                throw new Exception("The product doesn't exists.");
             }
 
             product.OwnerId = productDto.OwnerId ?? product.OwnerId;
             product.Title = productDto.Title ?? product.Title;
             product.Price = productDto.Price ?? product.Price;
-            product.Category = productDto.Category ?? product.Category;
             product.Approved = productDto.Approved ?? product.Approved;
             product.Description = productDto.Description ?? product.Description;
             product.Image = productDto.Image ?? product.Image;
             product.Quantity = productDto.Quantity ?? product.Quantity;
             product.Available = productDto.Available ?? product.Available;
+            product.Category = productDto.Category ?? product.Category;
+            product.CategoryId = categoryExists.Id;
 
             await _context.SaveChangesAsync();
 
             return product;
         }
 
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<string> DeleteProductAsync(int id)
         {
+            string message = "Product deleted successfully";
             // Verify if the product exists
             var productExists = await _context.Products.AnyAsync(u => u.Id == id);
             if (!productExists)
@@ -132,19 +220,45 @@ namespace Services
             }
 
             var product = await _context.Products.FindAsync(id);
-            if (product == null) return false;
-
-            //if (tokenRole == "Admin")
-            //{
+            if (product == null) return "null";
+            
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
-            //}
-            //else
-            //{
-            //    message = "You don't have permission to delete this product.";
-            //    throw new Exception("You don't have permission to delete this product.");
-            //}
-            return true;
+            return message;
+        }
+
+        public async Task<string> DeleteProductByEmployeeAsync(int id, string userToken)
+        {
+            string message = "You can't delete a product";
+            // Verify if the product exists
+            var productExists = await _context.Products.AnyAsync(u => u.Id == id);
+            if (!productExists)
+            {
+                throw new NotFoundException("The product doesn't exists.");
+            }
+
+            Guid userId = await _userService.GetUserIdFromToken(userToken);
+
+            if (userId == Guid.Empty)
+            {
+                throw new NotFoundException("User not found.");
+                //Console.WriteLine($"User ID: {userId}");
+            }
+
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return "null";
+            
+            await _jobService.CreateJobAsync(new JobDto
+            {
+                Type = JobType.Product,
+                Operation = OperationType.Delete,
+                CreatorId = userId,
+                ProductId = product.Id
+            });
+
+            //_context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+            return message;
         }
 
         public async Task ApproveProduct(int productId, bool approve)
