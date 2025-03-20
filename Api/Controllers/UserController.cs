@@ -1,7 +1,10 @@
+using System.Security.Claims;
+using Api.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Exceptions;
 namespace Api.Controllers
 {
     [Route("api/user")]
@@ -16,6 +19,7 @@ namespace Api.Controllers
         }
 
         // GET: api/users
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -23,44 +27,126 @@ namespace Api.Controllers
             return Ok(users);
         }
 
-        // GET: api/user/{id}
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetUserById(Guid id)
-        {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null) return NotFound();
-            return Ok(user);
-        }
+        //// GET: api/user/{id}
+        //[HttpGet("{id:guid}")]
+        //public async Task<IActionResult> GetUserById(Guid id)
+        //{
+        //    var user = await _userService.GetUserByIdAsync(id);
+        //    if (user == null) return NotFound();
+        //    return Ok(user);
+        //}
 
-        // POST: api/users/create
+        // UPDATE: api/user
         [Authorize(Roles = "Admin")]
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateUser([FromBody] UserDto userDto)
+        [HttpPut]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest UpdateRequest)
         {
-            if (userDto == null) return BadRequest("User data is required.");
+            if (UpdateRequest == null || string.IsNullOrWhiteSpace(UpdateRequest.Username))
+                return BadRequest("User data is required.");
 
-            var createdUser = await _userService.CreateUserAsync(userDto);
-            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
-        }
+            if (UpdateRequest.Email != null || !string.IsNullOrWhiteSpace(UpdateRequest.Username))
+            {
+                UpdateRequest.Validate();
+            }
+            var Id = await _userService.GetIdByUsername(UpdateRequest.Username) ?? throw new NotFoundException("user does not exists");
+            var userDto = new UserDto
+            {
+                Id = Id,
+                Username = UpdateRequest.Username,
+                Email = UpdateRequest.Email,
+                Password = UpdateRequest.Password,
+                Name = UpdateRequest.Name,
 
-        // UPDATE: api/user/{id}
-        [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserDto userDto)
-        {
-            if (userDto == null) return BadRequest("User data is required.");
-
-            var updatedUser = await _userService.UpdateUserAsync(id, userDto);
+            };
+            var updatedUser = await _userService.UpdateUserAsync(Id, userDto);
             if (updatedUser == null) return NotFound();
-            return Ok(updatedUser);
+            return Ok(new DefaultResponse
+            {
+                message = $"User {UpdateRequest.Username} has been updated successfully"
+            });
+
         }
 
-        // DELETE: api/user/{id}
-        [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        // DELETE: api/user
+        [Authorize(Roles = "Admin")]
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteUsers([FromBody] DeleteUserRequest deleteRequest)
         {
-            var deletedUser = await _userService.DeleteUserAsync(id);
-            if (deletedUser == null) return NotFound();
-            return Ok(deletedUser);
+            if (deleteRequest == null || deleteRequest.Users == null || !deleteRequest.Users.Any())
+                return BadRequest("At least one username must be provided.");
+
+            var deletedUsers = await _userService.DeleteUsersAsync(deleteRequest.Users);
+
+            if (!deletedUsers.Any())
+                return NotFound("No matching users found to delete.");
+
+            return NoContent();
+        }
+
+        // UPDATE: api/user/shopper
+        [Authorize]
+        [HttpPut("shopper")]
+        public async Task<IActionResult> UpdateShopper([FromBody] UpdateShoppperRequest updateRequest)
+        {
+
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(tokenUsername))
+            {
+                throw new UnauthorizedException("Token does not contain a username.");
+            }
+
+            if (updateRequest == null)// || string.IsNullOrWhiteSpace(updateRequest.Username))
+                throw new BadRequestException("User data is required.");
+
+            //if (!tokenUsername.Equals(updateRequest.Username, StringComparison.OrdinalIgnoreCase))
+            //{
+            //    throw new ForbiddenException("You are not authorized to update this user.");
+            //}
+
+            if (updateRequest.Email != null || !string.IsNullOrWhiteSpace(tokenUsername))
+            {
+                updateRequest.Validate();
+            }
+
+            var Id = await _userService.GetIdByUsername(tokenUsername) ?? throw new NotFoundException("user does not exists");
+            var userDto = new UserDto
+            {
+                Id = Id,
+                Username = tokenUsername,
+                Email = updateRequest.Email,
+                Password = updateRequest.Password,
+                Name = updateRequest.Name,
+
+            };
+            var updatedUser = await _userService.UpdateUserAsync(Id, userDto);
+            if (updatedUser == null) return NotFound();
+            return Ok(new DefaultResponse
+            {
+                message = $"User {tokenUsername} has been updated successfully"
+            });
+
+        }
+
+        // DELETE: api/user/shopper
+        [Authorize]
+        [HttpDelete("shopper")]
+        public async Task<IActionResult> DeleteShopper()
+        {
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(tokenUsername))
+            {
+                throw new UnauthorizedException("Token does not contain a username.");
+            }
+
+            var deletedUsers = await _userService.DeleteUsersAsync([tokenUsername]);
+
+            if (!deletedUsers.Any())
+                throw new NotFoundException("How did we get here? you are a user but not really");
+
+            return NoContent();
         }
     }
 }

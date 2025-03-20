@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{2B4BBBF9-2023-4F6A-90A8-6A39C30A4F82}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppMigration", "ConsoleAppMigration\ConsoleAppMigration.csproj", "{EE8D27E1-6057-4FB0-9AA7-3BF997799152}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,8 +38,15 @@ Global
 		{2B4BBBF9-2023-4F6A-90A8-6A39C30A4F82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B4BBBF9-2023-4F6A-90A8-6A39C30A4F82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B4BBBF9-2023-4F6A-90A8-6A39C30A4F82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE8D27E1-6057-4FB0-9AA7-3BF997799152}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE8D27E1-6057-4FB0-9AA7-3BF997799152}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE8D27E1-6057-4FB0-9AA7-3BF997799152}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE8D27E1-6057-4FB0-9AA7-3BF997799152}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D94671CC-B495-4B9E-9C7D-6A207E50399C}
 	EndGlobalSection
 EndGlobal

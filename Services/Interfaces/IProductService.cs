@@ -1,3 +1,4 @@
+using Data.Entities;
 using Shared.DTOs;
 
 namespace Services.Interfaces
@@ -5,12 +6,15 @@ namespace Services.Interfaces
     public interface IProductService
     {
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
-        Task<IEnumerable<ProductDto>> GetAvailableProductsAsync();
+        Task<IEnumerable<ProductView>> GetAvailableProductsAsync();
         Task<ProductDto?> GetProductByIdAsync(int id);
-        Task<ProductDto> CreateProductAsync(ProductDto productDto);
+        Task<Product> CreateProductAsync(ProductRequest productDto);
+        Task<Product> CreateProductByEmployeeAsync(ProductRequest productDto);
 
-        Task<ProductDto?> UpdateProductAsync(int id, ProductDto productDto);
+        Task<Product> UpdateProductAsync(int id, ProductUpdate productDto);
 
-        Task<ProductDto?> DeleteProductAsync(int id);
+        Task<string> DeleteProductAsync(int id);
+        Task<string> DeleteProductByEmployeeAsync(int id, string username);
+        Task ApproveProduct(int productId, bool approve);
     }
 }

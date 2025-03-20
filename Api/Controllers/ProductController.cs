@@ -1,6 +1,11 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Exceptions;
 
 namespace Api.Controllers
 {
@@ -16,7 +21,8 @@ namespace Api.Controllers
         }
 
         // GET: api/product
-        [HttpGet]
+        [Authorize(Roles = "Admin, Seller")]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllProducts()
         {
             var products = await _productService.GetAllProductsAsync();
@@ -40,34 +46,52 @@ namespace Api.Controllers
             return Ok(product);
         }
 
-        // POST: api/product
-        [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductDto productDto)
+        // POST: api/product/create
+        [Authorize(Roles = "Admin, Seller")]
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateProduct([FromBody] ProductRequest productDto)
         {
-            if (productDto == null) return BadRequest("Product data is required.");
+            if (productDto == null) throw new BadRequestException("Product data is required.");
 
-            var createdProduct = await _productService.CreateProductAsync(productDto);
-            return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
+            var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            if(tokenRole == "Admin")
+            {
+                var createdProduct = await _productService.CreateProductAsync(productDto);
+                return Ok(new ProductResponse { Id = createdProduct.Id, message = "Product created successfully" });
+            }
+            else
+            {
+                var createdProduct = await _productService.CreateProductByEmployeeAsync(productDto);
+                return Ok(new ProductResponse { Id = createdProduct.Id, message = "Waiting to approve" });
+            }
         }
 
         // UPDATE: api/product/{id}
+        [Authorize(Roles = "Admin, Seller")]
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductDto productDto)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductUpdate productDto)
         {
-            if (productDto == null) return BadRequest("Product data is required.");
+            if (productDto == null) throw new BadRequestException("Product data is required.");
 
             var updatedProduct = await _productService.UpdateProductAsync(id, productDto);
-            if (updatedProduct == null) return NotFound();
-            return Ok(updatedProduct);
+            if (updatedProduct == null) throw new NotFoundException("Product not found.");
+            return Ok(new ProductResponse { Id = updatedProduct.Id, message = "Product updated successfully" });
         }
 
         // DELETE: api/product/{id}
+        [Authorize(Roles = "Admin, Seller")]
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id, [FromHeader] string username)
         {
-            var deletedProduct = await _productService.DeleteProductAsync(id);
-            if (deletedProduct == null) return NotFound();
-            return Ok(deletedProduct);
+            var deletedProduct = "";
+            var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (tokenRole == "Admin")
+            {
+                deletedProduct = await _productService.DeleteProductAsync(id);
+                return Ok(new ProductDelete { message = deletedProduct });
+            }
+            deletedProduct = await _productService.DeleteProductByEmployeeAsync(id, username);
+            return Ok(new ProductDelete { message = deletedProduct});
         }
     }
 }

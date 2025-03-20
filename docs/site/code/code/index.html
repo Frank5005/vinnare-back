@@ -5,14 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Code - Vinnare</title>
+    <title>Code Structure - Vinnare</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Code";
+        var mkdocs_page_name = "Code Structure";
         var mkdocs_page_input_path = "code/code.md";
         var mkdocs_page_url = null;
       </script>
@@ -40,15 +40,11 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../..">Vinnare Documentation</a>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Vinnare eCommerce Project Documentation</a>
                 </li>
               </ul>
               <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../../features/">Features</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../../how_to_run/">How to run</a>
                 </li>
               </ul>
               <ul>
@@ -59,12 +55,19 @@
               <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../ci_cd/">CI/CD Pipelines</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Code</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Code Structure</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#layer-responsibilities">Layer Responsibilities</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#inter-layer-communication">Inter-layer Communication</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#code-organization-and-conventions">Code Organization and Conventions</a>
+    </li>
+    </ul>
                   </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Diagrams</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../diagrams/diagrams/">Diagrams</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../db/">Database Structure</a>
                   </li>
               </ul>
       </div>
@@ -82,7 +85,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Code</li>
-      <li class="breadcrumb-item active">Code</li>
+      <li class="breadcrumb-item active">Code Structure</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -91,13 +94,59 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                
+                <h1 id="code-structure">Code Structure</h1>
+<h2 id="overview">Overview</h2>
+<p>Vinnare follows an N-Tier architecture, dividing the code into multiple layers to ensure separation of concerns, maintainability, and scalability. The system architecture is illustrated in the diagram below:</p>
+<p><img alt="Layered Architecture" src="../../diagrams/layeredView.png" /></p>
+<h2 id="layer-responsibilities">Layer Responsibilities</h2>
+<ul>
+<li><strong>Api Layer</strong></li>
+<li>Acts as the entry point for requests.</li>
+<li>Contains controllers to handle API endpoints.</li>
+<li>Manages middleware and dependency injection setup.</li>
+<li>
+<p>Implements business logic within controllers before delegating to services.</p>
+</li>
+<li>
+<p><strong>Services Layer</strong></p>
+</li>
+<li>Implements core business logic.</li>
+<li>Services interact with the database via <code>VinnareDbContext</code>.</li>
+<li>
+<p>Controllers call services through dependency injection.</p>
+</li>
+<li>
+<p><strong>Data Layer</strong></p>
+</li>
+<li>Manages database access using Entity Framework Core.</li>
+<li>
+<p>Defines entities and database migrations.</p>
+</li>
+<li>
+<p><strong>Shared Layer</strong></p>
+</li>
+<li>Contains globally used components such as DTOs, enums, configurations, and exceptions.</li>
+</ul>
+<h2 id="inter-layer-communication">Inter-layer Communication</h2>
+<ul>
+<li>All communication between layers happens through <strong>system calls and dependency injection</strong>.</li>
+<li>Controllers can call multiple services as needed to process a request.</li>
+<li>The API layer does not interact directly with the database—only services access <code>VinnareDbContext</code>.</li>
+</ul>
+<h2 id="code-organization-and-conventions">Code Organization and Conventions</h2>
+<ul>
+<li><strong>Naming Conventions</strong></li>
+<li><strong>Controllers:</strong> Named with <code>Controller</code> suffix (e.g., <code>UserController.cs</code>).</li>
+<li><strong>Services:</strong> Named with <code>Service</code> suffix (e.g., <code>UserService.cs</code>).</li>
+<li><strong>Tests:</strong> Follow the format <code>{ClassName}_test.cs</code> (e.g., <code>UserService_test.cs</code>).</li>
+</ul>
+<p>This structured approach ensures clarity, consistency, and ease of maintenance across the project.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../ci_cd/" class="btn btn-neutral float-left" title="CI/CD Pipelines"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../../diagrams/diagrams/" class="btn btn-neutral float-right" title="Diagrams">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../db/" class="btn btn-neutral float-right" title="Database Structure">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -127,7 +176,7 @@
       <span><a href="../ci_cd/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../../diagrams/diagrams/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../db/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

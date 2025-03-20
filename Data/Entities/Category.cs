@@ -13,7 +13,10 @@ namespace Data.Entities
         [Required]
         public string Name { get; set; }
 
+        public bool Approved { get; set; }
+
         //Navigation Property
-        public ICollection<Product> Products { get; set; } //= new List<Product>();
+        public ICollection<Product> Products { get; set; } = new List<Product>();
+        public ICollection<Job>? Jobs { get; set; } //= new List<Job>();
     }
 }

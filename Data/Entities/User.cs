@@ -16,6 +16,7 @@ namespace Data.Entities
 
         [Required]
         public string Password { get; set; } = string.Empty;
+        public string Name { get; set; } = "";
 
         [Required]
         public RoleType Role { get; set; }

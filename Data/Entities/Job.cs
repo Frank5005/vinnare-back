@@ -17,16 +17,22 @@ namespace Data.Entities
         [Required]
         public OperationType Operation { get; set; }
 
-        [Required]
-        public ActionType Action { get; set; }
-
         public Guid CreatorId { get; set; }
 
+        public int? ProductId { get; set; }
+        public int? CategoryId { get; set; }
         [Required]
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = DateTime.UtcNow;
 
         // Navigation Property
         [ForeignKey("CreatorId")]
         public User User { get; set; }
+
+        [ForeignKey("ProductId")]
+        public Product? Product { get; set; }
+
+        [ForeignKey("CategoryId")]
+        public Category? Category { get; set; }
+
     }
 }

@@ -18,18 +18,16 @@ namespace Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<JobDto>> GetAllJobsAsync()
+        public async Task<IEnumerable<ViewJobResponse>> GetAllJobsAsync()
         {
             _logger.LogInformation("TESING");
             return await _context.Jobs
-                .Select(p => new JobDto
+                .Select(p => new ViewJobResponse
                 {
-                    Id = p.Id,
-                    Type = p.Type,
-                    Operation = p.Operation,
-                    Action = p.Action,
-                    CreatorId = p.CreatorId,
-                    Date = p.Date
+                    id = p.Id,
+                    JobType = p.Type.ToString(),
+                    Operation = p.Operation.ToString(),
+                    AssociatedId = (int)(p.ProductId ?? p.CategoryId),
                 })
                 .ToListAsync();
         }
@@ -48,9 +46,10 @@ namespace Services
                 Id = job.Id,
                 Type = job.Type,
                 Operation = job.Operation,
-                Action = job.Action,
                 CreatorId = job.CreatorId,
-                Date = job.Date
+                Date = job.Date,
+                ProductId = job.ProductId,
+                CategoryId = job.CategoryId,
             };
         }
 
@@ -60,9 +59,9 @@ namespace Services
             {
                 Type = jobDto.Type,
                 Operation = jobDto.Operation,
-                Action = jobDto.Action,
                 CreatorId = jobDto.CreatorId,
-                Date = jobDto.Date
+                CategoryId = jobDto.CategoryId,
+                ProductId = jobDto.ProductId,
             };
 
             _context.Jobs.Add(job);
@@ -73,61 +72,28 @@ namespace Services
                 Id = job.Id,
                 Type = job.Type,
                 Operation = job.Operation,
-                Action = job.Action,
                 CreatorId = job.CreatorId,
+                CategoryId = job.CategoryId,
+                ProductId = job.ProductId,
                 Date = job.Date
+
             };
         }
 
-        public async Task<JobDto?> UpdateJobAsync(int id, JobDto jobDto)
+
+        public async Task<bool> RemoveJob(int jobId)
         {
-            var job = await _context.Jobs.FindAsync(id);
+            var job = await _context.Jobs.FindAsync(jobId);
 
             if (job == null)
             {
-                return null;
-            }
-
-            job.Type = jobDto.Type;
-            job.Operation = jobDto.Operation;
-            job.Action = jobDto.Action;
-            job.CreatorId = jobDto.CreatorId;
-            job.Date = jobDto.Date;
-
-            await _context.SaveChangesAsync();
-
-            return new JobDto
-            {
-                Id = job.Id,
-                Type = job.Type,
-                Operation = job.Operation,
-                Action = job.Action,
-                CreatorId = job.CreatorId,
-                Date = job.Date
-            };
-        }
-
-        public async Task<JobDto?> DeleteJobAsync(int id)
-        {
-            var job = await _context.Jobs.FindAsync(id);
-
-            if (job == null)
-            {
-                return null;
+                return false;
             }
 
             _context.Jobs.Remove(job);
             await _context.SaveChangesAsync();
-
-            return new JobDto
-            {
-                Id = job.Id,
-                Type = job.Type,
-                Operation = job.Operation,
-                Action = job.Action,
-                CreatorId = job.CreatorId,
-                Date = job.Date
-            };
+            return true;
         }
+
     }
 }

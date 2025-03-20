@@ -46,25 +46,46 @@ namespace Data
                 .Property(c => c.Id)
                 .HasColumnType("integer")
                 .UseIdentityColumn();
-            
+
+            modelBuilder.Entity<Category>()
+                .Property(c => c.Approved)
+                .HasDefaultValue(false);
+
             modelBuilder.Entity<Product>()
                 .Property(p => p.Id)
                 .HasColumnType("integer")
                 .UseIdentityColumn();
 
             modelBuilder.Entity<Product>()
+                //.HasOne(p => p.Owner)
+                .HasOne(p => p.CategoryType)
+                .WithMany(u => u.Products)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<Product>()
                 .HasOne(p => p.Owner)
+                //.HasOne(p => p.CategoryType)
                 .WithMany(u => u.Products)
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Product>()
+                .Property(c => c.Approved)
+                .HasDefaultValue(false);
+
+            //modelBuilder.Entity<Product>()
+            //    .HasOne<Category>()
+            //    .WithMany(c => c.Products)
+            //    .HasForeignKey(p => p.Category)
+            //    .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Review>(entity =>
             {
 
                 entity.Property(r => r.Id)
                     .HasColumnType("integer")
                     .UseIdentityColumn();
-                
+
                 entity.HasOne(r => r.User)
                     .WithMany(u => u.Reviews)
                     .HasForeignKey(r => r.UserId)
@@ -80,30 +101,30 @@ namespace Data
                 .Property(w => w.Id)
                 .HasColumnType("integer")
                 .UseIdentityColumn();
-            
+
             modelBuilder.Entity<WishList>()
                 .HasOne(w => w.User)
                 .WithMany(u => u.WishLists)
                 .HasForeignKey(w => w.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             modelBuilder.Entity<WishList>()
                 .HasOne(w => w.Product)
                 .WithMany(p => p.WishLists)
                 .HasForeignKey(w => w.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             modelBuilder.Entity<Cart>()
                 .Property(c => c.Id)
                 .HasColumnType("integer")
                 .UseIdentityColumn();
-            
+
             modelBuilder.Entity<Cart>()
                 .HasOne(c => c.User)
                 .WithMany(u => u.Carts)
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             modelBuilder.Entity<Cart>()
                 .HasOne(c => c.Product)
                 .WithMany(p => p.Carts)
@@ -121,7 +142,7 @@ namespace Data
                 .Property(p => p.Id)
                 .HasColumnType("integer")
                 .UseIdentityColumn();
-            
+
             modelBuilder.Entity<Purchase>()
                 .HasOne(p => p.User)
                 .WithMany(u => u.Purchases)
@@ -129,16 +150,27 @@ namespace Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             //Jobs
-            modelBuilder.Entity<Job>()
-                .Property(j => j.Id)
+            modelBuilder.Entity<Job>(entity =>
+            {
+                entity.Property(j => j.Id)
                 .HasColumnType("integer")
                 .UseIdentityColumn();
-            
-            modelBuilder.Entity<Job>()
-                .HasOne(j => j.User)
+
+                entity.HasOne(j => j.User)
                 .WithMany(u => u.Jobs)
                 .HasForeignKey(j => j.CreatorId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(j => j.Product)
+                .WithMany(p => p.Jobs)
+                .HasForeignKey(j => j.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(j => j.Category)
+                .WithMany(c => c.Jobs)
+                .HasForeignKey(j => j.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+            });
 
         }
     }

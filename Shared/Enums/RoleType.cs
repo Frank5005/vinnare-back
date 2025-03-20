@@ -4,6 +4,6 @@ namespace Shared.Enums
     {
         Admin,
         Seller,
-        Customer
+        Shopper
     }
 }
