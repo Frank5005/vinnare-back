@@ -11,6 +11,7 @@ namespace Shared.DTOs
         public string? Image { get; set; }
         public int Quantity { get; set; }
         public int Available { get; set; }
+        public string Username { get; set; }
     }
 
     public class ProductResponse

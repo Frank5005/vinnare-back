@@ -117,7 +117,7 @@ namespace Services
             return product;
         }
 
-        public async Task<Product> CreateProductByEmployeeAsync(ProductRequest productDto, string userToken)
+        public async Task<Product> CreateProductByEmployeeAsync(ProductRequest productDto)
         {
 
             // Verify if the user exists
@@ -134,7 +134,7 @@ namespace Services
                 throw new Exception("The category doesn't exists.");
             }
 
-            Guid userId = await _userService.GetUserIdFromToken(userToken);
+            Guid userId = (Guid) await _userService.GetIdByUsername(productDto.Username);
 
             if (userId == Guid.Empty)
             {
@@ -157,6 +157,9 @@ namespace Services
             };
 
             _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+
+
             await _jobService.CreateJobAsync(new JobDto
             {
                 Type = JobType.Product,
@@ -164,7 +167,7 @@ namespace Services
                 CreatorId = userId,
                 ProductId = product.Id
             });
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
 
             return product;
         }
@@ -220,7 +223,7 @@ namespace Services
             return message;
         }
 
-        public async Task<string> DeleteProductByEmployeeAsync(int id, string userToken)
+        public async Task<string> DeleteProductByEmployeeAsync(int id, string username)
         {
             string message = "You can't delete a product";
             // Verify if the product exists
@@ -230,7 +233,7 @@ namespace Services
                 throw new NotFoundException("The product doesn't exists.");
             }
 
-            Guid userId = await _userService.GetUserIdFromToken(userToken);
+            Guid userId = (Guid)await _userService.GetIdByUsername(username);
 
             if (userId == Guid.Empty)
             {
@@ -241,6 +244,8 @@ namespace Services
             var product = await _context.Products.FindAsync(id);
             if (product == null) return "null";
 
+            await _context.SaveChangesAsync();
+
             await _jobService.CreateJobAsync(new JobDto
             {
                 Type = JobType.Product,
@@ -250,7 +255,7 @@ namespace Services
             });
 
             //_context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return message;
         }
 
