@@ -88,7 +88,7 @@ jobs:
     needs: build-push
     uses: ./.github/workflows/cd.yml    
     with:
-      image_tag: ${{ needs.build-test-push.outputs.commit_hash }}
+      image_tag: ${{ needs.build-push.outputs.commit_hash }}
     secrets:
       ec2_host: ${{ secrets.EC2_HOST }}
       ec2_user: ${{ secrets.EC2_USER }}
