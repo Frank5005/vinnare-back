@@ -125,7 +125,7 @@ namespace Services
             }
 
             category.Name = categoryDto.Name ?? category.Name;
-            category.Approved = categoryDto.Approved ?? category.Approved;
+            //category.Approved = categoryDto.Approved ?? category.Approved;
 
             await _context.SaveChangesAsync();
 
