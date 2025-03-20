@@ -91,7 +91,7 @@ namespace Api.Controllers
                 return Ok(new ProductDelete { message = deletedProduct });
             }
             deletedProduct = await _productService.DeleteProductByEmployeeAsync(id, userToken);
-            return Ok(new ProductDelete { message = "You can't delete a product."});
+            return Ok(new ProductDelete { message = deletedProduct});
         }
     }
 }

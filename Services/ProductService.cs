@@ -229,7 +229,7 @@ namespace Services
 
         public async Task<string> DeleteProductByEmployeeAsync(int id, string userToken)
         {
-            string message = "Product deleted successfully";
+            string message = "You can't delete a product";
             // Verify if the product exists
             var productExists = await _context.Products.AnyAsync(u => u.Id == id);
             if (!productExists)
@@ -256,7 +256,7 @@ namespace Services
                 ProductId = product.Id
             });
 
-            _context.Products.Remove(product);
+            //_context.Products.Remove(product);
             await _context.SaveChangesAsync();
             return message;
         }

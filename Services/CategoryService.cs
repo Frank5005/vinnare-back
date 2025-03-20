@@ -82,7 +82,8 @@ namespace Services
 
             var category = new Category
             {
-                Name = categoryDto.Name
+                Name = categoryDto.Name,
+                Approved = false
             };
 
             _context.Categories.Add(category);
@@ -161,7 +162,7 @@ namespace Services
 
         public async Task<string> DeleteCategoryByEmployeeAsync(int id, string userToken)
         {
-            string message = "Category deleted successfully";
+            string message = "You can't delete a category.";
             //Verify if the category exists
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
@@ -190,7 +191,7 @@ namespace Services
                 CategoryId = category.Id
             });
 
-            _context.Categories.Remove(category);
+            //_context.Categories.Remove(category);
             await _context.SaveChangesAsync();
             return message;
         }

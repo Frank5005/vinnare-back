@@ -89,7 +89,7 @@ namespace Api.Controllers
                 return Ok(new CategoryDelete { Message = deletedCategory });
             }
             deletedCategory = await _categoryService.DeleteCategoryByEmployeeAsync(id, userToken);
-            return Ok(new ProductDelete { message = "You can't delete a category."});
+            return Ok(new ProductDelete { message = deletedCategory});
         }
     }
 }
