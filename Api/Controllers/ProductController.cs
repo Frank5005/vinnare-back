@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Exceptions;
@@ -48,21 +49,21 @@ namespace Api.Controllers
         // POST: api/product/create
         [Authorize(Roles = "Admin, Seller")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductRequest productDto)
+        public async Task<IActionResult> CreateProduct([FromBody] ProductRequest productDto, [FromHeader] string userToken)
         {
             if (productDto == null) throw new BadRequestException("Product data is required.");
 
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            var createdProduct = await _productService.CreateProductAsync(productDto, tokenRole);
-            if (createdProduct.Approved == false)
+            if(tokenRole == "Admin")
             {
-                return Ok(new ProductResponse { Id = createdProduct.Id, message = "Waiting to approve" });
-            }
-            if (createdProduct.Approved == true)
-            {
+                var createdProduct = await _productService.CreateProductAsync(productDto);
                 return Ok(new ProductResponse { Id = createdProduct.Id, message = "Product created successfully" });
             }
-            return BadRequest("Product not created");
+            else
+            {
+                var createdProduct = await _productService.CreateProductByEmployeeAsync(productDto, userToken);
+                return Ok(new ProductResponse { Id = createdProduct.Id, message = "Waiting to approve" });
+            }
         }
 
         // UPDATE: api/product/{id}
@@ -80,7 +81,7 @@ namespace Api.Controllers
         // DELETE: api/product/{id}
         [Authorize(Roles = "Admin, Seller")]
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id, [FromHeader] string userToken)
         {
             var deletedProduct = "";
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -89,6 +90,7 @@ namespace Api.Controllers
                 deletedProduct = await _productService.DeleteProductAsync(id);
                 return Ok(new ProductDelete { message = deletedProduct });
             }
+            deletedProduct = await _productService.DeleteProductByEmployeeAsync(id, userToken);
             return Ok(new ProductDelete { message = "You can't delete a product."});
         }
     }

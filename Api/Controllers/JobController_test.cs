@@ -165,7 +165,7 @@ public class JobController_test
 
         await _controller.HandleProductJob(job, accepted: false, isCreate: false);
 
-        _mockProductService.Verify(s => s.ApproveProduct(40, true), Times.Once);
+       _mockProductService.Verify(s => s.ApproveProduct(40, true), Times.Once);
         _mockJobService.Verify(s => s.RemoveJob(4), Times.Once);
     }
 

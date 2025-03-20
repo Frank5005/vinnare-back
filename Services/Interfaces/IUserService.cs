@@ -8,6 +8,7 @@ namespace Services.Interfaces
         Task<UserDto?> GetUserByIdAsync(Guid id);
         Task<UserDto?> GetUserByUsername(string username);
         Task<Guid?> GetIdByUsername(string username);
+        Task<Guid> GetUserIdFromToken(string token);
         Task<UserDto> CreateUserAsync(UserDto userDto);
 
         Task<UserDto?> UpdateUserAsync(Guid id, UserDto userDto);

@@ -46,19 +46,20 @@ namespace Api.Controllers
         // POST: api/category
         [Authorize(Roles = "Admin, Seller")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromBody] CategoryRequest categoryDto)
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryRequest categoryDto, [FromHeader] string userToken)
         {
             if (categoryDto == null) throw new BadRequestException("Category data is required.");
 
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            var createdCategory = await _categoryService.CreateCategoryAsync(categoryDto);
             if (tokenRole == "Admin"){
-                createdCategory.Approved = true;
+                var createdCategory = await _categoryService.CreateCategoryAsync(categoryDto);
+                //createdCategory.Approved = true;
                 return Ok(new CategoryResponse { Id = createdCategory.Id, Message = "Category created successfully" });
             }
             else
             {
-                createdCategory.Approved = false;
+                var createdCategory = await _categoryService.CreateCategoryByEmployeeAsync(categoryDto, userToken);
+                //createdCategory.Approved = false;
                 return Ok(new CategoryResponse { Id = createdCategory.Id, Message = "Waiting to approve" });
             }
             //return BadRequest("Product not created");
@@ -78,7 +79,7 @@ namespace Api.Controllers
 
         // DELETE: api/category/{id}
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteCategory(int id, [FromHeader] string userToken)
         {
             var deletedCategory = "";
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -87,6 +88,7 @@ namespace Api.Controllers
                 deletedCategory = await _categoryService.DeleteCategoryAsync(id);
                 return Ok(new CategoryDelete { Message = deletedCategory });
             }
+            deletedCategory = await _categoryService.DeleteCategoryByEmployeeAsync(id, userToken);
             return Ok(new ProductDelete { message = "You can't delete a category."});
         }
     }

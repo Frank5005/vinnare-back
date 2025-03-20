@@ -4,7 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Enums;
 using Shared.Exceptions;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
 
 namespace Services
 {
@@ -12,11 +16,23 @@ namespace Services
     {
         private readonly VinnareDbContext _context;
         private readonly ILogger<CategoryService> _logger;
+        private readonly IJobService _jobService;
+        private readonly IUserService _userService;
+        private VinnareDbContext dbContext;
+        private ILogger<CategoryService> @object;
 
-        public CategoryService(VinnareDbContext context, ILogger<CategoryService> logger)
+        public CategoryService(VinnareDbContext context, ILogger<CategoryService> logger, JobService jobService, IUserService userService)
         {
             _context = context;
             _logger = logger;
+            _jobService = jobService;
+            _userService = userService;
+        }
+
+        public CategoryService(VinnareDbContext dbContext, ILogger<CategoryService> @object)
+        {
+            this.dbContext = dbContext;
+            this.@object = @object;
         }
 
         public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
@@ -54,11 +70,40 @@ namespace Services
             };
         }
 
+        public async Task<Category> CreateCategoryByEmployeeAsync(CategoryRequest categoryDto, string userToken)
+        {
+            Guid userId = await _userService.GetUserIdFromToken(userToken);
+
+            if (userId == Guid.Empty)
+            {
+                throw new NotFoundException("User not found.");
+                //Console.WriteLine($"User ID: {userId}");
+            }
+
+            var category = new Category
+            {
+                Name = categoryDto.Name
+            };
+
+            _context.Categories.Add(category);
+            await _jobService.CreateJobAsync(new JobDto
+            {
+                Type = JobType.Category,
+                Operation = OperationType.Create,
+                CreatorId = userId,
+                CategoryId = category.Id
+            });
+            await _context.SaveChangesAsync();
+
+            return category;
+        }
+
         public async Task<Category> CreateCategoryAsync(CategoryRequest categoryDto)
         {
             var category = new Category
             {
-                Name = categoryDto.Name
+                Name = categoryDto.Name,
+                Approved = true
             };
 
             _context.Categories.Add(category);
@@ -108,6 +153,42 @@ namespace Services
             {
                 throw new Exception("You can't delete the category because it has products associated.");
             }
+
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+            return message;
+        }
+
+        public async Task<string> DeleteCategoryByEmployeeAsync(int id, string userToken)
+        {
+            string message = "Category deleted successfully";
+            //Verify if the category exists
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+            {
+                throw new NotFoundException("The category doesn't exists.");
+            }
+
+            var hasProducts = await _context.Products.AnyAsync(p => p.CategoryId == id);
+            if (hasProducts)
+            {
+                throw new Exception("You can't delete the category because it has products associated.");
+            }
+
+            Guid userId = await _userService.GetUserIdFromToken(userToken);
+
+            if (userId == Guid.Empty)
+            {
+                throw new NotFoundException("User not found.");
+            }
+            
+            await _jobService.CreateJobAsync(new JobDto
+            {
+                Type = JobType.Category,
+                Operation = OperationType.Delete,
+                CreatorId = userId,
+                CategoryId = category.Id
+            });
 
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();

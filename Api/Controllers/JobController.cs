@@ -106,7 +106,7 @@ namespace Api.Controllers
                     {
                         if (isCreate)
                         {
-                            await _productService.ApproveProduct((int)createdJob.ProductId, isCreate);
+                            //await _productService.ApproveProduct((int)createdJob.ProductId, isCreate);
                             await _jobService.RemoveJob(createdJob.Id);
                         }
                         else
@@ -126,7 +126,7 @@ namespace Api.Controllers
                     {
                         if (isCreate)
                         {
-                            await _categoryService.ApproveCategory((int)createdJob.CategoryId, isCreate);
+                            //await _categoryService.ApproveCategory((int)createdJob.CategoryId, isCreate);
                             await _jobService.RemoveJob(createdJob.Id);
                         }
                         else
@@ -152,117 +152,6 @@ namespace Api.Controllers
             };
             return Created("", createJobResponse);
         }
-
-
-        // [Authorize(Roles = "Admin")]
-        // [HttpPost("/api/reviewJob")]
-        // public async Task<IActionResult> ReviewJob([FromQuery] string type, [FromBody] ReviewJobRequest request)
-        // {
-        //     request.Validate();
-        //     if (string.IsNullOrEmpty(type))
-        //     {
-        //         throw new BadRequestException("Type is required.");
-        //     }
-
-
-        //     bool accepted;
-        //     if (request.Action.Equals(ActionType.Approve.ToString()))
-        //     {
-        //         accepted = true;
-        //     }
-        //     else if (request.Action.Equals(ActionType.Decline.ToString()))
-        //     {
-        //         accepted = false;
-        //     }
-        //     else
-        //     {
-        //         throw new BadRequestException("Incorrect action");
-        //     }
-
-        //     var job = await _jobService.GetJobByIdAsync(request.Id);
-        //     if (job == null)
-        //     {
-        //         throw new NotFoundException("Job not found");
-        //     };
-        //     bool isCreate;
-        //     if (job.Operation == OperationType.Create)
-        //     {
-        //         isCreate = true;
-        //     }
-        //     else if (job.Operation == OperationType.Delete)
-        //     {
-        //         isCreate = false;
-        //     }
-        //     else
-        //     {
-        //         throw new BadRequestException("How did we get here");
-        //     }
-        //     if (!type.Equals(job.Type.ToString()))
-        //     {
-        //         throw new BadRequestException("Type should match the job type.");
-        //     }
-        //     if (job.Type == JobType.Product && job.ProductId != null)
-        //     {
-
-        //         if (isCreate)
-        //         {
-        //             if (accepted)
-        //             {
-        //                 await _productService.ApproveProduct((int)job.ProductId, accepted);
-        //                 await _jobService.RemoveJob(job.Id);
-        //             }
-        //             else
-        //             {
-        //                 await _productService.DeleteProductAsync((int)job.ProductId);
-        //             }
-        //         }
-        //         else
-        //         {
-        //             if (!accepted)
-        //             {
-        //                 await _productService.ApproveProduct((int)job.ProductId, !accepted);
-        //                 await _jobService.RemoveJob(job.Id);
-        //             }
-        //             else
-        //             {
-        //                 await _productService.DeleteProductAsync((int)job.ProductId);
-        //             }
-        //         }
-
-        //     }
-        //     else if (job.Type == JobType.Category && job.CategoryId != null)
-        //     {
-        //         if (isCreate)
-        //         {
-        //             if (accepted)
-        //             {
-        //                 await _categoryService.ApproveCategory((int)job.CategoryId, accepted);
-        //                 await _jobService.RemoveJob(job.Id);
-        //             }
-        //             if (!accepted)
-        //             {
-        //                 //await _categoryService.DeleteCategoryAsync((int)job.CategoryId);
-        //                 //temporarly categories can't be deleted cause of fk constrains
-        //             }
-
-        //         }
-        //         else
-        //         {
-        //             if (!accepted)
-        //             {
-        //                 await _categoryService.ApproveCategory((int)job.CategoryId, !accepted);
-        //                 await _jobService.RemoveJob(job.Id);
-        //             }
-        //             if (accepted)
-        //             {
-        //                 //await _categoryService.DeleteCategoryAsync((int)job.CategoryId);
-        //             }
-        //         }
-        //     }
-
-
-        //     return Ok(new DefaultResponse { message = $"Success {request.Action}" });
-        // }
 
         [Authorize(Roles = "Admin")]
         [HttpPost("/api/reviewJob")]
@@ -306,7 +195,7 @@ namespace Api.Controllers
             {
                 if (accepted)
                 {
-                    await _productService.ApproveProduct((int)job.ProductId, true);
+                    //await _productService.ApproveProduct((int)job.ProductId, true);
                     await _jobService.RemoveJob(job.Id);
                 }
                 else
@@ -322,7 +211,7 @@ namespace Api.Controllers
                 }
                 else
                 {
-                    await _productService.ApproveProduct((int)job.ProductId, true);
+                    //await _productService.ApproveProduct((int)job.ProductId, true);
                     await _jobService.RemoveJob(job.Id);
                 }
             }
@@ -334,7 +223,7 @@ namespace Api.Controllers
             {
                 if (accepted)
                 {
-                    await _categoryService.ApproveCategory((int)job.CategoryId, true);
+                    //await _categoryService.ApproveCategory((int)job.CategoryId, true);
                     await _jobService.RemoveJob(job.Id);
                 }
                 else
@@ -350,7 +239,7 @@ namespace Api.Controllers
                 }
                 else
                 {
-                    await _categoryService.ApproveCategory((int)job.CategoryId, true);
+                    //await _categoryService.ApproveCategory((int)job.CategoryId, true);
                     await _jobService.RemoveJob(job.Id);
                 }
             }
