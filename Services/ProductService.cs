@@ -15,8 +15,7 @@ namespace Services
         private readonly ILogger<ProductService> _logger;
         private readonly IJobService _jobService;
         private readonly IUserService _userService;
-        private VinnareDbContext dbContext;
-        private ILogger<ProductService> @object;
+
 
         public ProductService(VinnareDbContext context, ILogger<ProductService> logger, IJobService jobService, IUserService userService)
         {
@@ -24,12 +23,6 @@ namespace Services
             _logger = logger;
             _jobService = jobService;
             _userService = userService;
-        }
-
-        public ProductService(VinnareDbContext dbContext, ILogger<ProductService> @object)
-        {
-            this.dbContext = dbContext;
-            this.@object = @object;
         }
 
         public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
@@ -99,7 +92,7 @@ namespace Services
 
             //Verify if the category exists
             var categoryExists = await _context.Categories.FirstOrDefaultAsync(c => c.Name == productDto.Category);
-            if(categoryExists == null)
+            if (categoryExists == null)
             {
                 throw new Exception("The category doesn't exists.");
             }
@@ -136,7 +129,7 @@ namespace Services
 
             //Verify if the category exists
             var categoryExists = await _context.Categories.FirstOrDefaultAsync(c => c.Name == productDto.Category);
-            if(categoryExists == null)
+            if (categoryExists == null)
             {
                 throw new Exception("The category doesn't exists.");
             }
@@ -181,7 +174,7 @@ namespace Services
 
             //Verify if the category exists
             var categoryExists = await _context.Categories.FirstOrDefaultAsync(c => c.Name == productDto.Category);
-            if(categoryExists == null)
+            if (categoryExists == null)
             {
                 throw new Exception("The category doesn't exists.");
             }
@@ -221,7 +214,7 @@ namespace Services
 
             var product = await _context.Products.FindAsync(id);
             if (product == null) return "null";
-            
+
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
             return message;
@@ -247,7 +240,7 @@ namespace Services
 
             var product = await _context.Products.FindAsync(id);
             if (product == null) return "null";
-            
+
             await _jobService.CreateJobAsync(new JobDto
             {
                 Type = JobType.Product,

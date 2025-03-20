@@ -4,12 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Services;
+using Services.Interfaces;
 using Xunit;
 
 public class CategoryService_test
 {
     private readonly VinnareDbContext _dbContext;
     private readonly Mock<ILogger<CategoryService>> _mockLogger;
+    private readonly Mock<IJobService> _mockJobService;
+    private readonly Mock<IUserService> _mockUserService;
     private readonly CategoryService _categoryService;
 
     public CategoryService_test()
@@ -22,8 +25,12 @@ public class CategoryService_test
         _dbContext.Database.EnsureCreated();
 
         _mockLogger = new Mock<ILogger<CategoryService>>();
-        _categoryService = new CategoryService(_dbContext, _mockLogger.Object);
+        _mockJobService = new Mock<IJobService>();
+        _mockUserService = new Mock<IUserService>();
+
+        _categoryService = new CategoryService(_dbContext, _mockLogger.Object, _mockJobService.Object, _mockUserService.Object);
     }
+
 
     [Fact]
     public async Task ApproveCategory_ShouldSetApproved_WhenCategoryExists()
@@ -34,6 +41,9 @@ public class CategoryService_test
         _dbContext.SaveChanges();
 
         // Act
+        Console.WriteLine("DO print work?");
+        var aaa = await _dbContext.Categories.FindAsync(1);
+        Console.WriteLine(aaa.ToString());
         await _categoryService.ApproveCategory(1, true);
         var updatedCategory = await _dbContext.Categories.FindAsync(1);
 

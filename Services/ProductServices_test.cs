@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Services;
+using Services.Interfaces;
 using Xunit;
 
 public class ProductService_test
@@ -11,6 +12,8 @@ public class ProductService_test
     private readonly VinnareDbContext _dbContext;
     private readonly Mock<ILogger<ProductService>> _mockLogger;
     private readonly ProductService _productService;
+    private readonly Mock<IJobService> _mockJobService;
+    private readonly Mock<IUserService> _mockUserService;
 
     public ProductService_test()
     {
@@ -22,7 +25,9 @@ public class ProductService_test
         _dbContext.Database.EnsureCreated();
 
         _mockLogger = new Mock<ILogger<ProductService>>();
-        _productService = new ProductService(_dbContext, _mockLogger.Object);
+        _mockJobService = new Mock<IJobService>();
+        _mockUserService = new Mock<IUserService>();
+        _productService = new ProductService(_dbContext, _mockLogger.Object, _mockJobService.Object, _mockUserService.Object);
     }
 
     [Fact]

@@ -106,7 +106,7 @@ namespace Api.Controllers
                     {
                         if (isCreate)
                         {
-                            //await _productService.ApproveProduct((int)createdJob.ProductId, isCreate);
+                            await _productService.ApproveProduct((int)createdJob.ProductId, isCreate);
                             await _jobService.RemoveJob(createdJob.Id);
                         }
                         else
@@ -126,7 +126,7 @@ namespace Api.Controllers
                     {
                         if (isCreate)
                         {
-                            //await _categoryService.ApproveCategory((int)createdJob.CategoryId, isCreate);
+                            await _categoryService.ApproveCategory((int)createdJob.CategoryId, isCreate);
                             await _jobService.RemoveJob(createdJob.Id);
                         }
                         else
@@ -195,7 +195,7 @@ namespace Api.Controllers
             {
                 if (accepted)
                 {
-                    //await _productService.ApproveProduct((int)job.ProductId, true);
+                    await _productService.ApproveProduct((int)job.ProductId, true);
                     await _jobService.RemoveJob(job.Id);
                 }
                 else
@@ -211,7 +211,7 @@ namespace Api.Controllers
                 }
                 else
                 {
-                    //await _productService.ApproveProduct((int)job.ProductId, true);
+                    await _productService.ApproveProduct((int)job.ProductId, true);
                     await _jobService.RemoveJob(job.Id);
                 }
             }
@@ -223,7 +223,7 @@ namespace Api.Controllers
             {
                 if (accepted)
                 {
-                    //await _categoryService.ApproveCategory((int)job.CategoryId, true);
+                    await _categoryService.ApproveCategory((int)job.CategoryId, true);
                     await _jobService.RemoveJob(job.Id);
                 }
                 else
@@ -239,7 +239,7 @@ namespace Api.Controllers
                 }
                 else
                 {
-                    //await _categoryService.ApproveCategory((int)job.CategoryId, true);
+                    await _categoryService.ApproveCategory((int)job.CategoryId, true);
                     await _jobService.RemoveJob(job.Id);
                 }
             }

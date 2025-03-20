@@ -6,9 +6,6 @@ using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Enums;
 using Shared.Exceptions;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
 
 namespace Services
 {
@@ -18,21 +15,13 @@ namespace Services
         private readonly ILogger<CategoryService> _logger;
         private readonly IJobService _jobService;
         private readonly IUserService _userService;
-        private VinnareDbContext dbContext;
-        private ILogger<CategoryService> @object;
 
-        public CategoryService(VinnareDbContext context, ILogger<CategoryService> logger, JobService jobService, IUserService userService)
+        public CategoryService(VinnareDbContext context, ILogger<CategoryService> logger, IJobService jobService, IUserService userService)
         {
             _context = context;
             _logger = logger;
             _jobService = jobService;
             _userService = userService;
-        }
-
-        public CategoryService(VinnareDbContext dbContext, ILogger<CategoryService> @object)
-        {
-            this.dbContext = dbContext;
-            this.@object = @object;
         }
 
         public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
@@ -182,7 +171,7 @@ namespace Services
             {
                 throw new NotFoundException("User not found.");
             }
-            
+
             await _jobService.CreateJobAsync(new JobDto
             {
                 Type = JobType.Category,
