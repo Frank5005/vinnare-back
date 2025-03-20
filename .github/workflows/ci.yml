@@ -7,7 +7,41 @@ on:
     branches: ["main"]
 
 jobs:
-  build-test-push:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract app settings from secret base64
+        run: echo "${{secrets.APP_SETTINGS_BASE64}}" | base64 --decode > ./Api/appsettings.json
+        shell: bash
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test --no-build --configuration Release --logger trx --results-directory ./TestResults
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()  # Upload results even if tests fail
+        with:
+          name: TestResults
+          path: ./TestResults
+
+
+  build-push:
+    needs: test
     runs-on: ubuntu-latest
     outputs:
       commit_hash: ${{ steps.extract_commit.outputs.commit_hash }}
@@ -56,7 +90,7 @@ jobs:
         run: echo "IMAGE_TAG=${{ steps.extract_commit.outputs.commit_hash }}" >> $GITHUB_ENV
 
   deploy:
-    needs: build-test-push
+    needs: build-push
     uses: ./.github/workflows/cd.yml    
     with:
       image_tag: ${{ needs.build-test-push.outputs.commit_hash }}
