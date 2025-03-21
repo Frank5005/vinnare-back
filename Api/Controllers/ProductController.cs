@@ -1,8 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Exceptions;
@@ -54,7 +52,7 @@ namespace Api.Controllers
             if (productDto == null) throw new BadRequestException("Product data is required.");
 
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if(tokenRole == "Admin")
+            if (tokenRole == "Admin")
             {
                 var createdProduct = await _productService.CreateProductAsync(productDto);
                 return Ok(new ProductResponse { Id = createdProduct.Id, message = "Product created successfully" });
@@ -91,7 +89,7 @@ namespace Api.Controllers
                 return Ok(new ProductDelete { message = deletedProduct });
             }
             deletedProduct = await _productService.DeleteProductByEmployeeAsync(id, username);
-            return Ok(new ProductDelete { message = deletedProduct});
+            return Ok(new ProductDelete { message = deletedProduct });
         }
     }
 }

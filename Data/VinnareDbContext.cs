@@ -62,7 +62,7 @@ namespace Data
                 .WithMany(u => u.Products)
                 .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Owner)
                 //.HasOne(p => p.CategoryType)
@@ -97,22 +97,28 @@ namespace Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<WishList>()
-                .Property(w => w.Id)
-                .HasColumnType("integer")
-                .UseIdentityColumn();
+            modelBuilder.Entity<WishList>(
+                entity =>
+                {
+                    entity.Property(w => w.Id)
+                    .HasColumnType("integer")
+                    .UseIdentityColumn();
 
-            modelBuilder.Entity<WishList>()
-                .HasOne(w => w.User)
-                .WithMany(u => u.WishLists)
-                .HasForeignKey(w => w.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                    entity.HasOne(w => w.User)
+                        .WithMany(u => u.WishLists)
+                        .HasForeignKey(w => w.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<WishList>()
-                .HasOne(w => w.Product)
-                .WithMany(p => p.WishLists)
-                .HasForeignKey(w => w.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
+                    entity.HasOne(w => w.Product)
+                        .WithMany(p => p.WishLists)
+                        .HasForeignKey(w => w.ProductId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    entity.HasIndex(w => new { w.UserId, w.ProductId }).IsUnique();
+
+                }
+            );
+
 
             modelBuilder.Entity<Cart>()
                 .Property(c => c.Id)

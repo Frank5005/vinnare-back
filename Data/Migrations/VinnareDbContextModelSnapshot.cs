@@ -148,7 +148,7 @@ namespace Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
@@ -291,7 +291,8 @@ namespace Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "ProductId")
+                        .IsUnique();
 
                     b.ToTable("WishLists");
                 });
@@ -345,8 +346,7 @@ namespace Data.Migrations
                     b.HasOne("Data.Entities.Category", "CategoryType")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Data.Entities.User", "Owner")
                         .WithMany("Products")

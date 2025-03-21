@@ -18,21 +18,21 @@ namespace Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<WishListDto>> GetAllWishListsAsync()
+        public async Task<IEnumerable<int>> GetAllWishListsAsync(Guid userId)
         {
             return await _context.WishLists
-                .Select(w => new WishListDto
-                {
-                    Id = w.Id,
-                    UserId = w.UserId,
-                    ProductId = w.ProductId
-                })
+                .Where(w => w.UserId == userId)
+                .Select(w => w.ProductId)
                 .ToListAsync();
         }
 
-        public async Task<WishListDto?> GetWishListByIdAsync(int id)
+        public async Task<WishListDto?> GetWishListByProductId(Guid userId, int productId)
         {
-            var wishList = await _context.WishLists.FindAsync(id);
+            var wishlistQuery = from n in _context.WishLists
+                                where n.UserId == userId && n.ProductId == productId
+                                select n;
+
+            var wishList = await wishlistQuery.FirstOrDefaultAsync();
             if (wishList == null) return null;
 
             return new WishListDto
@@ -43,12 +43,12 @@ namespace Services
             };
         }
 
-        public async Task<WishListDto> CreateWishListAsync(WishListDto wishListDto)
+        public async Task<WishListDto> CreateWishListAsync(CreateWishListRequest wishListRequest)
         {
             var wishList = new WishList
             {
-                UserId = wishListDto.UserId,
-                ProductId = wishListDto.ProductId
+                UserId = wishListRequest.UserId,
+                ProductId = wishListRequest.ProductId
             };
 
             _context.WishLists.Add(wishList);
@@ -62,25 +62,7 @@ namespace Services
             };
         }
 
-        public async Task<WishListDto?> UpdateWishListAsync(int id, WishListDto wishListDto)
-        {
-            var wishList = await _context.WishLists.FindAsync(id);
-            if (wishList == null) return null;
-
-            wishList.UserId = wishListDto.UserId;
-            wishList.ProductId = wishListDto.ProductId;
-
-            await _context.SaveChangesAsync();
-
-            return new WishListDto
-            {
-                Id = wishList.Id,
-                UserId = wishList.UserId,
-                ProductId = wishList.ProductId
-            };
-        }
-
-        public async Task<WishListDto?> DeleteWishListAsync(int id)
+        public async Task<WishListDto?> DeleteWishListById(int id)
         {
             var wishList = await _context.WishLists.FindAsync(id);
             if (wishList == null) return null;

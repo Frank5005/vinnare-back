@@ -103,7 +103,7 @@ public class VinnareDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseNpgsql("Host=vinnare-db.cbmy6wo2y430.us-east-2.rds.amazonaws.com;Port=5432;Database=vinnare;Username=postgres;Password=dyeHe15fiCsiL8WioRJI;SSL Mode=Require;Trust Server Certificate=true;");
+        options.UseNpgsql("Host=localhost;Port=5433;Database=vinnare;Username=postgres;Password=password;");
     }
 }
 
@@ -136,13 +136,13 @@ class Program
 
         try
         {
-            //await SaveUsersToDatabase();
+            await SaveUsersToDatabase();
 
-            //Console.WriteLine("¡Users inserted!");
+            Console.WriteLine("¡Users inserted!");
 
-            //await SaveProductsToDatabase();
+            await SaveProductsToDatabase();
 
-            //Console.WriteLine("¡Products inserted!");
+            Console.WriteLine("¡Products inserted!");
         }
         catch (Exception ex)
         {

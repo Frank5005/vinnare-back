@@ -73,10 +73,17 @@ namespace Services
 
             return new ProductDto
             {
+
+                Approved = product.Approved,
+                Available = product.Available,
+                Category = product.Category,
+                Description = product.Description,
                 Id = product.Id,
-                Title = product.Title,
+                Image = product.Image,
+                OwnerId = product.OwnerId,
                 Price = product.Price,
-                Category = product.Category
+                Quantity = product.Quantity,
+                Title = product.Title
             };
         }
 
@@ -134,7 +141,7 @@ namespace Services
                 throw new Exception("The category doesn't exists.");
             }
 
-            Guid userId = (Guid) await _userService.GetIdByUsername(productDto.Username);
+            Guid userId = (Guid)await _userService.GetIdByUsername(productDto.Username);
 
             if (userId == Guid.Empty)
             {
