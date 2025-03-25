@@ -6,7 +6,8 @@ namespace Services.Interfaces
     public interface IProductService
     {
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
-        Task<IEnumerable<ProductView>> GetAvailableProductsAsync();
+        //Task<IEnumerable<ProductView>> GetAvailableProductsAsync();
+        Task<IEnumerable<ProductViewPage>> GetAvailableProductsPageAsync();
         Task<ProductDto?> GetProductByIdAsync(int id);
         Task<Product> CreateProductAsync(ProductRequest productDto);
         Task<Product> CreateProductByEmployeeAsync(ProductRequest productDto);

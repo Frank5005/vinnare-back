@@ -15,14 +15,16 @@ namespace Services
         private readonly ILogger<ProductService> _logger;
         private readonly IJobService _jobService;
         private readonly IUserService _userService;
+        private readonly IReviewService _reviewService;
 
 
-        public ProductService(VinnareDbContext context, ILogger<ProductService> logger, IJobService jobService, IUserService userService)
+        public ProductService(VinnareDbContext context, ILogger<ProductService> logger, IJobService jobService, IUserService userService, IReviewService reviewService)
         {
             _context = context;
             _logger = logger;
             _jobService = jobService;
             _userService = userService;
+            _reviewService = reviewService;
         }
 
         public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
@@ -51,6 +53,7 @@ namespace Services
         }
 
 
+        /*
         public async Task<IEnumerable<ProductView>> GetAvailableProductsAsync()
         {
             return await _context.Products
@@ -63,6 +66,32 @@ namespace Services
                     Category = p.Category
                 })
                 .ToListAsync();
+        }*/
+
+        public async Task<IEnumerable<ProductViewPage>> GetAvailableProductsPageAsync()
+        {
+            var products = await _context.Products
+                .Where(p => p.Available > 0 && p.Approved == true)
+                .ToListAsync();
+
+            var productViewPages = new List<ProductViewPage>();
+
+            foreach (var product in products)
+            {
+                var rate = await _reviewService.GetReviewsRateByIdAsync(product.Id);
+                productViewPages.Add(new ProductViewPage
+                {
+                    Id = product.Id,
+                    Title = product.Title,
+                    Price = product.Price,
+                    Description = product.Description,
+                    Category = product.Category,
+                    Image = product.Image,
+                    Rate = rate
+                });
+            }
+
+            return productViewPages;
         }
 
 

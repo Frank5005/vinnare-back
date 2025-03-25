@@ -47,6 +47,36 @@ namespace Services
             };
         }
 
+        public async Task<int>  GetReviewsRateByIdAsync(int id)
+        {
+            int rate = 0, sum = 0, count = 0;
+            List<ReviewDto> reviews = await _context.Reviews
+                .Select(r => new ReviewDto
+                {
+                    Id = r.Id,
+                    ProductId = r.ProductId,
+                    UserId = r.UserId,
+                    Rate = r.Rate,
+                    Comment = r.Comment
+                })
+                .ToListAsync();
+            
+            for(int i = 0; i < reviews.Count; i++)
+            {
+                if(id == reviews[i].Id){
+                    count += 1;
+                    sum += reviews[i].Rate;
+                }
+            }
+
+            if (count > 0)
+            {
+                rate = sum / count;
+            }
+
+            return rate;
+        }
+
         public async Task<ReviewDto> CreateReviewAsync(ReviewDto reviewDto)
         {
             var review = new Review

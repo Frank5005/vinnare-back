@@ -14,6 +14,7 @@ public class ProductService_test
     private readonly ProductService _productService;
     private readonly Mock<IJobService> _mockJobService;
     private readonly Mock<IUserService> _mockUserService;
+    private readonly Mock<IReviewService> _mockReviewService;
 
     public ProductService_test()
     {
@@ -27,7 +28,8 @@ public class ProductService_test
         _mockLogger = new Mock<ILogger<ProductService>>();
         _mockJobService = new Mock<IJobService>();
         _mockUserService = new Mock<IUserService>();
-        _productService = new ProductService(_dbContext, _mockLogger.Object, _mockJobService.Object, _mockUserService.Object);
+        _mockReviewService = new Mock<IReviewService>();
+        _productService = new ProductService(_dbContext, _mockLogger.Object, _mockJobService.Object, _mockUserService.Object, _mockReviewService.Object);
     }
 
     [Fact]
