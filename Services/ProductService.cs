@@ -52,22 +52,6 @@ namespace Services
                 .ToListAsync();
         }
 
-
-        /*
-        public async Task<IEnumerable<ProductView>> GetAvailableProductsAsync()
-        {
-            return await _context.Products
-                .Where(p => p.Available > 0 && p.Approved == true)
-                .Select(p => new ProductView
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    Price = p.Price,
-                    Category = p.Category
-                })
-                .ToListAsync();
-        }*/
-
         public async Task<IEnumerable<ProductViewPage>> GetAvailableProductsPageAsync()
         {
             var products = await _context.Products
@@ -95,17 +79,24 @@ namespace Services
         }
 
 
-        public async Task<ProductDto?> GetProductByIdAsync(int id)
+        public async Task<ProductDetail> GetProductByIdAsync(int id)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null) return null;
 
-            return new ProductDto
+            var rate = await _reviewService.GetReviewsRateByIdAsync(product.Id);
+
+            return new ProductDetail
             {
                 Id = product.Id,
                 Title = product.Title,
                 Price = product.Price,
-                Category = product.Category
+                Description = product.Description,
+                Category = product.Category,
+                Image = product.Image,
+                Rate = rate,
+                Quantity = product.Quantity,
+                Available = product.Available
             };
         }
 

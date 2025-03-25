@@ -9,7 +9,7 @@ namespace Services.Interfaces
         //Task<IEnumerable<ProductView>> GetAvailableProductsAsync();
         Task<IEnumerable<ProductViewPage>> GetAvailableProductsPageAsync();
         Task<IEnumerable<ProductViewPage>> GetProductsByCategoryAsync(int id);
-        Task<ProductDto?> GetProductByIdAsync(int id);
+        Task<ProductDetail> GetProductByIdAsync(int id);
         Task<Product> CreateProductAsync(ProductRequest productDto);
         Task<Product> CreateProductByEmployeeAsync(ProductRequest productDto);
 
