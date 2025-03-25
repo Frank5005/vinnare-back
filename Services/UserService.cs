@@ -79,6 +79,9 @@ namespace Services
 
             return id == Guid.Empty ? null : id;
         }
+
+        
+
         public async Task<Guid> GetUserIdFromToken(string token)
         {
             var handler = new JwtSecurityTokenHandler();
