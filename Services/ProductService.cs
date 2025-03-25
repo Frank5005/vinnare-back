@@ -109,6 +109,32 @@ namespace Services
             };
         }
 
+        public async Task<IEnumerable<ProductViewPage>> GetProductsByCategoryAsync(int id)
+        {
+            var products = await _context.Products
+                .Where(p => p.Available > 0 && p.Approved == true && p.CategoryId == id)
+                .ToListAsync();
+
+            var productViewPages = new List<ProductViewPage>();
+
+            foreach (var product in products)
+            {
+                var rate = await _reviewService.GetReviewsRateByIdAsync(product.Id);
+                productViewPages.Add(new ProductViewPage
+                {
+                    Id = product.Id,
+                    Title = product.Title,
+                    Price = product.Price,
+                    Description = product.Description,
+                    Category = product.Category,
+                    Image = product.Image,
+                    Rate = rate
+                });
+            }
+
+            return productViewPages;
+        }
+
         public async Task<Product> CreateProductAsync(ProductRequest productDto)
         {
 

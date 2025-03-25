@@ -49,6 +49,14 @@ namespace Api.Controllers
             return Ok(products);
         }
 
+        // GET: apiproduct/store/{category}
+        [HttpGet("store/{category:int}")]
+        public async Task<IActionResult> GetProductsByCategory(int id)
+        {
+            var products = await _productService.GetProductsByCategoryAsync(id);
+            return Ok(products);
+        }
+
         // GET: api/product/{id}
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetProductById(int id)
