@@ -49,6 +49,14 @@ namespace Services
             };
         }
 
+        public async Task<string> GetUsernameById(Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return null;
+
+            return user.Username;
+        }
+
         public async Task<UserDto?> GetUserByUsername(string username)
         {
             var userQuery = from n in _context.Users
@@ -107,7 +115,9 @@ namespace Services
                 Email = userDto.Email,
                 Username = userDto.Username,
                 Password = hashedPassword,
-                Role = userDto.Role
+                Role = userDto.Role,
+                Date = DateTime.UtcNow,
+                Address = userDto.Address
             };
 
             _context.Users.Add(user);

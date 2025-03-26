@@ -11,25 +11,43 @@ namespace Services
     {
         private readonly VinnareDbContext _context;
         private readonly ILogger<JobService> _logger;
+        private readonly ICategoryService _categoryService;
+        private readonly IProductService _productService;
+        private readonly IUserService _userService;
 
-        public JobService(VinnareDbContext context, ILogger<JobService> logger)
+        public JobService(VinnareDbContext context, ILogger<JobService> logger, ICategoryService categoryService, IProductService productService, IUserService userService)
         {
             _context = context;
             _logger = logger;
+            _categoryService = categoryService;
+            _productService = productService;
+            _userService = userService;
         }
 
         public async Task<IEnumerable<ViewJobResponse>> GetAllJobsAsync()
         {
-            _logger.LogInformation("TESING");
-            return await _context.Jobs
-                .Select(p => new ViewJobResponse
+            var jobs = await _context.Jobs.ToListAsync();
+
+            var jobList = new List<ViewJobResponse>();
+
+            foreach (var job in jobs)
+            {
+                var categoryName = await _categoryService.GetCategoryNameByIdAsync(job.Category.Id);
+                var productName = await _productService.GetProductNameByIdAsync(job.Product.Id);
+                var creatorName = await _userService.GetUsernameById(job.CreatorId);
+                jobList.Add(new ViewJobResponse
                 {
-                    id = p.Id,
-                    JobType = p.Type.ToString(),
-                    Operation = p.Operation.ToString(),
-                    AssociatedId = (int)(p.ProductId ?? p.CategoryId),
-                })
-                .ToListAsync();
+                    id = job.Id,
+                    JobType = job.Type.ToString(),
+                    Operation = job.Operation.ToString(),
+                    AssociatedId = (int)(job.ProductId ?? job.CategoryId),
+                    CategoryName = categoryName,
+                    ProductName = productName,
+                    CreatorName = creatorName
+                });
+            }
+
+            return jobList;
         }
 
         public async Task<JobDto?> GetJobByIdAsync(int id)

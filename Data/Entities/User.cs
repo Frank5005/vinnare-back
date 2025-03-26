@@ -21,6 +21,12 @@ namespace Data.Entities
         [Required]
         public RoleType Role { get; set; }
 
+        [Required]
+        public DateTime Date { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        public string Address { get; set; } = string.Empty;
+
         // Navigation Property
         public ICollection<Product> Products { get; set; }
         public ICollection<Review> Reviews { get; set; }

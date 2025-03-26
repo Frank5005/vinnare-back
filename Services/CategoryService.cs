@@ -62,6 +62,14 @@ namespace Services
             };
         }
 
+        public async Task<string> GetCategoryNameByIdAsync(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null) return null;
+
+            return category.Name;
+        }
+
         public async Task<Category> CreateCategoryByEmployeeAsync(CategoryRequest categoryDto)
         {
             Guid userId = (Guid) await _userService.GetIdByUsername(categoryDto.Username);

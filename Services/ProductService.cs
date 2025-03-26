@@ -100,6 +100,15 @@ namespace Services
             };
         }
 
+        public async Task<string> GetProductNameByIdAsync(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return null;
+
+            return product.Title;
+        }
+        
+
         public async Task<ProductDto?> GetProductForCartWishByIdAsync(int id)
         {
             var product = await _context.Products.FindAsync(id);
@@ -117,7 +126,8 @@ namespace Services
                 OwnerId = product.OwnerId,
                 Price = product.Price,
                 Quantity = product.Quantity,
-                Title = product.Title
+                Title = product.Title,
+                Date = product.Date
             };
         }
 
@@ -175,7 +185,8 @@ namespace Services
                 Description = productDto.Description,
                 Image = productDto.Image,
                 Quantity = productDto.Quantity,
-                Available = productDto.Available
+                Available = productDto.Available,
+                Date = DateTime.UtcNow
             };
 
             _context.Products.Add(product);
@@ -220,7 +231,8 @@ namespace Services
                 Description = productDto.Description,
                 Image = productDto.Image,
                 Quantity = productDto.Quantity,
-                Available = productDto.Available
+                Available = productDto.Available,
+                Date = DateTime.UtcNow
             };
 
             _context.Products.Add(product);

@@ -83,5 +83,6 @@ namespace Shared.DTOs
         public bool Approved { get; set; }
         public int Quantity { get; set; }
         public int Available { get; set; }
+        public DateTime Date { get; set; }
     }
 }

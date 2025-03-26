@@ -27,6 +27,9 @@ namespace Shared.DTOs
     {
         public int id { get; set; }
         public int AssociatedId { get; set; }
+        public string? CategoryName { get; set; }
+        public string? ProductName { get; set; }
+        public string CreatorName { get; set; } = "";
 
 
     }
