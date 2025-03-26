@@ -1,10 +1,10 @@
 ﻿using Data;
 using Data.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Services;
 using Services.Interfaces;
+using Services.Utils;
 using Xunit;
 
 public class CategoryService_test
@@ -17,11 +17,7 @@ public class CategoryService_test
 
     public CategoryService_test()
     {
-        var options = new DbContextOptionsBuilder<VinnareDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDatabase_Category")
-            .Options;
-
-        _dbContext = new VinnareDbContext(options);
+        _dbContext = TestDbContextFactory.Create();
         _dbContext.Database.EnsureCreated();
 
         _mockLogger = new Mock<ILogger<CategoryService>>();

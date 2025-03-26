@@ -20,7 +20,7 @@ namespace Services
 
         public async Task<IEnumerable<CouponDto>> GetAllCouponsAsync()
         {
-            _logger.LogInformation("TESING");
+
             return await _context.Coupons
                 .Select(c => new CouponDto
                 {
@@ -31,9 +31,13 @@ namespace Services
                 .ToListAsync();
         }
 
-        public async Task<CouponDto?> GetCouponByIdAsync(int id)
+        public async Task<CouponDto?> GetCouponByCode(string code)
         {
-            var coupon = await _context.Coupons.FindAsync(id);
+            var query = from n in _context.Coupons
+                        where n.Code == code
+                        select n;
+            var coupon = await query.FirstOrDefaultAsync();
+
             if (coupon == null) return null;
 
             return new CouponDto
@@ -63,23 +67,7 @@ namespace Services
             };
         }
 
-        public async Task<CouponDto?> UpdateCouponAsync(int id, CouponDto couponDto)
-        {
-            var coupon = await _context.Coupons.FindAsync(id);
-            if (coupon == null) return null;
 
-            coupon.Code = couponDto.Code;
-            coupon.DiscountPercentage = couponDto.DiscountPercentage;
-
-            await _context.SaveChangesAsync();
-
-            return new CouponDto
-            {
-                Id = coupon.Id,
-                Code = coupon.Code,
-                DiscountPercentage = coupon.DiscountPercentage
-            };
-        }
 
         public async Task<CouponDto?> DeleteCouponAsync(int id)
         {

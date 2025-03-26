@@ -1,11 +1,15 @@
+using Api.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Exceptions;
 
 namespace Api.Controllers
 {
     [Route("api/coupons")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class CouponController : ControllerBase
     {
         private readonly ICouponService _couponService;
@@ -23,43 +27,47 @@ namespace Api.Controllers
             return Ok(coupons);
         }
 
-        // GET: api/coupons/{id}
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetCouponById(int id)
-        {
-            var coupon = await _couponService.GetCouponByIdAsync(id);
-            if (coupon == null) return NotFound();
-            return Ok(coupon);
-        }
 
         // POST: api/coupons
         [HttpPost]
-        public async Task<IActionResult> CreateCoupon([FromBody] CouponDto couponDto)
+        public async Task<IActionResult> CreateCoupon([FromBody] CouponRequest couponRequest)
         {
-            if (couponDto == null) return BadRequest("Coupon data is required.");
+            if (couponRequest == null)
+            {
+                throw new BadRequestException("Coupon data is required.");
+            }
+            if (couponRequest.discountPercentage >= 100)
+            {
+                throw new BadRequestException("No free stuff!");
+            }
+            var couponDto = new CouponDto
+            {
+                Code = couponRequest.code,
+                DiscountPercentage = couponRequest.discountPercentage
+            };
 
             var createdCoupon = await _couponService.CreateCouponAsync(couponDto);
-            return CreatedAtAction(nameof(GetCouponById), new { id = createdCoupon.Id }, createdCoupon);
+            return Created("", createdCoupon);
         }
 
-        // UPDATE: api/coupons/{id}
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateCoupon(int id, [FromBody] CouponDto couponDto)
-        {
-            if (couponDto == null) return BadRequest("Coupon data is required.");
 
-            var updatedCoupon = await _couponService.UpdateCouponAsync(id, couponDto);
-            if (updatedCoupon == null) return NotFound();
-            return Ok(updatedCoupon);
-        }
 
         // DELETE: api/coupons/{id}
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteCoupon(int id)
+        [HttpDelete("{code:alpha}")]
+        public async Task<IActionResult> DeleteCoupon(string code)
         {
-            var deletedCoupon = await _couponService.DeleteCouponAsync(id);
-            if (deletedCoupon == null) return NotFound();
-            return Ok(deletedCoupon);
+
+            var coupon = await _couponService.GetCouponByCode(code);
+            if (coupon == null)
+            {
+                throw new NotFoundException("that coupon does not exists");
+            }
+            var deletedCoupon = await _couponService.DeleteCouponAsync(coupon.Id);
+            if (deletedCoupon == null)
+            {
+                throw new NotFoundException("that coupon does not exists");
+            }
+            return Ok(new DefaultResponse { message = "deleted coupon" });
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿using Data;
 using Data.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Services;
 using Services.Interfaces;
+using Services.Utils;
 using Xunit;
 
 public class ProductService_test
@@ -17,11 +17,7 @@ public class ProductService_test
 
     public ProductService_test()
     {
-        var options = new DbContextOptionsBuilder<VinnareDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDatabase_Product")
-            .Options;
-
-        _dbContext = new VinnareDbContext(options);
+        _dbContext = TestDbContextFactory.Create();
         _dbContext.Database.EnsureCreated();
 
         _mockLogger = new Mock<ILogger<ProductService>>();
@@ -34,7 +30,15 @@ public class ProductService_test
     public async Task ApproveProduct_ShouldSetApproved_WhenProductExists()
     {
         // Arrange
-        var product = new Product { Id = 1, Approved = false };
+        var product = new Product
+        {
+            Id = 1,
+            Approved = false,
+            Category = "TestCategory",
+            OwnerId = Guid.NewGuid(),
+            Title = "Test Product",
+            Price = 9.99M
+        };
         _dbContext.Products.Add(product);
         _dbContext.SaveChanges();
 
@@ -46,6 +50,7 @@ public class ProductService_test
         Assert.NotNull(updatedProduct);
         Assert.True(updatedProduct.Approved);
     }
+
 
     [Fact]
     public async Task ApproveProduct_ShouldThrowException_WhenProductDoesNotExist()

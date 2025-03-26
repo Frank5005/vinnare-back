@@ -1,9 +1,9 @@
 ﻿using Data;
 using Data.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Services;
+using Services.Utils;
 using Shared.DTOs;
 using Shared.Enums;
 using Xunit;
@@ -16,11 +16,7 @@ public class JobService_test
 
     public JobService_test()
     {
-        var options = new DbContextOptionsBuilder<VinnareDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDatabase")
-            .Options;
-
-        _dbContext = new VinnareDbContext(options);
+        _dbContext = TestDbContextFactory.Create();
         _dbContext.Database.EnsureCreated();
 
         _mockLogger = new Mock<ILogger<JobService>>();

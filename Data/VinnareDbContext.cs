@@ -97,8 +97,7 @@ namespace Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<WishList>(
-                entity =>
+            modelBuilder.Entity<WishList>(entity =>
                 {
                     entity.Property(w => w.Id)
                     .HasColumnType("integer")
@@ -120,28 +119,36 @@ namespace Data
             );
 
 
-            modelBuilder.Entity<Cart>()
-                .Property(c => c.Id)
-                .HasColumnType("integer")
-                .UseIdentityColumn();
+            modelBuilder.Entity<Cart>(entity =>
+                {
+                    entity.Property(c => c.Id)
+                        .HasColumnType("integer")
+                        .UseIdentityColumn();
 
-            modelBuilder.Entity<Cart>()
-                .HasOne(c => c.User)
-                .WithMany(u => u.Carts)
-                .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                    entity.HasOne(c => c.User)
+                        .WithMany(u => u.Carts)
+                        .HasForeignKey(c => c.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Cart>()
-                .HasOne(c => c.Product)
-                .WithMany(p => p.Carts)
-                .HasForeignKey(c => c.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
+                    entity.HasOne(c => c.Product)
+                        .WithMany(p => p.Carts)
+                        .HasForeignKey(c => c.ProductId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    entity.HasIndex(c => new { c.UserId, c.ProductId }).IsUnique();
+                }
+            );
 
             //Coupons
             modelBuilder.Entity<Coupon>()
                 .Property(c => c.Id)
                 .HasColumnType("integer")
                 .UseIdentityColumn();
+
+            //Coupons
+            modelBuilder.Entity<Coupon>()
+                .HasIndex(c => c.Code)
+                .IsUnique();
 
             //Purchases
             modelBuilder.Entity<Purchase>()

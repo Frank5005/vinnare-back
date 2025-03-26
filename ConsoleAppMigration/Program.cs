@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Extensions.Options;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 //Enum Roletype
 public enum RoleType
@@ -19,7 +14,7 @@ public enum RoleType
     Customer
 }
 
-public class UserDto 
+public class UserDto
 {
     public int Id { get; set; }
     public string Email { get; set; }
@@ -103,7 +98,7 @@ public class VinnareDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseNpgsql("Host=localhost;Port=5433;Database=vinnare;Username=postgres;Password=password;");
+        options.UseNpgsql("Host=localhost;Port=5432;Database=vinnare;Username=postgres;Password=password;");
     }
 }
 
@@ -170,7 +165,7 @@ class Program
 
         // Apply migrations
         await db.Database.MigrateAsync();
-        
+
         foreach (var dto in usersDto)
         {
             string hashedPassword = HashPassword(dto.Password);
