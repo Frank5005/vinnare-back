@@ -6,6 +6,8 @@ using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Enums;
 using Shared.Exceptions;
+using Shared.Enums;
+using Shared.Exceptions;
 
 namespace Services
 {
@@ -34,6 +36,11 @@ namespace Services
             .Include(p => p.Category)
             .ToListAsync();*/
 
+
+            /*/var products = await _context.Products
+            .Include(p => p.Category)
+            .ToListAsync();*/
+
             _logger.LogInformation("TESING");
             return await _context.Products
                 .Select(p => new ProductDto
@@ -43,6 +50,11 @@ namespace Services
                     Title = p.Title,
                     Price = p.Price,
                     Category = p.Category,
+                    Description = p.Description,
+                    Image = p.Image,
+                    Approved = p.Approved,
+                    Quantity = p.Quantity,
+                    Available = p.Available
                     Description = p.Description,
                     Image = p.Image,
                     Approved = p.Approved,
@@ -88,6 +100,11 @@ namespace Services
 
             return new ProductDetail
             {
+
+                Approved = product.Approved,
+                Available = product.Available,
+                Category = product.Category,
+                Description = product.Description,
                 Id = product.Id,
                 Title = product.Title,
                 Price = product.Price,
@@ -200,11 +217,28 @@ namespace Services
                 Image = productDto.Image,
                 Quantity = productDto.Quantity,
                 Available = productDto.Available
+                CategoryId = categoryExists.Id,
+                Approved = false,
+                Description = productDto.Description,
+                Image = productDto.Image,
+                Quantity = productDto.Quantity,
+                Available = productDto.Available
             };
 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
+
+            await _jobService.CreateJobAsync(new JobDto
+            {
+                Type = JobType.Product,
+                Operation = OperationType.Create,
+                CreatorId = userId,
+                ProductId = product.Id
+            });
+            //await _context.SaveChangesAsync();
+
+            return product;
 
             await _jobService.CreateJobAsync(new JobDto
             {
@@ -229,7 +263,22 @@ namespace Services
             }
 
             //Verify if the product exists
+        public async Task<Product> UpdateProductAsync(int id, ProductUpdate productDto)
+        {
+
+            //Verify if the category exists
+            var categoryExists = await _context.Categories.FirstOrDefaultAsync(c => c.Name == productDto.Category);
+            if (categoryExists == null)
+            {
+                throw new Exception("The category doesn't exists.");
+            }
+
+            //Verify if the product exists
             var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                throw new Exception("The product doesn't exists.");
+            }
             if (product == null)
             {
                 throw new Exception("The product doesn't exists.");
@@ -249,7 +298,18 @@ namespace Services
             await _context.SaveChangesAsync();
 
             return product;
+            return product;
         }
+
+        public async Task<string> DeleteProductAsync(int id)
+        {
+            string message = "Product deleted successfully";
+            // Verify if the product exists
+            var productExists = await _context.Products.AnyAsync(u => u.Id == id);
+            if (!productExists)
+            {
+                throw new NotFoundException("The product doesn't exists.");
+            }
 
         public async Task<string> DeleteProductAsync(int id)
         {
@@ -263,9 +323,56 @@ namespace Services
 
             var product = await _context.Products.FindAsync(id);
             if (product == null) return "null";
+            if (product == null) return "null";
 
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
+            return message;
+        }
+
+        public async Task<string> DeleteProductByEmployeeAsync(int id, string username)
+        {
+            string message = "You can't delete a product";
+            // Verify if the product exists
+            var productExists = await _context.Products.AnyAsync(u => u.Id == id);
+            if (!productExists)
+            {
+                throw new NotFoundException("The product doesn't exists.");
+            }
+
+            Guid userId = (Guid)await _userService.GetIdByUsername(username);
+
+            if (userId == Guid.Empty)
+            {
+                throw new NotFoundException("User not found.");
+                //Console.WriteLine($"User ID: {userId}");
+            }
+
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return "null";
+
+            await _context.SaveChangesAsync();
+
+            await _jobService.CreateJobAsync(new JobDto
+            {
+                Type = JobType.Product,
+                Operation = OperationType.Delete,
+                CreatorId = userId,
+                ProductId = product.Id
+            });
+
+            //_context.Products.Remove(product);
+            //await _context.SaveChangesAsync();
+            return message;
+        }
+
+        public async Task ApproveProduct(int productId, bool approve)
+        {
+
+            var product = await _context.Products.FindAsync(productId);
+            product!.Approved = approve;
+            await _context.SaveChangesAsync();
+
             return message;
         }
 

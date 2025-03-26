@@ -12,6 +12,7 @@ namespace Data.Entities
 
         [Required]
         public Guid OwnerId { get; set; } = Guid.Empty;
+        public Guid OwnerId { get; set; } = Guid.Empty;
 
         [Required]
         public string Title { get; set; } = string.Empty;
@@ -45,9 +46,13 @@ namespace Data.Entities
 
         [ForeignKey("CategoryId")]
         public Category CategoryType { get; set; }
+
+        [ForeignKey("CategoryId")]
+        public Category CategoryType { get; set; }
         public ICollection<Review> Reviews { get; set; } //= new List<Review>();
         public ICollection<WishList> WishLists { get; set; } //= new List<WishList>();
         public ICollection<Cart> Carts { get; set; } //= new List<Cart>();
+        public ICollection<Job>? Jobs { get; set; }
         public ICollection<Job>? Jobs { get; set; }
 
     }

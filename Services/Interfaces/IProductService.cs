@@ -1,4 +1,5 @@
 using Data.Entities;
+using Data.Entities;
 using Shared.DTOs;
 
 namespace Services.Interfaces
@@ -14,7 +15,11 @@ namespace Services.Interfaces
         Task<Product> CreateProductByEmployeeAsync(ProductRequest productDto);
 
         Task<Product> UpdateProductAsync(int id, ProductUpdate productDto);
+        Task<Product> UpdateProductAsync(int id, ProductUpdate productDto);
 
+        Task<string> DeleteProductAsync(int id);
+        Task<string> DeleteProductByEmployeeAsync(int id, string username);
+        Task ApproveProduct(int productId, bool approve);
         Task<string> DeleteProductAsync(int id);
         Task<string> DeleteProductByEmployeeAsync(int id, string username);
         Task ApproveProduct(int productId, bool approve);

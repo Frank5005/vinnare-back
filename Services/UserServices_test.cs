@@ -3,6 +3,7 @@ using Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Services;
+using Services.Utils;
 using Shared.DTOs;
 using Shared.Enums;
 using Xunit;
@@ -15,11 +16,7 @@ public class UserService_test
 
     public UserService_test()
     {
-        var options = new DbContextOptionsBuilder<VinnareDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDatabase")
-            .Options;
-
-        _dbContext = new VinnareDbContext(options);
+        _dbContext = TestDbContextFactory.Create();
         _dbContext.Database.EnsureCreated();
 
         _dbContext.Users.Add(new User
@@ -122,6 +119,19 @@ public class UserService_test
     [Fact]
     public async Task GetUserByUsername_ShouldReturnCorrectUser()
     {
+        _dbContext.Database.EnsureDeleted();
+        _dbContext.Database.EnsureCreated();
+
+        _dbContext.Users.Add(new User
+        {
+            Id = Guid.NewGuid(),
+            Email = "test1@example.com",
+            Username = "testuser1",
+            Password = "hashedpassword",
+            Role = RoleType.Admin
+        });
+
+        _dbContext.SaveChanges();
         // Arrange
         var testUser = await _dbContext.Users.FirstAsync();
 
