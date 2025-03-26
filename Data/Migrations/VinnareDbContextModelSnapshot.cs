@@ -355,8 +355,7 @@ namespace Data.Migrations
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .IsRequired();
 
                     b.HasOne("Data.Entities.User", "Owner")
                         .WithMany("Products")

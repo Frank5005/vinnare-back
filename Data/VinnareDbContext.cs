@@ -62,14 +62,6 @@ namespace Data
                 .UseIdentityColumn();
 
             modelBuilder.Entity<Product>()
-                //.HasOne(p => p.Owner)
-                .HasOne(p => p.CategoryType)
-                .WithMany(u => u.Products)
-                .HasForeignKey(p => p.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
-            
-            modelBuilder.Entity<Product>()
-                //.HasOne(p => p.Owner)
                 .HasOne(p => p.CategoryType)
                 .WithMany(u => u.Products)
                 .HasForeignKey(p => p.CategoryId)
@@ -77,8 +69,6 @@ namespace Data
 
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Owner)
-                //.HasOne(p => p.CategoryType)
-                //.HasOne(p => p.CategoryType)
                 .WithMany(u => u.Products)
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -86,21 +76,6 @@ namespace Data
             modelBuilder.Entity<Product>()
                 .Property(c => c.Approved)
                 .HasDefaultValue(false);
-
-            //modelBuilder.Entity<Product>()
-            //    .HasOne<Category>()
-            //    .WithMany(c => c.Products)
-            //    .HasForeignKey(p => p.Category)
-            //    .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<Product>()
-                .Property(c => c.Approved)
-                .HasDefaultValue(false);
-
-            //modelBuilder.Entity<Product>()
-            //    .HasOne<Category>()
-            //    .WithMany(c => c.Products)
-            //    .HasForeignKey(p => p.Category)
-            //    .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Review>(entity =>
             {
 
@@ -207,18 +182,6 @@ namespace Data
                 .HasForeignKey(j => j.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
             });
-
-                entity.HasOne(j => j.Product)
-                .WithMany(p => p.Jobs)
-                .HasForeignKey(j => j.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(j => j.Category)
-                .WithMany(c => c.Jobs)
-                .HasForeignKey(j => j.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
-            });
-
         }
     }
 

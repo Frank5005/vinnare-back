@@ -21,22 +21,16 @@ namespace Services
             _context = context;
             _passwordHasher = passwordHasher;
         }
-
-        public async Task<IEnumerable<UserDtoString>> GetAllUsersAsync()
         public async Task<IEnumerable<UserDtoString>> GetAllUsersAsync()
         {
             return await _context.Users
                 .Select(user => new UserDtoString
-                .Select(user => new UserDtoString
                 {
-                    Name = user.Name,
                     Name = user.Name,
                     Email = user.Email,
                     Username = user.Username,
                     Password = user.Password,
-                    Role = user.Role.ToString(),
-                    Password = user.Password,
-                    Role = user.Role.ToString(),
+                    Role = user.Role.ToString()
                 })
                 .ToListAsync();
         }
@@ -62,8 +56,6 @@ namespace Services
                             select n;
 
             var user = await userQuery.FirstOrDefaultAsync();
-
-            if (user == null) return null;
 
             if (user == null) return null;
 
@@ -172,19 +164,11 @@ namespace Services
                 Email = user.Email,
                 Username = user.Username,
                 Name = user.Name,
-                Name = user.Name,
                 Role = user.Role
             };
         }
-
-
-        public async Task<List<UserDto>> DeleteUsersAsync(List<string> usernames)
-
         public async Task<List<UserDto>> DeleteUsersAsync(List<string> usernames)
         {
-            var users = await _context.Users.Where(u => usernames.Contains(u.Username)).ToListAsync();
-
-            if (!users.Any()) return new List<UserDto>(); // No users found
             var users = await _context.Users.Where(u => usernames.Contains(u.Username)).ToListAsync();
 
             if (!users.Any()) return new List<UserDto>(); // No users found
@@ -194,13 +178,11 @@ namespace Services
             await _context.SaveChangesAsync();
 
             return users.Select(user => new UserDto
-            return users.Select(user => new UserDto
             {
                 Id = user.Id,
                 Email = user.Email,
                 Username = user.Username,
                 Role = user.Role
-            }).ToList();
             }).ToList();
         }
 

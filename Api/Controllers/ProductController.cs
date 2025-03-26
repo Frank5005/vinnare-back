@@ -6,7 +6,6 @@ using Microsoft.VisualBasic;
 using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Exceptions;
-using Shared.Exceptions;
 
 namespace Api.Controllers
 {
@@ -71,12 +70,7 @@ namespace Api.Controllers
         [Authorize(Roles = "Admin, Seller")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductRequest productDto)
-        // POST: api/product/create
-        [Authorize(Roles = "Admin, Seller")]
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductRequest productDto)
         {
-            if (productDto == null) throw new BadRequestException("Product data is required.");
             if (productDto == null) throw new BadRequestException("Product data is required.");
 
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -94,26 +88,19 @@ namespace Api.Controllers
 
         // UPDATE: api/product/{id}
         [Authorize(Roles = "Admin, Seller")]
-        [Authorize(Roles = "Admin, Seller")]
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductUpdate productDto)
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductUpdate productDto)
         {
             if (productDto == null) throw new BadRequestException("Product data is required.");
-            if (productDto == null) throw new BadRequestException("Product data is required.");
 
             var updatedProduct = await _productService.UpdateProductAsync(id, productDto);
-            if (updatedProduct == null) throw new NotFoundException("Product not found.");
-            return Ok(new ProductResponse { Id = updatedProduct.Id, message = "Product updated successfully" });
             if (updatedProduct == null) throw new NotFoundException("Product not found.");
             return Ok(new ProductResponse { Id = updatedProduct.Id, message = "Product updated successfully" });
         }
 
         // DELETE: api/product/{id}
         [Authorize(Roles = "Admin, Seller")]
-        [Authorize(Roles = "Admin, Seller")]
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteProduct(int id, [FromHeader] string username)
         public async Task<IActionResult> DeleteProduct(int id, [FromHeader] string username)
         {
             var deletedProduct = "";

@@ -52,7 +52,7 @@ namespace Api.Controllers
                 throw new UnauthorizedException("You are not loged in as the user. You can't add to someone else wishlist.");
             }
 
-            var product = await _productService.GetProductByIdAsync(wishListRequest.ProductId);
+            var product = await _productService.GetProductForCartWishByIdAsync(wishListRequest.ProductId);
             if (product == null || product.Approved == false)
             {
                 throw new NotFoundException("No Product with that id exists");

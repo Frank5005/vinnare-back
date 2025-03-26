@@ -75,7 +75,7 @@ public class WishListController_test
         };
 
         _mockUserService.Setup(s => s.GetIdByUsername(username)).ReturnsAsync(userId);
-        _mockProductService.Setup(p => p.GetProductByIdAsync(request.ProductId))
+        _mockProductService.Setup(p => p.GetProductForCartWishByIdAsync(request.ProductId))
             .ReturnsAsync(new ProductDto { Id = 123, Approved = true });
 
         // Act
