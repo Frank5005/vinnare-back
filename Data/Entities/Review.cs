@@ -23,7 +23,6 @@ namespace Data.Entities
 
         [Required]
         public int Rate { get; set; } = 0;
-        [Required]
 
 
         // Navigation Property
