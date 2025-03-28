@@ -194,15 +194,29 @@ namespace Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CouponApplied")
-                        .HasColumnType("integer");
+                    b.Property<string>("CouponCode")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
+                    b.PrimitiveCollection<List<decimal>>("Prices")
+                        .IsRequired()
+                        .HasColumnType("numeric[]");
+
                     b.PrimitiveCollection<List<int>>("Products")
                         .IsRequired()
                         .HasColumnType("integer[]");
+
+                    b.PrimitiveCollection<List<int>>("Quantities")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("TotalPriceBeforeDiscount")
+                        .HasColumnType("money");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");

@@ -12,15 +12,25 @@ namespace Data.Entities
 
         [Required]
         public List<int> Products { get; set; }
-
+        [Required]
+        public List<decimal> Prices { get; set; }
+        [Required]
+        public List<int> Quantities { get; set; }
         [Required]
         public Guid UserId { get; set; }
 
-        [Required]
-        public int CouponApplied { get; set; }
+        public string? CouponCode { get; set; }
 
         [Required]
-        public DateTime Date { get; set; } = DateTime.Now;
+        [Column(TypeName = "money")]
+        public decimal TotalPrice { get; set; }
+
+        [Required]
+        [Column(TypeName = "money")]
+        public decimal TotalPriceBeforeDiscount { get; set; }
+
+        [Required]
+        public DateTime Date { get; set; } = DateTime.UtcNow;
 
         // Navigation Property
         [ForeignKey("UserId")]
