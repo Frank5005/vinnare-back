@@ -7,7 +7,6 @@ namespace Data.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        //[Column(TypeName = "serial")]
         public int Id { get; set; }
 
         [Required]

@@ -18,18 +18,28 @@ namespace Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<CartDto>> GetAllCartsAsync()
+        public async Task<IEnumerable<CartItemDto>> GetFullCartByUserId(Guid userId)
         {
-            return await _context.Carts
-                .Select(c => new CartDto
+            var fullCart = await _context.Carts
+                .Where(c => c.UserId == userId)
+                .Include(c => c.Product)
+                .Select(c => new CartItemDto
                 {
-                    Id = c.Id,
-                    UserId = c.UserId,
-                    ProductId = c.ProductId,
-                    Quantity = c.Quantity
+                    Quantity = c.Quantity,
+                    ProductId = c.Product.Id,
+                    Title = c.Product.Title,
+                    Price = c.Product.Price,
+                    Description = c.Product.Description,
+                    Category = c.Product.Category,
+                    Image = c.Product.Image,
+                    CategoryId = c.Product.CategoryId,
+                    Available = c.Product.Available
                 })
                 .ToListAsync();
+
+            return fullCart;
         }
+
 
         public async Task<IEnumerable<CartDto>?> GetCartByUserId(Guid id)
         {
@@ -115,5 +125,6 @@ namespace Services
                 Quantity = cart.Quantity
             };
         }
+
     }
 }

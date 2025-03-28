@@ -26,6 +26,21 @@ namespace Api.Controllers
         }
 
 
+        // GET: api/cart/full
+        [HttpGet("full")]
+        public async Task<IActionResult> GetFullCartById()
+        {
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
+
+            var cart = await _cartService.GetFullCartByUserId(userId);
+            if (cart == null) { throw new NotFoundException("Your cart is empty"); }
+
+
+
+            return Ok(cart);
+        }
+
         // GET: api/cart
         [HttpGet]
         public async Task<IActionResult> GetCartById()
