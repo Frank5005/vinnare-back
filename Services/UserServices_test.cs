@@ -85,7 +85,8 @@ public class UserService_test
             Email = "newuser@example.com",
             Username = "newuser",
             Password = "password123",
-            Role = RoleType.Seller
+            Role = RoleType.Seller,
+            Address = "123 Main St"
         };
 
         // Act
@@ -106,7 +107,8 @@ public class UserService_test
             Email = "hashuser@example.com",
             Username = "hashuser",
             Password = "passwordToHash",
-            Role = RoleType.Seller
+            Role = RoleType.Seller,
+            Address = "123 Main St"
         };
 
         // Act

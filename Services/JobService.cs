@@ -1,6 +1,7 @@
 using Data;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Services.Interfaces;
 using Shared.DTOs;
@@ -11,17 +12,19 @@ namespace Services
     {
         private readonly VinnareDbContext _context;
         private readonly ILogger<JobService> _logger;
-        private readonly ICategoryService _categoryService;
-        private readonly IProductService _productService;
+        //private readonly ICategoryService _categoryService;
+        private readonly IServiceProvider _serviceProvider;
+        //private readonly IProductService _productService;
         private readonly IUserService _userService;
 
-        public JobService(VinnareDbContext context, ILogger<JobService> logger, ICategoryService categoryService, IProductService productService, IUserService userService)
+        public JobService(VinnareDbContext context, ILogger<JobService> logger, IUserService userService, IServiceProvider serviceProvider)
         {
             _context = context;
             _logger = logger;
-            _categoryService = categoryService;
-            _productService = productService;
+            //_categoryService = categoryService;
+            //_productService = productService;
             _userService = userService;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task<IEnumerable<ViewJobResponse>> GetAllJobsAsync()
@@ -32,8 +35,10 @@ namespace Services
 
             foreach (var job in jobs)
             {
-                var categoryName = await _categoryService.GetCategoryNameByIdAsync(job.Category.Id);
-                var productName = await _productService.GetProductNameByIdAsync(job.Product.Id);
+                //var categoryName = await _categoryService.GetCategoryNameByIdAsync(job.Category.Id);
+                var categoryName = await _serviceProvider.GetRequiredService<ICategoryService>().GetCategoryNameByIdAsync(job.Category.Id);
+                //var productName = await _productService.GetProductNameByIdAsync(job.Product.Id);
+                var productName = await _serviceProvider.GetRequiredService<IProductService>().GetProductNameByIdAsync(job.Product.Id);
                 var creatorName = await _userService.GetUsernameById(job.CreatorId);
                 jobList.Add(new ViewJobResponse
                 {

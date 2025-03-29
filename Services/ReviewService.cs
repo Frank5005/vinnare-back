@@ -78,7 +78,7 @@ namespace Services
             
             for(int i = 0; i < reviews.Count; i++)
             {
-                if(id == reviews[i].Id){
+                if(id == reviews[i].ProductId){
                     count += 1;
                     sum += reviews[i].Rate;
                 }

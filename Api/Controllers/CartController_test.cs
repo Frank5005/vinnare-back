@@ -123,11 +123,11 @@ public class CartController_test
     public async Task CreateCart_ShouldReturnCreated_WhenValid()
     {
         var request = new CreateCartRequest { productId = 10, quantity = 3 };
-        var product = new ProductDto { Id = 10, Approved = true, Available = 5 };
+         var product = new ProductDto { Id = 2, Available = 10, Approved = true };
         var cartDto = new CartDto { Id = 1, UserId = _userId, ProductId = 10, Quantity = 3 };
 
         _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
-        _mockProductService.Setup(s => s.GetProductByIdAsync(10)).ReturnsAsync(product);
+        _mockProductService.Setup(s => s.GetProductForCartWishByIdAsync(10)).ReturnsAsync(product);
         _mockCartService.Setup(s => s.CreateCartAsync(It.IsAny<CartDto>())).ReturnsAsync(cartDto);
 
         var result = await _controller.CreateCart(request);
@@ -141,10 +141,10 @@ public class CartController_test
     public async Task CreateCart_ShouldThrowGone_WhenProductUnavailable()
     {
         var request = new CreateCartRequest { productId = 10, quantity = 1 };
-        var product = new ProductDto { Id = 10, Approved = true, Available = 0 };
+        var product = new ProductDto { Id = 2, Available = 0, Approved = true };
 
         _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
-        _mockProductService.Setup(s => s.GetProductByIdAsync(10)).ReturnsAsync(product);
+        _mockProductService.Setup(s => s.GetProductForCartWishByIdAsync(10)).ReturnsAsync(product);
 
         await Assert.ThrowsAsync<GoneException>(() => _controller.CreateCart(request));
     }
@@ -152,7 +152,18 @@ public class CartController_test
     [Fact]
     public async Task UpdateCart_ShouldReturnOk_WhenValid()
     {
-        var product = new ProductDto { Id = 10, Available = 5 };
+        var product = new ProductDetail
+        {
+            Id = 10,
+            Title = "Producto de prueba",
+            Price = 99.99m,
+            Description = "Descripción de prueba",
+            Category = "Test",
+            Image = "test.jpg",
+            Rate = 5,
+            Quantity = 10,
+            Available = 5
+        };
         var cart = new CartDto { Id = 99, ProductId = 10, UserId = _userId, Quantity = 1 };
 
         _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
