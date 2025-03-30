@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Exceptions;
+using Shared.Metrics;
 
 namespace Services.Builders
 {
@@ -164,6 +165,70 @@ namespace Services.Builders
                 throw new BadRequestException("No transaction to rollback.");
 
             await _transaction.RollbackAsync();
+            return this;
+        }
+
+        public ICartPurchaseBuilder AddMetricsData()
+        {
+            // 1) Record the final purchase price in a histogram
+            //    We want the distribution of how much people spend
+            PurchasesMetrics.PurchaseAmountHistogram.Record(
+                (double)_finalPrice,
+                new("date", DateTime.UtcNow.ToString("yyyy-MM-dd")),
+                new("user_id", _userId.ToString())
+            );
+
+            // 2) Category metrics
+            // 2a) Count total units sold per category
+            foreach (var item in _cartItems)
+            {
+                // For each item, increment the "units sold" by item.Quantity
+                // Tag with the category and optionally product title
+                PurchasesMetrics.CategoryUnitsSoldCounter.Add(
+                    item.Quantity,
+                    new("date", DateTime.UtcNow.ToString("yyyy-MM-dd")),
+                    new("category", item.Product.Category ?? "Unknown"),
+                    new("product", item.Product.Title ?? "NoTitle")
+                );
+            }
+
+            // 2b) Count how many purchases included each category
+            //     We only want to increment once per category, even if multiple items of that category
+            var distinctCategories = _cartItems
+                .Select(i => i.Product?.Category)
+                .Where(c => c != null)
+                .Distinct();
+
+            foreach (var category in distinctCategories)
+            {
+                PurchasesMetrics.CategoryPurchasesCounter.Add(
+                    1,
+                    new("date", DateTime.UtcNow.ToString("yyyy-MM-dd")),
+                    new("category", category!),
+                    new("user_id", _userId.ToString())
+                );
+            }
+
+            // 3) Coupon metrics
+            if (!string.IsNullOrWhiteSpace(_couponData?.coupon_code))
+            {
+                // 3a) Count usage of this coupon
+                PurchasesMetrics.CouponUsageCounter.Add(
+                    1,
+                    new("date", DateTime.UtcNow.ToString("yyyy-MM-dd")),
+                    new("coupon_code", _couponData.coupon_code)
+                );
+
+                // 3b) Record the distribution of discount amounts
+                //     e.g. (original price - final price)
+                double discountAmount = (double)(_totalPricePreDiscount - _totalAfterDiscount);
+                PurchasesMetrics.CouponDiscountHistogram.Record(
+                    discountAmount,
+                    new("date", DateTime.UtcNow.ToString("yyyy-MM-dd")),
+                    new("coupon_code", _couponData.coupon_code)
+                );
+            }
+
             return this;
         }
 

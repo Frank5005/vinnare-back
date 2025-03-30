@@ -61,6 +61,7 @@ namespace Api.Controllers
                     .ClearCart()
                     .PersistAllChangesAsync())
                     .CommitTransactionAsync())
+                    .AddMetricsData()
                     .FormatOutput();
                 return Created("", result);
             }

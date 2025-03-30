@@ -27,6 +27,7 @@ namespace Services.Builders
 
         Task<ICartPurchaseBuilder> RollbackTransactionAsync();
 
+        ICartPurchaseBuilder AddMetricsData();
         PurchaseResponse? FormatOutput();
     }
 }
