@@ -67,7 +67,7 @@ namespace Api.Controllers
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
                 await builder.RollbackTransactionAsync();
                 _logger.LogCritical(ex.Message);
                 throw new BadRequestException("something failed. Please try again");

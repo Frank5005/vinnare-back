@@ -61,7 +61,7 @@ namespace Services
 
         public async Task<Category> CreateCategoryByEmployeeAsync(CategoryRequest categoryDto)
         {
-            Guid userId = (Guid) await _userService.GetIdByUsername(categoryDto.Username);
+            Guid userId = (Guid)await _userService.GetIdByUsername(categoryDto.Username);
 
             if (userId == Guid.Empty)
             {
@@ -186,8 +186,8 @@ namespace Services
                 CategoryId = category.Id
             });
 
-            //_context.Categories.Remove(category);
-            //await _context.SaveChangesAsync();
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
             return message;
         }
 

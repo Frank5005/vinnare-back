@@ -21,8 +21,6 @@ namespace Data.Entities
 
         public string? Description { get; set; }
 
-        public int? CategoryId { get; set; }
-
         [Required]
         public string Category { get; set; }
 
@@ -33,6 +31,9 @@ namespace Data.Entities
         public int Quantity { get; set; } = 0;
 
         public int Available { get; set; } = 0;
+
+        [Required]
+        public int CategoryId { get; set; }
 
         // Navigation Property
         [ForeignKey("OwnerId")]

@@ -57,13 +57,6 @@ namespace Data
                 .UseIdentityColumn();
 
             modelBuilder.Entity<Product>()
-                //.HasOne(p => p.Owner)
-                .HasOne(p => p.CategoryType)
-                .WithMany(u => u.Products)
-                .HasForeignKey(p => p.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Product>()
                 .HasOne(p => p.Owner)
                 //.HasOne(p => p.CategoryType)
                 .WithMany(u => u.Products)
@@ -115,8 +108,7 @@ namespace Data
 
                     entity.HasIndex(w => new { w.UserId, w.ProductId }).IsUnique();
 
-                }
-            );
+                });
 
 
             modelBuilder.Entity<Cart>(entity =>
@@ -135,10 +127,7 @@ namespace Data
                         .HasForeignKey(c => c.ProductId)
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    entity.HasIndex(c => new { c.UserId, c.ProductId }).IsUnique();
-                }
-            );
-
+                });
             //Coupons
             modelBuilder.Entity<Coupon>()
                 .Property(c => c.Id)
@@ -161,7 +150,6 @@ namespace Data
                 .WithMany(u => u.Purchases)
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
             //Jobs
             modelBuilder.Entity<Job>(entity =>
             {
@@ -184,8 +172,6 @@ namespace Data
                 .HasForeignKey(j => j.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
             });
-
         }
     }
-
 }

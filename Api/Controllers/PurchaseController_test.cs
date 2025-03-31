@@ -131,6 +131,7 @@ public class PurchaseController_test
         builder.Setup(b => b.ClearCart()).Returns(builder.Object);
         builder.Setup(b => b.PersistAllChangesAsync()).ReturnsAsync(builder.Object);
         builder.Setup(b => b.CommitTransactionAsync()).ReturnsAsync(builder.Object);
+        builder.Setup(b => b.AddMetricsData()).Returns(builder.Object);
         builder.Setup(b => b.FormatOutput()).Returns(response);
 
         // Act
