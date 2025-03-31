@@ -31,10 +31,13 @@ Using **Jira** → [Project Board](https://vinnare.atlassian.net/jira/software/p
 
 ## 🗃️ Entity Relationship Diagram
 ![Final ER Diagram Back End Challenge](https://github.com/user-attachments/assets/5478494d-7edc-4926-90c3-fca2305ad318)
+
+---
+
 ## 🧪 Unit tests
-![image (4)](https://github.com/user-attachments/assets/577b843d-d9b8-40f5-8607-36e096d70a5b)
+![image (5)](https://github.com/user-attachments/assets/07af065b-773c-4004-899d-008b66582efb)
 
-
+---
 
 ## 🧰 Instructions to run the application
 ### 📋 Prerequisites
