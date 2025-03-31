@@ -32,8 +32,8 @@ Using **Jira** → [Project Board](https://vinnare.atlassian.net/jira/software/p
 ## 🗃️ Entity Relationship Diagram
 ![Final ER Diagram Back End Challenge](https://github.com/user-attachments/assets/5478494d-7edc-4926-90c3-fca2305ad318)
 ## 🧪 Unit tests
-<img width="187" height="250" alt="UnitTestBEChallenge1" src="https://github.com/user-attachments/assets/619a1d59-3ca4-4459-98d7-10de4d287601" />
-<img width="269" alt="UnitTestBEChallenge2" src="https://github.com/user-attachments/assets/fdef4bde-2de7-4fdd-9a39-b00222a7a48e" />
+![image (4)](https://github.com/user-attachments/assets/577b843d-d9b8-40f5-8607-36e096d70a5b)
+
 
 
 ## 🧰 Instructions to run the application
