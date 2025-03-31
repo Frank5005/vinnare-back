@@ -6,8 +6,6 @@ using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Enums;
 using Shared.Exceptions;
-using Shared.Enums;
-using Shared.Exceptions;
 
 namespace Services
 {
