@@ -32,14 +32,23 @@ namespace Api.Controllers
             return Ok(review);
         }
 
-        // POST: api/reviews
-        [HttpPost]
-        public async Task<IActionResult> CreateReview([FromBody] ReviewDto reviewDto)
+        // Get: api/reviews/store/{id}
+        [HttpGet("store/{id:int}")]
+        public async Task<IActionResult> GetReviewsById(int productId)
         {
-            if (reviewDto == null) return BadRequest("Review data is required.");
+            var reviews = await _reviewService.GetProductReviewsByIdAsync(productId);
+            return Ok(reviews);
+        }
 
-            var createdReview = await _reviewService.CreateReviewAsync(reviewDto);
-            return CreatedAtAction(nameof(GetReviewById), new { id = createdReview.Id }, createdReview);
+        // POST: api/reviews
+        [HttpPost("add")]
+        public async Task<IActionResult> CreateReview([FromBody] ReviewRequest reviewRequest)
+        {
+            if (reviewRequest == null) return BadRequest("Review data is required.");
+
+            var createdReview = await _reviewService.CreateReviewAsync(reviewRequest);
+            //return CreatedAtAction(nameof(GetReviewById), new { id = createdReview.Id }, createdReview);
+            return Ok(new ReviewResponse { Username = createdReview.Username, ProductId = createdReview.ProductId, Comment = createdReview.Comment });
         }
 
         // UPDATE: api/reviews/{id}

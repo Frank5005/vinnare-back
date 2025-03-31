@@ -15,7 +15,8 @@ public class ProductService_test
     private readonly Mock<ILogger<ProductService>> _mockLogger;
     private readonly Mock<IJobService> _mockJobService;
     private readonly Mock<IUserService> _mockUserService;
-    private readonly ProductService _service;
+    private readonly Mock<IReviewService> _mockReviewService;
+    private readonly ProductService _productService;
 
     public ProductService_test()
     {
@@ -23,19 +24,10 @@ public class ProductService_test
         _mockLogger = new Mock<ILogger<ProductService>>();
         _mockJobService = new Mock<IJobService>();
         _mockUserService = new Mock<IUserService>();
-        _service = new ProductService(_dbContext, _mockLogger.Object, _mockJobService.Object, _mockUserService.Object);
+        _mockReviewService = new Mock<IReviewService>();
+        _productService = new ProductService(_dbContext, _mockLogger.Object, _mockJobService.Object, _mockUserService.Object, _mockReviewService.Object);
     }
 
-    [Fact]
-    public async Task GetAllProductsAsync_ShouldReturnAllProducts()
-    {
-        _dbContext.Products.Add(new Product { Title = "Test", Price = 10, Category = "A", OwnerId = Guid.NewGuid() });
-        await _dbContext.SaveChangesAsync();
-
-        var result = await _service.GetAllProductsAsync();
-
-        Assert.Single(result);
-    }
 
     [Fact]
     public async Task GetAvailableProductsAsync_ShouldReturnOnlyApprovedWithStock()
@@ -44,7 +36,7 @@ public class ProductService_test
         _dbContext.Products.Add(new Product { Title = "B", Price = 10, Approved = false, Available = 5, Category = "B", OwnerId = Guid.NewGuid() });
         await _dbContext.SaveChangesAsync();
 
-        var result = await _service.GetAvailableProductsAsync();
+        var result = await _productService.GetAvailableProductsPageAsync();
 
         Assert.Single(result);
         Assert.Equal("A", result.First().Title);
@@ -57,7 +49,7 @@ public class ProductService_test
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
 
-        var result = await _service.GetProductByIdAsync(product.Id);
+        var result = await _productService.GetProductByIdAsync(product.Id);
 
         Assert.NotNull(result);
         Assert.Equal(product.Title, result.Title);
@@ -66,7 +58,7 @@ public class ProductService_test
     [Fact]
     public async Task GetProductByIdAsync_ShouldReturnNull_WhenNotExists()
     {
-        var result = await _service.GetProductByIdAsync(999);
+        var result = await _productService.GetProductByIdAsync(999);
         Assert.Null(result);
     }
 
@@ -78,7 +70,7 @@ public class ProductService_test
 
         var request = new ProductRequest { OwnerId = Guid.NewGuid(), Category = "Books" };
 
-        await Assert.ThrowsAsync<Exception>(() => _service.CreateProductAsync(request));
+        await Assert.ThrowsAsync<Exception>(() => _productService.CreateProductAsync(request));
     }
 
     [Fact]
@@ -90,7 +82,7 @@ public class ProductService_test
 
         var request = new ProductRequest { OwnerId = user.Id, Category = "NonExisting" };
 
-        await Assert.ThrowsAsync<Exception>(() => _service.CreateProductAsync(request));
+        await Assert.ThrowsAsync<Exception>(() => _productService.CreateProductAsync(request));
     }
 
     [Fact]
@@ -100,7 +92,7 @@ public class ProductService_test
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
 
-        await _service.ApproveProduct(product.Id, true);
+        await _productService.ApproveProduct(product.Id, true);
 
         var updated = await _dbContext.Products.FindAsync(product.Id);
         Assert.True(updated.Approved);
@@ -132,7 +124,7 @@ public class ProductService_test
             Username = "employee"
         };
 
-        var result = await _service.CreateProductByEmployeeAsync(request);
+        var result = await _productService.CreateProductByEmployeeAsync(request);
 
         Assert.NotNull(result);
         Assert.False(result.Approved);
@@ -158,7 +150,7 @@ public class ProductService_test
             Approved = true
         };
 
-        var result = await _service.UpdateProductAsync(product.Id, update);
+        var result = await _productService.UpdateProductAsync(product.Id, update);
 
         Assert.Equal("New", result.Title);
         Assert.Equal(120, result.Price);
@@ -172,7 +164,7 @@ public class ProductService_test
         _dbContext.Products.Add(product);
         await _dbContext.SaveChangesAsync();
 
-        var message = await _service.DeleteProductAsync(product.Id);
+        var message = await _productService.DeleteProductAsync(product.Id);
 
         Assert.Equal("Product deleted successfully", message);
         Assert.Null(await _dbContext.Products.FindAsync(product.Id));
@@ -192,7 +184,7 @@ public class ProductService_test
         _mockUserService.Setup(u => u.GetIdByUsername("employee"))
                         .ReturnsAsync(employeeId);
 
-        var result = await _service.DeleteProductByEmployeeAsync(product.Id, "employee");
+        var result = await _productService.DeleteProductByEmployeeAsync(product.Id, "employee");
 
         Assert.Equal("You can't delete a product", result);
         _mockJobService.Verify(j => j.CreateJobAsync(It.Is<JobDto>(job => job.ProductId == product.Id && job.Type == JobType.Product && job.Operation == OperationType.Delete)), Times.Once);

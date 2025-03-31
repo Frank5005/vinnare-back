@@ -15,11 +15,12 @@ namespace Services
         private readonly ILogger<CategoryService> _logger;
         private readonly IJobService _jobService;
         private readonly IUserService _userService;
-
         public CategoryService(VinnareDbContext context, ILogger<CategoryService> logger, IJobService jobService, IUserService userService)
         {
             _context = context;
             _logger = logger;
+            _jobService = jobService;
+            _userService = userService;
             _jobService = jobService;
             _userService = userService;
         }
@@ -59,6 +60,14 @@ namespace Services
             };
         }
 
+        public async Task<string> GetCategoryNameByIdAsync(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null) return null;
+
+            return category.Name;
+        }
+
         public async Task<Category> CreateCategoryByEmployeeAsync(CategoryRequest categoryDto)
         {
             Guid userId = (Guid)await _userService.GetIdByUsername(categoryDto.Username);
@@ -91,7 +100,6 @@ namespace Services
 
             return category;
         }
-
         public async Task<Category> CreateCategoryAsync(CategoryRequest categoryDto)
         {
             var category = new Category
@@ -105,9 +113,10 @@ namespace Services
 
             return category;
         }
-
         public async Task<Category> UpdateCategoryAsync(int id, CategoryUpdated categoryDto)
         {
+
+            //Verify if the category exists
 
             //Verify if the category exists
             var category = await _context.Categories.FindAsync(id);
@@ -123,15 +132,18 @@ namespace Services
             {
                 throw new Exception("A category with this name already exists.");
             }
+            if (category == null)
+            {
+                throw new NotFoundException("The category doesn't exists.");
+            }
 
             category.Name = categoryDto.Name ?? category.Name;
-            category.Approved = categoryDto.Approved ?? category.Approved;
+            //category.Approved = categoryDto.Approved ?? category.Approved;
 
             await _context.SaveChangesAsync();
 
             return category;
         }
-
         public async Task<string> DeleteCategoryAsync(int id)
         {
             string message = "Category deleted successfully";
@@ -146,6 +158,10 @@ namespace Services
             if (hasProducts)
             {
                 throw new Exception("You can't delete the category because it has products associated.");
+            }
+            if (category == null)
+            {
+                throw new NotFoundException("The category doesn't exists.");
             }
 
             _context.Categories.Remove(category);

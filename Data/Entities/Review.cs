@@ -14,6 +14,9 @@ namespace Data.Entities
         public Guid UserId { get; set; }
 
         [Required]
+        public string Username { get; set; }
+
+        [Required]
         public int ProductId { get; set; }
 
         public string Comment { get; set; } = string.Empty;

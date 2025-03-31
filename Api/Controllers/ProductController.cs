@@ -22,7 +22,7 @@ namespace Api.Controllers
             _productService = productService;
         }
 
-        // GET: api/product
+        // GET: api/product/all
         [Authorize(Roles = "Admin, Seller")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllProducts()
@@ -31,11 +31,31 @@ namespace Api.Controllers
             return Ok(products);
         }
 
-        // GET: api/product/store
-        [HttpGet("store")]
+        // View Product User Story
+        // GET: api/product
+        /*
+        [HttpGet]
         public async Task<IActionResult> GetAvailableProducts()
         {
             var products = await _productService.GetAvailableProductsAsync();
+            return Ok(products);
+        }
+        */
+
+        // Product Display Page User Story
+        // GET: api/product/store
+        [HttpGet("store")]
+        public async Task<IActionResult> GetAvailableProductsPage()
+        {
+            var products = await _productService.GetAvailableProductsPageAsync();
+            return Ok(products);
+        }
+
+        // GET: apiproduct/store/{category}
+        [HttpGet("store/{id:int}")]
+        public async Task<IActionResult> GetProductsByCategory(int id)
+        {
+            var products = await _productService.GetProductsByCategoryAsync(id);
             return Ok(products);
         }
 

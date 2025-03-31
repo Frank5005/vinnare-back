@@ -51,14 +51,24 @@ namespace Data
                 .Property(c => c.Approved)
                 .HasDefaultValue(false);
 
+
+            modelBuilder.Entity<Category>()
+                .Property(c => c.Approved)
+                .HasDefaultValue(false);
+
             modelBuilder.Entity<Product>()
                 .Property(p => p.Id)
                 .HasColumnType("integer")
                 .UseIdentityColumn();
 
             modelBuilder.Entity<Product>()
+                .HasOne(p => p.CategoryType)
+                .WithMany(u => u.Products)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Product>()
                 .HasOne(p => p.Owner)
-                //.HasOne(p => p.CategoryType)
                 .WithMany(u => u.Products)
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -66,18 +76,13 @@ namespace Data
             modelBuilder.Entity<Product>()
                 .Property(c => c.Approved)
                 .HasDefaultValue(false);
-
-            //modelBuilder.Entity<Product>()
-            //    .HasOne<Category>()
-            //    .WithMany(c => c.Products)
-            //    .HasForeignKey(p => p.Category)
-            //    .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Review>(entity =>
             {
 
                 entity.Property(r => r.Id)
                     .HasColumnType("integer")
                     .UseIdentityColumn();
+
 
                 entity.HasOne(r => r.User)
                     .WithMany(u => u.Reviews)
@@ -90,7 +95,7 @@ namespace Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<WishList>(entity =>
+             modelBuilder.Entity<WishList>(entity =>
                 {
                     entity.Property(w => w.Id)
                     .HasColumnType("integer")
@@ -127,7 +132,10 @@ namespace Data
                         .HasForeignKey(c => c.ProductId)
                         .OnDelete(DeleteBehavior.Cascade);
 
-                });
+                    entity.HasIndex(c => new { c.UserId, c.ProductId }).IsUnique();
+                }
+            );
+
             //Coupons
             modelBuilder.Entity<Coupon>()
                 .Property(c => c.Id)

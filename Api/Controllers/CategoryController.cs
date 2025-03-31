@@ -51,7 +51,8 @@ namespace Api.Controllers
             if (categoryDto == null) throw new BadRequestException("Category data is required.");
 
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if (tokenRole == "Admin"){
+            if (tokenRole == "Admin")
+            {
                 var createdCategory = await _categoryService.CreateCategoryAsync(categoryDto);
                 //createdCategory.Approved = true;
                 return Ok(new CategoryResponse { Id = createdCategory.Id, Message = "Category created successfully" });
@@ -89,7 +90,7 @@ namespace Api.Controllers
                 return Ok(new CategoryDelete { Message = deletedCategory });
             }
             deletedCategory = await _categoryService.DeleteCategoryByEmployeeAsync(id, username);
-            return Ok(new ProductDelete { message = deletedCategory});
+            return Ok(new ProductDelete { message = deletedCategory });
         }
     }
 }

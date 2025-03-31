@@ -9,3 +9,13 @@ Información en consideración para el proyecto:
 - La API de Fakestore será utilizada al inicio del desarrollo para obtener los primeros datos de prueba.
 - Se deberá mantener el registro de las sesiones iniciadas, de forma que no puedan haber 2 inicios de sesión de un mismo usuario.
 - El correo y el nombre de usuario de cada uno de los usuarios es único.
+
+README markdown file covering:
+Tools (and libraries).
+Unit tests: indicate the code coverage achieved.
+Instructions to run the application.
+
+Entity Relationship Diagram
+General design and important design decisions
+Methodology used (and how the work was divided).
+A demo of the developed features.

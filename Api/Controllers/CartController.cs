@@ -61,7 +61,7 @@ namespace Api.Controllers
 
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
-            var product = await _productService.GetProductByIdAsync(cartRequest.productId);
+            var product = await _productService.GetProductForCartWishByIdAsync(cartRequest.productId);
 
             if (product == null)
             {

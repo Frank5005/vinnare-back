@@ -21,8 +21,11 @@ namespace Data.Entities
 
         public string? Description { get; set; }
 
+         //[Required]
+        //public int CategoryId { get; set; } = 1;
+
         [Required]
-        public string Category { get; set; }
+        public string Category{ get; set; } = string.Empty;
 
         public string? Image { get; set; }
 
@@ -31,6 +34,9 @@ namespace Data.Entities
         public int Quantity { get; set; } = 0;
 
         public int Available { get; set; } = 0;
+
+        [Required]
+        public DateTime Date { get; set; } = DateTime.UtcNow;
 
         [Required]
         public int CategoryId { get; set; }

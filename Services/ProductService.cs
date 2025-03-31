@@ -15,14 +15,16 @@ namespace Services
         private readonly ILogger<ProductService> _logger;
         private readonly IJobService _jobService;
         private readonly IUserService _userService;
+        private readonly IReviewService _reviewService;
 
 
-        public ProductService(VinnareDbContext context, ILogger<ProductService> logger, IJobService jobService, IUserService userService)
+        public ProductService(VinnareDbContext context, ILogger<ProductService> logger, IJobService jobService, IUserService userService, IReviewService reviewService)
         {
             _context = context;
             _logger = logger;
             _jobService = jobService;
             _userService = userService;
+            _reviewService = reviewService;
         }
 
         public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
@@ -50,23 +52,64 @@ namespace Services
                 .ToListAsync();
         }
 
-
-        public async Task<IEnumerable<ProductView>> GetAvailableProductsAsync()
+        public async Task<IEnumerable<ProductViewPage>> GetAvailableProductsPageAsync()
         {
-            return await _context.Products
+            var products = await _context.Products
                 .Where(p => p.Available > 0 && p.Approved == true)
-                .Select(p => new ProductView
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    Price = p.Price,
-                    Category = p.Category
-                })
                 .ToListAsync();
+
+            var productViewPages = new List<ProductViewPage>();
+
+            foreach (var product in products)
+            {
+                var rate = await _reviewService.GetReviewsRateByIdAsync(product.Id);
+                productViewPages.Add(new ProductViewPage
+                {
+                    Id = product.Id,
+                    Title = product.Title,
+                    Price = product.Price,
+                    Description = product.Description,
+                    Category = product.Category,
+                    Image = product.Image,
+                    Rate = rate
+                });
+            }
+
+            return productViewPages;
         }
 
 
-        public async Task<ProductDto?> GetProductByIdAsync(int id)
+        public async Task<ProductDetail> GetProductByIdAsync(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return null;
+
+            var rate = await _reviewService.GetReviewsRateByIdAsync(product.Id);
+
+            return new ProductDetail
+            {
+                Id = product.Id,
+                Title = product.Title,
+                Price = product.Price,
+                Description = product.Description,
+                Category = product.Category,
+                Image = product.Image,
+                Rate = rate,
+                Quantity = product.Quantity,
+                Available = product.Available
+            };
+        }
+
+        public async Task<string> GetProductNameByIdAsync(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return null;
+
+            return product.Title;
+        }
+        
+
+        public async Task<ProductDto?> GetProductForCartWishByIdAsync(int id)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null) return null;
@@ -83,8 +126,35 @@ namespace Services
                 OwnerId = product.OwnerId,
                 Price = product.Price,
                 Quantity = product.Quantity,
-                Title = product.Title
+                Title = product.Title,
+                Date = product.Date
             };
+        }
+
+        public async Task<IEnumerable<ProductViewPage>> GetProductsByCategoryAsync(int id)
+        {
+            var products = await _context.Products
+                .Where(p => p.Available > 0 && p.Approved == true && p.CategoryId == id)
+                .ToListAsync();
+
+            var productViewPages = new List<ProductViewPage>();
+
+            foreach (var product in products)
+            {
+                var rate = await _reviewService.GetReviewsRateByIdAsync(product.Id);
+                productViewPages.Add(new ProductViewPage
+                {
+                    Id = product.Id,
+                    Title = product.Title,
+                    Price = product.Price,
+                    Description = product.Description,
+                    Category = product.Category,
+                    Image = product.Image,
+                    Rate = rate
+                });
+            }
+
+            return productViewPages;
         }
 
         public async Task<Product> CreateProductAsync(ProductRequest productDto)
@@ -115,7 +185,8 @@ namespace Services
                 Description = productDto.Description,
                 Image = productDto.Image,
                 Quantity = productDto.Quantity,
-                Available = productDto.Available
+                Available = productDto.Available,
+                Date = DateTime.UtcNow
             };
 
             _context.Products.Add(product);
@@ -141,7 +212,7 @@ namespace Services
                 throw new Exception("The category doesn't exists.");
             }
 
-            Guid userId = (Guid)await _userService.GetIdByUsername(productDto.Username);
+            Guid userId = (Guid) await _userService.GetIdByUsername(productDto.Username);
 
             if (userId == Guid.Empty)
             {
@@ -160,7 +231,8 @@ namespace Services
                 Description = productDto.Description,
                 Image = productDto.Image,
                 Quantity = productDto.Quantity,
-                Available = productDto.Available
+                Available = productDto.Available,
+                Date = DateTime.UtcNow
             };
 
             _context.Products.Add(product);
@@ -199,7 +271,7 @@ namespace Services
             product.OwnerId = productDto.OwnerId ?? product.OwnerId;
             product.Title = productDto.Title ?? product.Title;
             product.Price = productDto.Price ?? product.Price;
-            product.Approved = productDto.Approved ?? product.Approved;
+            //product.Approved = productDto.Approved ?? product.Approved;
             product.Description = productDto.Description ?? product.Description;
             product.Image = productDto.Image ?? product.Image;
             product.Quantity = productDto.Quantity ?? product.Quantity;
