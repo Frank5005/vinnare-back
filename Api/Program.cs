@@ -19,6 +19,7 @@ builder.Services.AddSwaggerConfiguration();
 builder.Services.AddDatabaseConfiguration();
 builder.Services.AddApplicationServices();
 builder.Services.AddLoggingConfiguration(builder.Configuration);
+builder.AddOpenTemlemetryConfiguration();
 builder.Services.AddAuthenticationConfiguration();
 builder.Services.AddAuthorization();
 

@@ -61,12 +61,13 @@ namespace Api.Controllers
                     .ClearCart()
                     .PersistAllChangesAsync())
                     .CommitTransactionAsync())
+                    .AddMetricsData()
                     .FormatOutput();
                 return Created("", result);
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine(ex);
                 await builder.RollbackTransactionAsync();
                 _logger.LogCritical(ex.Message);
                 throw new BadRequestException("something failed. Please try again");

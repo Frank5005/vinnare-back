@@ -113,8 +113,7 @@ namespace Data
 
                     entity.HasIndex(w => new { w.UserId, w.ProductId }).IsUnique();
 
-                }
-            );
+                });
 
 
             modelBuilder.Entity<Cart>(entity =>
@@ -159,7 +158,6 @@ namespace Data
                 .WithMany(u => u.Purchases)
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
             //Jobs
             modelBuilder.Entity<Job>(entity =>
             {
@@ -184,5 +182,4 @@ namespace Data
             });
         }
     }
-
 }
