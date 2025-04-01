@@ -7,6 +7,7 @@ using Services.Interfaces;
 using Services.Utils;
 using Shared.DTOs;
 using Shared.Enums;
+using Shared.Exceptions;
 using Xunit;
 
 public class ProductService_test
@@ -16,6 +17,8 @@ public class ProductService_test
     private readonly Mock<IJobService> _mockJobService;
     private readonly Mock<IUserService> _mockUserService;
     private readonly Mock<IReviewService> _mockReviewService;
+    private readonly Mock<IServiceProvider> _mockServiceProvider;
+    private readonly Mock<ICategoryService> _mockCategoryService;
     private readonly ProductService _productService;
 
     public ProductService_test()
@@ -25,7 +28,14 @@ public class ProductService_test
         _mockJobService = new Mock<IJobService>();
         _mockUserService = new Mock<IUserService>();
         _mockReviewService = new Mock<IReviewService>();
-        _productService = new ProductService(_dbContext, _mockLogger.Object, _mockJobService.Object, _mockUserService.Object, _mockReviewService.Object);
+        _mockServiceProvider = new Mock<IServiceProvider>();
+        _mockCategoryService = new Mock<ICategoryService>();
+        _mockServiceProvider.Setup(sp => sp.GetService(typeof(ICategoryService)))
+            .Returns(_mockCategoryService.Object);
+        _mockCategoryService.Setup(c => c.CheckAvailableCategory("NonExisting"))
+            .ThrowsAsync(new NotFoundException("The category doesn't exists."));
+
+        _productService = new ProductService(_dbContext, _mockLogger.Object, _mockJobService.Object, _mockUserService.Object, _mockReviewService.Object, _mockServiceProvider.Object);
     }
 
 
@@ -70,7 +80,7 @@ public class ProductService_test
 
         var request = new ProductRequest { OwnerId = Guid.NewGuid(), Category = "Books" };
 
-        await Assert.ThrowsAsync<Exception>(() => _productService.CreateProductAsync(request));
+        await Assert.ThrowsAsync<NotFoundException>(() => _productService.CreateProductAsync(request));
     }
 
     [Fact]
@@ -80,9 +90,9 @@ public class ProductService_test
         _dbContext.Users.Add(user);
         await _dbContext.SaveChangesAsync();
 
-        var request = new ProductRequest { OwnerId = user.Id, Category = "NonExisting" };
+        var request = new ProductRequest { OwnerId = user.Id, Category = "NonExisting", Title = "Test", Price = 10 };
 
-        await Assert.ThrowsAsync<Exception>(() => _productService.CreateProductAsync(request));
+        await Assert.ThrowsAsync<NotFoundException>(() => _productService.CreateProductAsync(request));
     }
 
     [Fact]

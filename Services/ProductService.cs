@@ -1,6 +1,7 @@
 using Data;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Services.Interfaces;
 using Shared.DTOs;
@@ -16,15 +17,17 @@ namespace Services
         private readonly IJobService _jobService;
         private readonly IUserService _userService;
         private readonly IReviewService _reviewService;
+        private readonly IServiceProvider _serviceProvider;
 
 
-        public ProductService(VinnareDbContext context, ILogger<ProductService> logger, IJobService jobService, IUserService userService, IReviewService reviewService)
+        public ProductService(VinnareDbContext context, ILogger<ProductService> logger, IJobService jobService, IUserService userService, IReviewService reviewService, IServiceProvider serviceProvider)
         {
             _context = context;
             _logger = logger;
             _jobService = jobService;
             _userService = userService;
             _reviewService = reviewService;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
@@ -164,15 +167,11 @@ namespace Services
             var userExists = await _context.Users.AnyAsync(u => u.Id == productDto.OwnerId);
             if (!userExists)
             {
-                throw new Exception("The owner doesn't exists.");
+                throw new NotFoundException("The owner doesn't exists.");
             }
 
             //Verify if the category exists
-            var categoryExists = await _context.Categories.FirstOrDefaultAsync(c => c.Name == productDto.Category);
-            if (categoryExists == null)
-            {
-                throw new Exception("The category doesn't exists.");
-            }
+            var categoryExists = await _serviceProvider.GetRequiredService<ICategoryService>().CheckAvailableCategory(productDto.Category);
 
             var product = new Product
             {
