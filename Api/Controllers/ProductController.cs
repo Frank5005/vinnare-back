@@ -1,10 +1,7 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
-using System.Security.Claims;
+using Api.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Exceptions;
@@ -15,11 +12,15 @@ namespace Api.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
+        private readonly ICacheHelper _cacheHelper;
         private readonly IProductService _productService;
+        private const string ALL_PRODUCTS_CACHE_KEY = "all_products";
+        private const string AVAILABLE_PRODUCTS_PAGE_CACHE_KEY = "available_products_page";
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, ICacheHelper cacheHelper)
         {
             _productService = productService;
+            _cacheHelper = cacheHelper;
         }
 
         // GET: api/product/all
@@ -27,7 +28,11 @@ namespace Api.Controllers
         [HttpGet("all")]
         public async Task<IActionResult> GetAllProducts()
         {
+            if (_cacheHelper.TryGetValue<ProductDto>(ALL_PRODUCTS_CACHE_KEY, out var cachedProducts))
+                return Ok(cachedProducts);
+
             var products = await _productService.GetAllProductsAsync();
+            _cacheHelper.Set<ProductDto>(ALL_PRODUCTS_CACHE_KEY, products.ToList());
             return Ok(products);
         }
 
@@ -47,7 +52,12 @@ namespace Api.Controllers
         [HttpGet("store")]
         public async Task<IActionResult> GetAvailableProductsPage()
         {
+            if (_cacheHelper.TryGetValue<ProductViewPage>(AVAILABLE_PRODUCTS_PAGE_CACHE_KEY, out var cachedProducts))
+                return Ok(cachedProducts);
+
             var products = await _productService.GetAvailableProductsPageAsync();
+            _cacheHelper.Set<ProductViewPage>(AVAILABLE_PRODUCTS_PAGE_CACHE_KEY, products.ToList());
+
             return Ok(products);
         }
 
@@ -76,14 +86,16 @@ namespace Api.Controllers
             if (productDto == null) throw new BadRequestException("Product data is required.");
 
             var tokenRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            if(tokenRole == "Admin")
+            if (tokenRole == "Admin")
             {
                 var createdProduct = await _productService.CreateProductAsync(productDto);
+                _cacheHelper.RemoveKeys(ALL_PRODUCTS_CACHE_KEY, AVAILABLE_PRODUCTS_PAGE_CACHE_KEY);
                 return Ok(new ProductResponse { Id = createdProduct.Id, message = "Product created successfully" });
             }
             else
             {
                 var createdProduct = await _productService.CreateProductByEmployeeAsync(productDto);
+                _cacheHelper.RemoveKeys(ALL_PRODUCTS_CACHE_KEY, AVAILABLE_PRODUCTS_PAGE_CACHE_KEY);
                 return Ok(new ProductResponse { Id = createdProduct.Id, message = "Waiting to approve" });
             }
         }
@@ -97,6 +109,7 @@ namespace Api.Controllers
 
             var updatedProduct = await _productService.UpdateProductAsync(id, productDto);
             if (updatedProduct == null) throw new NotFoundException("Product not found.");
+            _cacheHelper.RemoveKeys(ALL_PRODUCTS_CACHE_KEY, AVAILABLE_PRODUCTS_PAGE_CACHE_KEY);
             return Ok(new ProductResponse { Id = updatedProduct.Id, message = "Product updated successfully" });
         }
 
@@ -110,10 +123,12 @@ namespace Api.Controllers
             if (tokenRole == "Admin")
             {
                 deletedProduct = await _productService.DeleteProductAsync(id);
+                _cacheHelper.RemoveKeys(ALL_PRODUCTS_CACHE_KEY, AVAILABLE_PRODUCTS_PAGE_CACHE_KEY);
                 return Ok(new ProductDelete { message = deletedProduct });
             }
             deletedProduct = await _productService.DeleteProductByEmployeeAsync(id, username);
-            return Ok(new ProductDelete { message = deletedProduct});
+            _cacheHelper.RemoveKeys(ALL_PRODUCTS_CACHE_KEY, AVAILABLE_PRODUCTS_PAGE_CACHE_KEY);
+            return Ok(new ProductDelete { message = deletedProduct });
         }
     }
 }

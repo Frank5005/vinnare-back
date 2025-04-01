@@ -1,22 +1,25 @@
 # CI/CD Pipelines
 
 ## Overview
-The CI/CD pipeline automates the process of building, testing, and deploying the application using **GitHub Actions**. It consists of two workflows:
-
-1. **CI Workflow (`ci.yml`)**: 
+The CI/CD pipeline automates the process of building, testing, and deploying the application using **GitHub Actions**. It consists of three workflows:
+1. **Testing (`ci.yml`)**:
    - Triggers on pushes to the `actions` branch and pull requests to `main`.
+   - Runs tests.
+
+2. **CI Workflow (`ci.yml`)**: 
    - Builds a Docker image from the `Api/Dockerfile`.
-   - Runs tests (currently a placeholder for future implementation).
    - Pushes the Docker image to AWS ECR, tagging it with the commit hash.
    - Passes the image tag to the deployment pipeline.
 
-2. **CD Workflow (`cd.yml`)**:
+3. **CD Workflow (`cd.yml`)**:
    - Called by the CI pipeline after a successful build and push.
    - Runs on an EC2 instance via SSH.
    - Pulls the latest Docker image from ECR.
    - Stops and removes the previous container.
    - Deploys the new image as a running container.
 
+   
+![Workflows of CI-CD](../diagrams/ci_cd.png)
 ## Secrets and Security
 - AWS credentials and repository details are stored as GitHub secrets.
 - The EC2 server's SSH credentials are securely stored and accessed only during deployment.

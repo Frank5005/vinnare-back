@@ -99,5 +99,12 @@ namespace Api.Controllers
             };
             return Created("", responseUser);
         }
+
+
+        [HttpGet("fail")]
+        public void fail()
+        {
+            throw new NullReferenceException("A wild exception appeared!. It used NullReferenceException. It’s super effective... ");
+        }
     }
 }
