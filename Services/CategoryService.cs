@@ -48,6 +48,26 @@ namespace Services
                 .ToListAsync();
         }
 
+        public async Task<Category> CheckAvailableCategory(string categoryName)
+        {
+            //var answer = false;
+            var categoryExists = await _context.Categories.FirstOrDefaultAsync(c => c.Name == categoryName);
+            if (categoryExists == null)
+            {
+                throw new NotFoundException("The category doesn't exists.");
+            }
+            //It's available?
+            if (categoryExists.Approved == true)
+            {
+                return categoryExists;
+            }
+            else
+            {
+                throw new UnauthorizedException("The category is not available.");
+            }
+            //return categoryExists;
+        }
+
         public async Task<CategoryDto?> GetCategoryByIdAsync(int id)
         {
             var category = await _context.Categories.FindAsync(id);
