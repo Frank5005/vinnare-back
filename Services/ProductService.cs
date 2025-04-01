@@ -54,26 +54,25 @@ namespace Services
 
         public async Task<IEnumerable<ProductViewPage>> GetAvailableProductsPageAsync()
         {
-            var products = await _context.Products
-                .Where(p => p.Available > 0 && p.Approved == true)
+
+            var productViewPages = await _context.Products
+                .Where(p => p.Available > 0 && p.Approved)
+                .GroupJoin(_context.Reviews,
+                    product => product.Id,
+                    review => review.ProductId,
+                    (product, reviews) => new { product, reviews })
+                .Select(g => new ProductViewPage
+                {
+                    Id = g.product.Id,
+                    Title = g.product.Title,
+                    Price = g.product.Price,
+                    Description = g.product.Description,
+                    Category = g.product.Category,
+                    Image = g.product.Image,
+                    Rate = g.reviews.Any() ? (int)g.reviews.Average(r => r.Rate) : 0
+                })
                 .ToListAsync();
 
-            var productViewPages = new List<ProductViewPage>();
-
-            foreach (var product in products)
-            {
-                var rate = await _reviewService.GetReviewsRateByIdAsync(product.Id);
-                productViewPages.Add(new ProductViewPage
-                {
-                    Id = product.Id,
-                    Title = product.Title,
-                    Price = product.Price,
-                    Description = product.Description,
-                    Category = product.Category,
-                    Image = product.Image,
-                    Rate = rate
-                });
-            }
 
             return productViewPages;
         }
@@ -107,7 +106,7 @@ namespace Services
 
             return product.Title;
         }
-        
+
 
         public async Task<ProductDto?> GetProductForCartWishByIdAsync(int id)
         {
@@ -212,7 +211,7 @@ namespace Services
                 throw new Exception("The category doesn't exists.");
             }
 
-            Guid userId = (Guid) await _userService.GetIdByUsername(productDto.Username);
+            Guid userId = (Guid)await _userService.GetIdByUsername(productDto.Username);
 
             if (userId == Guid.Empty)
             {
