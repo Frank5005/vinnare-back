@@ -38,7 +38,7 @@ namespace Data.Entities
         [Required]
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
-        [Required]
+        // [Required]
         public int CategoryId { get; set; }
 
         // Navigation Property

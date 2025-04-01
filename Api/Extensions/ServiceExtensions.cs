@@ -1,4 +1,5 @@
 using Api.Services;
+using Api.Utils;
 using Services;
 using Services.Builders;
 using Services.Interfaces;
@@ -22,6 +23,8 @@ namespace Api.Extensions
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<ICartPurchaseBuilderFactory, CartPurchaseBuilderFactory>();
 
+            services.AddMemoryCache();
+            services.AddScoped<ICacheHelper, CacheHelper>();
             return services;
         }
     }

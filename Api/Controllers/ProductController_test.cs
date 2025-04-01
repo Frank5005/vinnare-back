@@ -1,21 +1,24 @@
+using System.Security.Claims;
 using Api.Controllers;
+using Api.Utils;
 using Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Services.Interfaces;
 using Shared.DTOs;
-using System.Security.Claims;
 using Xunit;
 
 public class ProductController_test
 {
     private readonly Mock<IProductService> _mockProductService;
+    private readonly Mock<ICacheHelper> _mockCacheHelper;
     private readonly ProductController _controller;
 
     public ProductController_test()
     {
         _mockProductService = new Mock<IProductService>();
-        _controller = new ProductController(_mockProductService.Object);
+        _mockCacheHelper = new Mock<ICacheHelper>();
+        _controller = new ProductController(_mockProductService.Object, _mockCacheHelper.Object);
     }
 
     private void SetUserWithRole(string role, string username = "testuser")
