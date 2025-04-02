@@ -10,6 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.Configure<SecuritySettings>(builder.Configuration.GetSection("Security"));
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("Database"));
+builder.Services.Configure<OpenTelemetrySettings>(builder.Configuration.GetSection("OpenTelemetry"));
 builder.Services.AddSwaggerConfiguration();
 builder.Services.AddDatabaseConfiguration();
 builder.Services.AddApplicationServices();

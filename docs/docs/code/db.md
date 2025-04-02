@@ -6,56 +6,103 @@ Vinnare uses **PostgreSQL** as its relational database, managed through **Entity
 The database schema is visually represented in the following diagram:
 
 ![Database Schema](../diagrams/Db_RE.png)
-
 ## Entities and Relationships
 
 - **User**
-  - Stores user data, including email and username (both unique).
-  - Users can own products, write reviews, manage wishlists, carts, and purchases.
-
+    
+    - Stores user details like `Email` and `Username`, both uniquely indexed.
+        
+    - Can own products, write reviews, manage wishlists and carts, make purchases, and initiate jobs (approval requests).
+        
 - **Product**
-  - Represents items available for purchase.
-  - Linked to an **Owner (User)**.
-  - Requires admin approval before being listed.
-  - Has relationships with **Categories, Reviews, Wishlists, Carts, and Jobs**.
-
+    
+    - Represents an item available for sale.
+        
+    - Belongs to a **User** (Owner) and a **Category**.
+        
+    - Requires admin approval (`Approved` defaults to `false`).
+        
+    - Linked to **Reviews, Wishlists, Carts, and Jobs**.
+        
+    - Cascade deletes ensure associated data is removed if the product is deleted.
+        
 - **Category**
-  - Organizes products into different groups.
-  - Requires admin approval before being listed.
-
+    
+    - Groups products under defined types.
+        
+    - Requires admin approval before being listed (`Approved` defaults to `false`).
+        
+    - Linked to **Products** and **Jobs**.
+        
 - **Review**
-  - Users can write reviews and rate products.
-  - Linked to **User and Product**.
-
+    
+    - Created by users to rate and review products.
+        
+    - Linked to both a **User** and a **Product**.
+        
+    - Cascade deletes apply when either the user or product is removed.
+        
 - **WishList**
-  - Allows users to save products for future reference.
-  - Linked to **User and Product**.
-
+    
+    - Lets users save products for future consideration.
+        
+    - Uniquely constrained per `(UserId, ProductId)`.
+        
+    - Cascade deletes apply for both related entities.
+        
 - **Cart**
-  - Represents products a user intends to purchase.
-  - Linked to **User and Product**.
-
+    
+    - Represents products added by users with intent to buy.
+        
+    - Also uniquely constrained per `(UserId, ProductId)`.
+        
+    - Cascade deletes apply similarly as in WishLists.
+        
 - **Coupon**
-  - Defines discount codes for promotions.
-
+    
+    - Stores discount codes.
+        
+    - Each `Code` is uniquely indexed.
+        
 - **Purchase**
-  - Records completed transactions.
-  - Linked to **User**.
-
+    
+    - Represents a completed transaction.
+        
+    - Linked to a **User** with cascade deletion behavior.
+        
 - **Job**
-  - Represents approval workflows for **Products and Categories**.
-  - Managed by **Admins**.
-  - Linked to **User, Product, and Category**.
+    
+    - Used in moderation workflows for **Products** and **Categories**.
+        
+    - Managed by **Admins** and linked to:
+        
+        - **User** (creator),
+            
+        - **Product** (optional),
+            
+        - **Category** (optional).
+            
+    - All relationships use cascade deletion for cleanup.
+        
 
 ## Constraints and Rules
 
 - **Unique Constraints**
-  - `User.Email` and `User.Username` must be unique.
-
+    
+    - `User.Email`
+        
+    - `User.Username`
+        
+    - `WishList (UserId, ProductId)`
+        
+    - `Cart (UserId, ProductId)`
+        
+    - `Coupon.Code`
+        
 - **Cascade Deletions**
-  - If a user is deleted, associated **products, reviews, wishlists, carts, purchases, and jobs** are removed.
-  - If a product is deleted, associated **reviews, wishlists, carts, and jobs** are removed.
-  
-## Summary
-This structure ensures a clear relationship between users, products, and transactions while maintaining security through admin-controlled approvals. The system enforces data integrity with constraints and relationships, optimizing eCommerce operations.
-
+    
+    - Deleting a **User** removes all related **Products, Reviews, WishLists, Carts, Purchases, and Jobs**.
+        
+    - Deleting a **Product** removes related **Reviews, WishLists, Carts, and Jobs**.
+        
+    - Deleting a **Category** removes associated **Jobs**.
