@@ -290,6 +290,13 @@ namespace Data.Migrations
                     b.Property<int>("Role")
                         .HasColumnType("integer");
 
+                    b.Property<string>("SecurityAnswer")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SecurityQuestion")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");

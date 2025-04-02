@@ -27,15 +27,6 @@ namespace Api.Controllers
             return Ok(users);
         }
 
-        //// GET: api/user/{id}
-        //[HttpGet("{id:guid}")]
-        //public async Task<IActionResult> GetUserById(Guid id)
-        //{
-        //    var user = await _userService.GetUserByIdAsync(id);
-        //    if (user == null) return NotFound();
-        //    return Ok(user);
-        //}
-
         // UPDATE: api/user
         [Authorize(Roles = "Admin")]
         [HttpPut]
@@ -56,6 +47,10 @@ namespace Api.Controllers
                 Email = UpdateRequest.Email,
                 Password = UpdateRequest.Password,
                 Name = UpdateRequest.Name,
+                Address = UpdateRequest.Address,
+                SecurityQuestion = UpdateRequest.GetSecurityQuestionType(),
+                SecurityAnswer = UpdateRequest.SecurityAnswer
+
 
             };
             var updatedUser = await _userService.UpdateUserAsync(Id, userDto);
@@ -100,11 +95,6 @@ namespace Api.Controllers
             if (updateRequest == null)// || string.IsNullOrWhiteSpace(updateRequest.Username))
                 throw new BadRequestException("User data is required.");
 
-            //if (!tokenUsername.Equals(updateRequest.Username, StringComparison.OrdinalIgnoreCase))
-            //{
-            //    throw new ForbiddenException("You are not authorized to update this user.");
-            //}
-
             if (updateRequest.Email != null || !string.IsNullOrWhiteSpace(tokenUsername))
             {
                 updateRequest.Validate();
@@ -118,6 +108,9 @@ namespace Api.Controllers
                 Email = updateRequest.Email,
                 Password = updateRequest.Password,
                 Name = updateRequest.Name,
+                Address = updateRequest.Address,
+                SecurityQuestion = updateRequest.GetSecurityQuestionType(),
+                SecurityAnswer = updateRequest.SecurityAnswer
 
             };
             var updatedUser = await _userService.UpdateUserAsync(Id, userDto);
