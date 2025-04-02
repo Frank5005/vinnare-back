@@ -30,7 +30,8 @@ Using **Jira** → [Project Board](https://vinnare.atlassian.net/jira/software/p
 ---
 
 ## 🗃️ Entity Relationship Diagram
-![Final ER Diagram Back End Challenge](https://github.com/user-attachments/assets/5478494d-7edc-4926-90c3-fca2305ad318)
+![Final ER Diagram Back End Challenge](https://github.com/user-attachments/assets/79d672cb-227e-4e36-bf7b-a8f895e7edc0)
+
 
 ---
 

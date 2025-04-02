@@ -34,12 +34,19 @@ jobs:
           script: |
             echo "Pulling latest image..."
             if [[ -z "${{ inputs.image_tag }}" ]]; then
-              echo "❌ ERROR: image_tag is empty! Exiting..."
+              echo "ERROR: image_tag is empty! Exiting..."
               exit 1
             fi
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
             docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ inputs.image_tag }}
             echo "Pulled successfully"
-            docker stop vinnare || true
-            docker rm vinnare || true
-            docker run -d --name vinnare -p 8080:8080 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ inputs.image_tag }}
+      
+      
+            echo "Retagging image to 'vinnare:latest'"
+            docker tag ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ inputs.image_tag }} vinnare:latest
+
+            echo "Shutting down old containers (if any)..."
+            docker compose down || true
+
+            echo "Starting new containers..."
+            docker compose up -d

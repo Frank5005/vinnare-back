@@ -32,10 +32,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
-
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 
