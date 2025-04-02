@@ -48,7 +48,7 @@ namespace Api.Controllers
                 Password = UpdateRequest.Password,
                 Name = UpdateRequest.Name,
                 Address = UpdateRequest.Address,
-                SecurityQuestion = UpdateRequest.GetSecurityQuestionType(),
+                //SecurityQuestion = UpdateRequest.GetSecurityQuestionType(),
                 SecurityAnswer = UpdateRequest.SecurityAnswer
 
 
@@ -109,7 +109,7 @@ namespace Api.Controllers
                 Password = updateRequest.Password,
                 Name = updateRequest.Name,
                 Address = updateRequest.Address,
-                SecurityQuestion = updateRequest.GetSecurityQuestionType(),
+                //SecurityQuestion = updateRequest.GetSecurityQuestionType(),
                 SecurityAnswer = updateRequest.SecurityAnswer
 
             };

@@ -36,7 +36,7 @@ namespace Api.DTOs
             {
                 return parsedRole;
             }
-            throw new BadRequestException("Invalid role type.");
+            throw new BadRequestException("Invalid Security Question type.");
         }
     }
     public class UserCreateRequest : UserRequestBase
@@ -58,7 +58,7 @@ namespace Api.DTOs
             {
                 return parsedRole;
             }
-            throw new BadRequestException("Invalid role type.");
+            throw new BadRequestException("Invalid Security Question type.");
         }
     }
     public class UserResponse

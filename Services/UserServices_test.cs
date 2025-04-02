@@ -86,7 +86,9 @@ public class UserService_test
             Username = "newuser",
             Password = "password123",
             Role = RoleType.Seller,
-            Address = "123 Main St"
+            Address = "123 Main St",
+            SecurityQuestion = SecurityQuestionType.WhatIsYourFavoriteColor,
+            SecurityAnswer = "Blue"
         };
 
         // Act
@@ -108,7 +110,9 @@ public class UserService_test
             Username = "hashuser",
             Password = "passwordToHash",
             Role = RoleType.Seller,
-            Address = "123 Main St"
+            Address = "123 Main St",
+            SecurityQuestion = SecurityQuestionType.WhatIsYourBirthCity,
+            SecurityAnswer = "New York"
         };
 
         // Act
