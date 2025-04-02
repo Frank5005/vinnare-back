@@ -1,4 +1,5 @@
 ﻿using Api.Utils;
+using Shared.Enums;
 using Shared.Exceptions;
 
 namespace Api.DTOs
@@ -8,12 +9,23 @@ namespace Api.DTOs
         public string? Name { get; set; }
         public string? Email { get; set; }
         public string? Password { get; set; }
+        public string? Address { get; set; }
+        public string? SecurityQuestion { get; set; }
+        public string? SecurityAnswer { get; set; }
         public void Validate()
         {
             if (!EmailValidator.IsValidEmail(Email))
             {
                 throw new BadRequestException("Invalid email format.");
             }
+        }
+        public SecurityQuestionType GetSecurityQuestionType()
+        {
+            if (Enum.TryParse<SecurityQuestionType>(SecurityQuestion, true, out var parsedRole))
+            {
+                return parsedRole;
+            }
+            throw new BadRequestException("Invalid role type.");
         }
     }
     public class UpdateUserRequest : BaseUpdateUserRequest

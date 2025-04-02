@@ -117,7 +117,9 @@ namespace Services
                 Password = hashedPassword,
                 Role = userDto.Role,
                 Date = DateTime.UtcNow,
-                Address = userDto.Address
+                Address = userDto.Address,
+                SecurityQuestion = userDto.SecurityQuestion,
+                SecurityAnswer = userDto.SecurityAnswer
             };
 
             _context.Users.Add(user);

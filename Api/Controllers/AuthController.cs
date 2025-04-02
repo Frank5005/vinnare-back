@@ -58,7 +58,10 @@ namespace Api.Controllers
                 Email = userRequest.Email,
                 Username = userRequest.Username,
                 Password = userRequest.Password,
+                Address = userRequest.Address,
                 Role = userRequest.GetRoleType(),
+                SecurityQuestion = userRequest.GetSecurityQuestionType(),
+                SecurityAnswer = userRequest.SecurityAnswer
             };
 
             var createdUser = await _userService.CreateUserAsync(userDto);
@@ -86,7 +89,10 @@ namespace Api.Controllers
                 Email = userRequest.Email,
                 Username = userRequest.Username,
                 Password = userRequest.Password,
-                Role = RoleType.Shopper
+                Address = userRequest.Address,
+                Role = RoleType.Shopper,
+                SecurityQuestion = userRequest.GetSecurityQuestionType(),
+                SecurityAnswer = userRequest.SecurityAnswer
             };
 
             var createdUser = await _userService.CreateUserAsync(userDto);
@@ -104,7 +110,7 @@ namespace Api.Controllers
         [HttpGet("fail")]
         public void fail()
         {
-            throw new NullReferenceException("A wild exception appeared!. It used NullReferenceException. It’s super effective... ");
+            throw new NullReferenceException("A wild exception appeared!. It used NullReferenceException. Itï¿½s super effective... ");
         }
     }
 }
