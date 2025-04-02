@@ -4,7 +4,14 @@
 Vinnare follows a monolitic Architecture and a N-Tier patern, dividing the code into 3 layers to ensure separation of concerns, maintainability, and scalability. The system architecture is illustrated in the diagram below:
 
 ![Layered Architecture](../diagrams/layeredView.png)
-To see how each Controller communicates to their corresponding services this are the simplified diagrams showing the flow of concerns
+To see how each Controller communicates to their corresponding services this are the simplified diagrams showing the flow of concerns:
+
+for. Auth, Category, Product, Review and User:
+![first](../diagrams/layeredView_1.png)
+for. Cart and WishList:
+![second](../diagrams/layeredView_2.png)
+for. Job and Purchase:
+![third](../diagrams/layeredView_3.png)
 
 
 ## Layer Responsibilities

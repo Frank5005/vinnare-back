@@ -32,12 +32,16 @@ Vinnare is a .NET 8-based eCommerce API providing core functionalities for manag
 - **Testing**: Moq and xUnit
 - **Security**: JWT authentication, password hashing with salt and pepper
 
+## Tech features
+- Cloud (aws) deployment of both servers and databases
+- Automated deployment of aplication using [ci-cd](./code/ci_cd.md)
+- Monitoring using aspire dashboard
+- over 85% code coverage
+- In-memory caching using the write through strategy
+- SSL certificates (autosigned)
+- Proxy (nginx) for redireccion and serving those certificates 
+- Docker compose to handle multiple containers
+
 ## Integrations
 
 - **Initial Data Load**: Fetches test data from FakeStore API for development and testing purposes.
-
-## Future Enhancements
-
-- Scalability improvements (caching, performance optimization)
-- Additional third-party integrations (payment gateways, analytics)
-- Enhanced admin dashboard for better control and monitoring

@@ -60,7 +60,7 @@ Edit the appsettings.json or appsettings.Development.json file with the correct 
         "DefaultConnection": "Host=localhost;Port=5439;Database=postgres;Username=postgres;Password=1234"
     },  
     "Security": {
-        "PasswordPepper": "4F420DFC4C4BB3C6"
+        "PasswordPepper": ""
     },
     "Logging": {
     "LogLevel": {
@@ -69,9 +69,9 @@ Edit the appsettings.json or appsettings.Development.json file with the correct 
         }
     },
     "JwtSettings": {
-        "Issuer": "https://yourdomain.com",
-        "Audience": "https://yourdomain.com",
-        "SecretKey": "5A08E4EA295505537FA4FA244512E18F ",
+        "Issuer": "",
+        "Audience": "",
+        "SecretKey": " ",
         "AccessTokenExpirationMinutes": 4320
     },
     "AllowedHosts": "*",
