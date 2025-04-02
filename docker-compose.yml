@@ -12,8 +12,6 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       DOTNET_RUNNING_IN_CONTAINER: "true"
-    volumes:
-      - ./logs:/etc/nginx/nginx.conf:ro
     networks:
       - vinnare
 
