@@ -60,7 +60,7 @@ Edit the appsettings.json or appsettings.Development.json file with the correct 
         "DefaultConnection": "Host=localhost;Port=5439;Database=postgres;Username=postgres;Password=1234"
     },  
     "Security": {
-        "PasswordPepper": "4F420DFC4C4BB3C6"
+        "PasswordPepper": ""
     },
     "Logging": {
     "LogLevel": {
