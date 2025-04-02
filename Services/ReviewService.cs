@@ -11,11 +11,13 @@ namespace Services
     {
         private readonly VinnareDbContext _context;
         private readonly ILogger<ReviewService> _logger;
+        private readonly IUserService _userService;
 
-        public ReviewService(VinnareDbContext context, ILogger<ReviewService> logger)
+        public ReviewService(VinnareDbContext context, ILogger<ReviewService> logger, IUserService userService)
         {
             _context = context;
             _logger = logger;
+            _userService = userService;
         }
 
         public async Task<IEnumerable<ReviewDto>> GetAllReviewsAsync()
@@ -47,20 +49,71 @@ namespace Services
             };
         }
 
-        public async Task<ReviewDto> CreateReviewAsync(ReviewDto reviewDto)
+        public async Task<IEnumerable<ReviewResponse>> GetProductReviewsByIdAsync(int productId)
         {
+            return await _context.Reviews
+            .Where(r => r.ProductId == productId)
+            .Select(r => new ReviewResponse
+            {
+                Username = r.Username,
+                ProductId = r.ProductId,
+                Comment = r.Comment
+            })
+            .ToListAsync();
+        }
+
+        public async Task<int>  GetReviewsRateByIdAsync(int id)
+        {
+            int rate = 0, sum = 0, count = 0;
+            List<ReviewDto> reviews = await _context.Reviews
+                .Select(r => new ReviewDto
+                {
+                    Id = r.Id,
+                    ProductId = r.ProductId,
+                    UserId = r.UserId,
+                    Rate = r.Rate,
+                    Comment = r.Comment
+                })
+                .ToListAsync();
+            
+            for(int i = 0; i < reviews.Count; i++)
+            {
+                if(id == reviews[i].ProductId){
+                    count += 1;
+                    sum += reviews[i].Rate;
+                }
+            }
+
+            if (count > 0)
+            {
+                rate = sum / count;
+            }
+
+            return rate;
+        }
+
+        public async Task<Review> CreateReviewAsync(ReviewRequest reviewRequest)
+        {
+            // Verify if the product exists
+            var productExists = await _context.Products.AnyAsync(u => u.Id == reviewRequest.ProductId);
+            if (!productExists)
+            {
+                throw new Exception("The product doesn't exists.");
+            }
+
             var review = new Review
             {
-                ProductId = reviewDto.ProductId,
-                UserId = reviewDto.UserId,
-                Rate = reviewDto.Rate,
-                Comment = reviewDto.Comment
+                ProductId = reviewRequest.ProductId,
+                UserId = (Guid) await _userService.GetIdByUsername(reviewRequest.Username),
+                Rate = reviewRequest.Rate,
+                Comment = reviewRequest.Comment,
+                Username = reviewRequest.Username
             };
 
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
 
-            return reviewDto;
+            return review;
         }
 
         public async Task<ReviewDto?> UpdateReviewAsync(int id, ReviewDto reviewDto)

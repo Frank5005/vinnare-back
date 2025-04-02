@@ -86,7 +86,9 @@ public class AuthController_test
             Email = "admin@example.com",
             Username = "adminUser",
             Password = "securepassword",
-            Role = "Seller"
+            Role = "Seller",
+            SecurityQuestion = "WhatIsYourFavoriteColor",
+            SecurityAnswer = "Green"
         };
 
         var createdUser = new UserDto
@@ -95,7 +97,9 @@ public class AuthController_test
             Email = request.Email,
             Username = request.Username,
             Password = request.Password,
-            Role = RoleType.Seller
+            Role = RoleType.Seller,
+            SecurityQuestion = request.GetSecurityQuestionType(),
+            SecurityAnswer = request.SecurityAnswer
         };
 
         _mockUserService.Setup(s => s.CreateUserAsync(It.IsAny<UserDto>())).ReturnsAsync(createdUser);
@@ -151,7 +155,9 @@ public class AuthController_test
         {
             Email = "shopper@example.com",
             Username = "shopperUser",
-            Password = "securepassword"
+            Password = "securepassword",
+            SecurityQuestion = "WhatIsYourFavoriteColor",
+            SecurityAnswer = "Blue"
         };
 
         var createdUser = new UserDto
@@ -160,7 +166,9 @@ public class AuthController_test
             Email = request.Email,
             Username = request.Username,
             Password = request.Password,
-            Role = RoleType.Shopper
+            Role = RoleType.Shopper,
+            SecurityQuestion = request.GetSecurityQuestionType(),
+            SecurityAnswer = request.SecurityAnswer
         };
 
         _mockUserService.Setup(s => s.CreateUserAsync(It.IsAny<UserDto>())).ReturnsAsync(createdUser);

@@ -21,7 +21,7 @@ namespace Shared.DTOs
     public class CategoryUpdated
     {
         public string? Name { get; set; }
-        public bool? Approved { get; set; }
+        //public bool? Approved { get; set; }
     }
 
     public class CategoryDelete

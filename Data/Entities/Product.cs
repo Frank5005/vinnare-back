@@ -7,7 +7,6 @@ namespace Data.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        //[Column(TypeName = "serial")]
         public int Id { get; set; }
 
         [Required]
@@ -37,6 +36,9 @@ namespace Data.Entities
         public int Available { get; set; } = 0;
 
         [Required]
+        public DateTime Date { get; set; } = DateTime.UtcNow;
+
+        // [Required]
         public int CategoryId { get; set; }
 
         // Navigation Property

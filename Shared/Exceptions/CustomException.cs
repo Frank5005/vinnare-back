@@ -34,4 +34,11 @@ namespace Shared.Exceptions
         public ForbiddenException(string message = "Forbidden access.")
             : base(message, 403, "https://tools.ietf.org/html/rfc9110#section-15.5.4") { }
     }
+
+    public class GoneException : CustomException
+    {
+        public GoneException(string message = "Element already gone, no stock available.")
+            : base(message, 410, "https://tools.ietf.org/html/rfc9110#section-15.5.11") { }
+
+    }
 }

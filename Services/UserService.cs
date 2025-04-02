@@ -1,5 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Data;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +21,6 @@ namespace Services
             _context = context;
             _passwordHasher = passwordHasher;
         }
-
         public async Task<IEnumerable<UserDtoString>> GetAllUsersAsync()
         {
             return await _context.Users
@@ -29,7 +30,7 @@ namespace Services
                     Email = user.Email,
                     Username = user.Username,
                     Password = user.Password,
-                    Role = user.Role.ToString(),
+                    Role = user.Role.ToString()
                 })
                 .ToListAsync();
         }
@@ -46,6 +47,14 @@ namespace Services
                 Username = user.Username,
                 Role = user.Role
             };
+        }
+
+        public async Task<string> GetUsernameById(Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return null;
+
+            return user.Username;
         }
 
         public async Task<UserDto?> GetUserByUsername(string username)
@@ -79,6 +88,9 @@ namespace Services
 
             return id == Guid.Empty ? null : id;
         }
+
+        
+
         public async Task<Guid> GetUserIdFromToken(string token)
         {
             var handler = new JwtSecurityTokenHandler();
@@ -103,7 +115,11 @@ namespace Services
                 Email = userDto.Email,
                 Username = userDto.Username,
                 Password = hashedPassword,
-                Role = userDto.Role
+                Role = userDto.Role,
+                Date = DateTime.UtcNow,
+                Address = userDto.Address,
+                SecurityQuestion = userDto.SecurityQuestion,
+                SecurityAnswer = userDto.SecurityAnswer
             };
 
             _context.Users.Add(user);
@@ -137,6 +153,20 @@ namespace Services
                 user.Name = userDto.Name; // Optional field, update if provided
 
             // Update in DB
+            // Update only non-null or non-empty fields
+            if (!string.IsNullOrWhiteSpace(userDto.Username))
+                user.Username = userDto.Username; // Username is mandatory, already validated in controller
+
+            if (!string.IsNullOrWhiteSpace(userDto.Email))
+                user.Email = userDto.Email;
+
+            if (!string.IsNullOrWhiteSpace(userDto.Password))
+                user.Password = _passwordHasher.HashPassword(userDto.Password); // Hash password before saving
+
+            if (!string.IsNullOrWhiteSpace(userDto.Name))
+                user.Name = userDto.Name; // Optional field, update if provided
+
+            // Update in DB
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
@@ -149,14 +179,13 @@ namespace Services
                 Role = user.Role
             };
         }
-
-
         public async Task<List<UserDto>> DeleteUsersAsync(List<string> usernames)
         {
             var users = await _context.Users.Where(u => usernames.Contains(u.Username)).ToListAsync();
 
             if (!users.Any()) return new List<UserDto>(); // No users found
 
+            _context.Users.RemoveRange(users);
             _context.Users.RemoveRange(users);
             await _context.SaveChangesAsync();
 

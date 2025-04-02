@@ -44,7 +44,8 @@ namespace Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "ProductId")
+                        .IsUnique();
 
                     b.ToTable("Carts");
                 });
@@ -87,6 +88,9 @@ namespace Data.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("Coupons");
                 });
@@ -151,6 +155,9 @@ namespace Data.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -187,15 +194,29 @@ namespace Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CouponApplied")
-                        .HasColumnType("integer");
+                    b.Property<string>("CouponCode")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
+                    b.PrimitiveCollection<List<decimal>>("Prices")
+                        .IsRequired()
+                        .HasColumnType("numeric[]");
+
                     b.PrimitiveCollection<List<int>>("Products")
                         .IsRequired()
                         .HasColumnType("integer[]");
+
+                    b.PrimitiveCollection<List<int>>("Quantities")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("TotalPriceBeforeDiscount")
+                        .HasColumnType("money");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -228,6 +249,10 @@ namespace Data.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
@@ -243,6 +268,13 @@ namespace Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
@@ -256,6 +288,13 @@ namespace Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SecurityAnswer")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SecurityQuestion")
                         .HasColumnType("integer");
 
                     b.Property<string>("Username")
@@ -291,7 +330,8 @@ namespace Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "ProductId")
+                        .IsUnique();
 
                     b.ToTable("WishLists");
                 });

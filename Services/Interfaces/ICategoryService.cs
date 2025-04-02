@@ -7,7 +7,9 @@ namespace Services.Interfaces
     {
         Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync();
         Task<IEnumerable<CategoryView>> GetAvailableCategoriesAsync();
+        Task<Category> CheckAvailableCategory(string categoryName);
         Task<CategoryDto?> GetCategoryByIdAsync(int id);
+        Task<string> GetCategoryNameByIdAsync(int id);
         Task<Category> CreateCategoryAsync(CategoryRequest categoryDto);
 
         Task<Category> CreateCategoryByEmployeeAsync(CategoryRequest categoryDto);

@@ -7,7 +7,7 @@ Vinnare is an eCommerce API built using .NET, structured into multiple layers fo
 
 - **Api/**: Contains the API layer with controllers, DTOs, middleware, and extensions.
 - **Data/**: Manages the database context, entities, and migrations.
-- **Services/**: Implements business logic with service classes and interfaces.
+- **Services/**: Implements business logic with service classes, interfaces and builders.
 - **Shared/**: Contains shared configurations, DTOs, enums, and exceptions.
 - **ConsoleAppMigration/**: A console application for managing database migrations.
 - **docs/**: Documentation files for the project using MkDocs.
@@ -20,23 +20,25 @@ The `Program.cs` file serves as the entry point of the API, configuring essentia
 
 - **Service Registration**
   - Controllers
-  - Swagger for API documentation
-  - Security settings (JWT, authentication, authorization)
   - Database configuration using Entity Framework Core
+  - Open Telemetry configuration
+  - Rate limiting
   - Logging configuration
+  - Swagger for API documentation
+  - Settings used
 
 - **Middleware Configuration**
-  - Custom middleware for authentication and error handling
+  - Custom middleware for error handling
+  - Custom middleware for autentication
   - HTTPS redirection
-  - Authentication & Authorization enforcement
-  - API routing
 
 ## How to Run the Project
 To run the project, ensure you are in the **root folder**.
 
 ### Using Docker:
 ```sh
-docker build . -f ./Api/Dockerfile
+docker build . -t vinnare -f ./Api/Dockerfile
+docker run vinnare
 ```
 
 ### Running Locally:

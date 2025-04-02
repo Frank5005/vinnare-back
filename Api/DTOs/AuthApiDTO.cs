@@ -29,11 +29,20 @@ namespace Api.DTOs
     }
     public class UserCreateShopperRequest : UserRequestBase
     {
-
+        public string SecurityQuestion { get; set; }
+        public SecurityQuestionType GetSecurityQuestionType()
+        {
+            if (Enum.TryParse<SecurityQuestionType>(SecurityQuestion, true, out var parsedRole))
+            {
+                return parsedRole;
+            }
+            throw new BadRequestException("Invalid Security Question type.");
+        }
     }
     public class UserCreateRequest : UserRequestBase
     {
         public string Role { get; set; }
+        public string SecurityQuestion { get; set; }
 
         public RoleType GetRoleType()
         {
@@ -42,6 +51,14 @@ namespace Api.DTOs
                 return parsedRole;
             }
             throw new BadRequestException("Invalid role type.");
+        }
+        public SecurityQuestionType GetSecurityQuestionType()
+        {
+            if (Enum.TryParse<SecurityQuestionType>(SecurityQuestion, true, out var parsedRole))
+            {
+                return parsedRole;
+            }
+            throw new BadRequestException("Invalid Security Question type.");
         }
     }
     public class UserResponse

@@ -1,10 +1,11 @@
 ﻿using Data;
 using Data.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Services;
 using Services.Interfaces;
+using Services.Utils;
+using Shared.DTOs;
 using Xunit;
 
 public class CategoryService_test
@@ -17,11 +18,7 @@ public class CategoryService_test
 
     public CategoryService_test()
     {
-        var options = new DbContextOptionsBuilder<VinnareDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDatabase_Category")
-            .Options;
-
-        _dbContext = new VinnareDbContext(options);
+        _dbContext = TestDbContextFactory.Create();
         _dbContext.Database.EnsureCreated();
 
         _mockLogger = new Mock<ILogger<CategoryService>>();
@@ -31,23 +28,136 @@ public class CategoryService_test
         _categoryService = new CategoryService(_dbContext, _mockLogger.Object, _mockJobService.Object, _mockUserService.Object);
     }
 
+    [Fact]
+    public async Task GetAllCategoriesAsync_ShouldReturnAll()
+    {
+        _dbContext.Categories.Add(new Category { Name = "Tech" });
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _categoryService.GetAllCategoriesAsync();
+
+        Assert.Single(result);
+        Assert.Equal("Tech", result.First().Name);
+    }
+
+    [Fact]
+    public async Task GetAvailableCategoriesAsync_ShouldReturnApproved()
+    {
+        _dbContext.Categories.AddRange(
+            new Category { Name = "Toys", Approved = true },
+            new Category { Name = "Games", Approved = false }
+        );
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _categoryService.GetAvailableCategoriesAsync();
+
+        Assert.Single(result);
+        Assert.Equal("Toys", result.First().Name);
+    }
+
+    [Fact]
+    public async Task GetCategoryByIdAsync_ShouldReturnCorrectCategory()
+    {
+        var category = new Category { Id = 10, Name = "Food" };
+        _dbContext.Categories.Add(category);
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _categoryService.GetCategoryByIdAsync(10);
+
+        Assert.NotNull(result);
+        Assert.Equal("Food", result!.Name);
+    }
+
+    [Fact]
+    public async Task GetCategoryNameByIdAsync_ShouldReturnName()
+    {
+        var category = new Category { Id = 99, Name = "Books" };
+        _dbContext.Categories.Add(category);
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _categoryService.GetCategoryNameByIdAsync(99);
+
+        Assert.Equal("Books", result);
+    }
+
+    [Fact]
+    public async Task CreateCategoryByEmployeeAsync_ShouldCreateWithJob()
+    {
+        _mockUserService.Setup(u => u.GetIdByUsername("employee")).ReturnsAsync(Guid.NewGuid());
+
+        var request = new CategoryRequest { Name = "NewCat", Username = "employee" };
+
+        var result = await _categoryService.CreateCategoryByEmployeeAsync(request);
+
+        Assert.NotNull(result);
+        Assert.Equal("NewCat", result.Name);
+        Assert.False(result.Approved);
+        _mockJobService.Verify(j => j.CreateJobAsync(It.IsAny<JobDto>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateCategoryAsync_ShouldCreateDirectly()
+    {
+        var request = new CategoryRequest { Name = "AdminCat" };
+
+        var result = await _categoryService.CreateCategoryAsync(request);
+
+        Assert.NotNull(result);
+        Assert.Equal("AdminCat", result.Name);
+        Assert.True(result.Approved);
+    }
+
+    [Fact]
+    public async Task UpdateCategoryAsync_ShouldUpdateName()
+    {
+        var category = new Category { Name = "Old", Approved = true };
+        _dbContext.Categories.Add(category);
+        await _dbContext.SaveChangesAsync();
+
+        var updated = await _categoryService.UpdateCategoryAsync(category.Id, new CategoryUpdated { Name = "Updated" });
+
+        Assert.Equal("Updated", updated.Name);
+    }
+
+    [Fact]
+    public async Task DeleteCategoryAsync_ShouldDelete()
+    {
+        var category = new Category { Name = "ToDelete" };
+        _dbContext.Categories.Add(category);
+        await _dbContext.SaveChangesAsync();
+
+        var result = await _categoryService.DeleteCategoryAsync(category.Id);
+
+        Assert.Equal("Category deleted successfully", result);
+        Assert.Null(await _dbContext.Categories.FindAsync(category.Id));
+    }
+
+    [Fact]
+    public async Task DeleteCategoryByEmployeeAsync_ShouldCreateJobOnly()
+    {
+        var userId = Guid.NewGuid();
+        var category = new Category { Name = "SoftDelete" };
+        _dbContext.Categories.Add(category);
+        await _dbContext.SaveChangesAsync();
+
+        _mockUserService.Setup(u => u.GetIdByUsername("employee")).ReturnsAsync(userId);
+
+        var result = await _categoryService.DeleteCategoryByEmployeeAsync(category.Id, "employee");
+
+        Assert.Equal("You can't delete a category.", result);
+        _mockJobService.Verify(j => j.CreateJobAsync(It.Is<JobDto>(j => j.CategoryId == category.Id)), Times.Once);
+    }
 
     [Fact]
     public async Task ApproveCategory_ShouldSetApproved_WhenCategoryExists()
     {
-        // Arrange
         var category = new Category { Id = 1, Name = "fake", Approved = false };
         _dbContext.Categories.Add(category);
         _dbContext.SaveChanges();
 
-        // Act
-        Console.WriteLine("DO print work?");
-        var aaa = await _dbContext.Categories.FindAsync(1);
-        Console.WriteLine(aaa.ToString());
         await _categoryService.ApproveCategory(1, true);
         var updatedCategory = await _dbContext.Categories.FindAsync(1);
 
-        // Assert
         Assert.NotNull(updatedCategory);
         Assert.True(updatedCategory.Approved);
     }
@@ -55,7 +165,6 @@ public class CategoryService_test
     [Fact]
     public async Task ApproveCategory_ShouldThrowException_WhenCategoryDoesNotExist()
     {
-        // Act & Assert
         await Assert.ThrowsAsync<NullReferenceException>(() => _categoryService.ApproveCategory(999, true));
     }
 }

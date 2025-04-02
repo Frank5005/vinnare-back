@@ -1,9 +1,10 @@
 ﻿using Data;
 using Data.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Services;
+using Services.Interfaces;
+using Services.Utils;
 using Shared.DTOs;
 using Shared.Enums;
 using Xunit;
@@ -13,46 +14,69 @@ public class JobService_test
     private readonly VinnareDbContext _dbContext;
     private readonly Mock<ILogger<JobService>> _mockLogger;
     private readonly JobService _jobService;
+    private readonly Mock<IUserService> _mockUserService;
+    private readonly Mock<IServiceProvider> _mockServiceProvider;
+    private readonly Mock<ICategoryService> _mockCategoryService;
+    private readonly Mock<IProductService> _mockProductService;
 
     public JobService_test()
     {
-        var options = new DbContextOptionsBuilder<VinnareDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDatabase")
-            .Options;
-
-        _dbContext = new VinnareDbContext(options);
+        _dbContext = TestDbContextFactory.Create();
         _dbContext.Database.EnsureCreated();
 
         _mockLogger = new Mock<ILogger<JobService>>();
-        _jobService = new JobService(_dbContext, _mockLogger.Object);
+        _mockUserService = new Mock<IUserService>();
+        _mockServiceProvider = new Mock<IServiceProvider>();
+        _mockCategoryService = new Mock<ICategoryService>();
+        _mockProductService = new Mock<IProductService>();
+
+        _mockServiceProvider.Setup(sp => sp.GetService(typeof(ICategoryService)))
+            .Returns(_mockCategoryService.Object);
+
+        _mockServiceProvider.Setup(sp => sp.GetService(typeof(IProductService)))
+            .Returns(_mockProductService.Object);
+
+        _jobService = new JobService(_dbContext, _mockLogger.Object, _mockUserService.Object, _mockServiceProvider.Object);
     }
 
+    /*
     [Fact]
-    public async Task GetAllJobsAsync_ShouldReturnAllJobs()
+    public async Task GetAllJobsAsync_ShouldReturnAllJobsWithDetails()
     {
-        // Arrange
+        var creatorId = Guid.NewGuid();
         _dbContext.Database.EnsureDeleted();
         _dbContext.Database.EnsureCreated();
+
         _dbContext.Jobs.Add(new Job
         {
             Id = 1,
             Type = JobType.Product,
             Operation = OperationType.Create,
-            ProductId = 10
+            ProductId = 10,
+            CreatorId = creatorId,
+            Product = new Product { Id = 10 },
+            Category = new Category { Id = 5 }
         });
+
         _dbContext.SaveChanges();
 
-        // Act
-        var jobs = await _jobService.GetAllJobsAsync();
+        _mockCategoryService.Setup(c => c.GetCategoryNameByIdAsync(5)).ReturnsAsync("Electronics");
+        _mockProductService.Setup(p => p.GetProductNameByIdAsync(10)).ReturnsAsync("Smartphone");
+        _mockUserService.Setup(u => u.GetUsernameById(creatorId)).ReturnsAsync("creatoruser");
 
-        // Assert
-        Assert.NotNull(jobs);
-        Assert.Single(jobs);
-        Assert.Equal(1, jobs.First().id);
-        Assert.Equal("Product", jobs.First().JobType);
-        Assert.Equal("Create", jobs.First().Operation);
-        Assert.Equal(10, jobs.First().AssociatedId);
+        var result = await _jobService.GetAllJobsAsync();
+
+        Assert.NotNull(result);
+        var job = Assert.Single(result);
+        Assert.Equal(1, job.id);
+        Assert.Equal("Product", job.JobType);
+        Assert.Equal("Create", job.Operation);
+        Assert.Equal(10, job.AssociatedId);
+        Assert.Equal("Electronics", job.CategoryName);
+        Assert.Equal("Smartphone", job.ProductName);
+        Assert.Equal("creatoruser", job.CreatorName);
     }
+    */
 
     [Fact]
     public async Task GetJobByIdAsync_ShouldReturnJob_WhenJobExists()

@@ -18,33 +18,58 @@ namespace Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<CartDto>> GetAllCartsAsync()
+        public async Task<IEnumerable<CartItemDto>> GetFullCartByUserId(Guid userId)
         {
-            return await _context.Carts
-                .Select(c => new CartDto
+            var fullCart = await _context.Carts
+                .Where(c => c.UserId == userId)
+                .Include(c => c.Product)
+                .Select(c => new CartItemDto
                 {
-                    Id = c.Id,
-                    UserId = c.UserId,
-                    ProductId = c.ProductId,
-                    Quantity = c.Quantity
+                    Quantity = c.Quantity,
+                    ProductId = c.Product.Id,
+                    Title = c.Product.Title,
+                    Price = c.Product.Price,
+                    Description = c.Product.Description,
+                    Category = c.Product.Category,
+                    Image = c.Product.Image,
+                    CategoryId = c.Product.CategoryId,
+                    Available = c.Product.Available
                 })
                 .ToListAsync();
+
+            return fullCart;
         }
 
-        public async Task<CartDto?> GetCartByIdAsync(int id)
+
+        public async Task<IEnumerable<CartDto>?> GetCartByUserId(Guid id)
         {
-            var cart = await _context.Carts.FindAsync(id);
-            if (cart == null) return null;
-
-            return new CartDto
-            {
-                Id = cart.Id,
-                UserId = cart.UserId,
-                ProductId = cart.ProductId,
-                Quantity = cart.Quantity
-            };
+            var cart = await _context.Carts
+                .Where(c => c.UserId == id)
+               .Select(c => new CartDto
+               {
+                   Id = c.Id,
+                   UserId = c.UserId,
+                   ProductId = c.ProductId,
+                   Quantity = c.Quantity
+               })
+               .ToListAsync();
+            return cart;
         }
 
+        public async Task<CartDto?> GetCartByUserId_ProductId(Guid user_id, int product_id)
+        {
+            var cart = await _context.Carts
+                .Where(c => c.UserId == user_id && c.ProductId == product_id)
+               .Select(c => new CartDto
+               {
+                   Id = c.Id,
+                   UserId = c.UserId,
+                   ProductId = c.ProductId,
+                   Quantity = c.Quantity
+               })
+               .FirstOrDefaultAsync();
+            return cart;
+        }
         public async Task<CartDto> CreateCartAsync(CartDto cartDto)
         {
             var cart = new Cart
@@ -66,14 +91,12 @@ namespace Services
             };
         }
 
-        public async Task<CartDto?> UpdateCartAsync(int id, CartDto cartDto)
+        public async Task<CartDto?> UpdateCartQuantity(int id, int quantity)
         {
             var cart = await _context.Carts.FindAsync(id);
             if (cart == null) return null;
 
-            cart.UserId = cartDto.UserId;
-            cart.ProductId = cartDto.ProductId;
-            cart.Quantity = cartDto.Quantity;
+            cart.Quantity = quantity;
 
             await _context.SaveChangesAsync();
 
@@ -102,5 +125,6 @@ namespace Services
                 Quantity = cart.Quantity
             };
         }
+
     }
 }

@@ -1,66 +1,84 @@
-using Data.Entities;
+using System.Security.Claims;
+using Api.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Exceptions;
 
 namespace Api.Controllers
 {
-    [Route("api/user/wishlists")]
+    [Route("api/user/wishlist")]
     [ApiController]
     public class WishListController : ControllerBase
     {
         private readonly IWishListService _wishListService;
+        private readonly IUserService _userService;
+        private readonly IProductService _productService;
 
-        public WishListController(IWishListService wishListService)
+        public WishListController(IWishListService wishListService, IUserService userService, IProductService productService)
         {
             _wishListService = wishListService;
+            _userService = userService;
+            _productService = productService;
         }
 
-        // GET: api/user/wishlists
+        // GET: api/user/wishlist
+        [Authorize(Roles = "Shopper")]
         [HttpGet]
         public async Task<IActionResult> GetAllWishLists()
         {
-            var wishLists = await _wishListService.GetAllWishListsAsync();
-            return Ok(wishLists);
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user_id = await _userService.GetIdByUsername(tokenUsername) ?? throw new NotFoundException("No user found with that username.");
+            var wishLists = await _wishListService.GetAllWishListsAsync(user_id);
+
+            return Ok(new GetWishListResponse { UserId = user_id, Products = wishLists });
         }
 
-        // GET: api/user/wishlists/{id}
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetWishListById(int id)
+        // POST: api/user/wishlist/add/{product_id}
+        [Authorize(Roles = "Shopper")]
+        [HttpPost("add")]
+        public async Task<IActionResult> CreateWishList([FromBody] CreateWishListRequest wishListRequest)
         {
-            var wishList = await _wishListService.GetWishListByIdAsync(id);
-            if (wishList == null) return NotFound();
-            return Ok(wishList);
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var user_id = await _userService.GetIdByUsername(tokenUsername);
+            if (user_id == null)
+            {
+                throw new NotFoundException("No user found with that username.");
+            };
+            if (wishListRequest.UserId != user_id)
+            {
+                throw new UnauthorizedException("You are not loged in as the user. You can't add to someone else wishlist.");
+            }
+
+            var product = await _productService.GetProductForCartWishByIdAsync(wishListRequest.ProductId);
+            if (product == null || product.Approved == false)
+            {
+                throw new NotFoundException("No Product with that id exists");
+            }
+            await _wishListService.CreateWishListAsync(wishListRequest);
+
+            return Ok(new DefaultResponse { message = "Successfully added" });
         }
 
-        // POST: api/user/wishlists
-        [HttpPost]
-        public async Task<IActionResult> CreateWishList([FromBody] WishListDto wishListDto)
+        // DELETE: api/user/wishlist/remove/{product_id}
+        [Authorize(Roles = "Shopper")]
+        [HttpDelete("{product_id:int}")]
+        public async Task<IActionResult> DeleteWishList(int product_id)
         {
-            if (wishListDto == null) return BadRequest("WishList data is required.");
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var createdWishList = await _wishListService.CreateWishListAsync(wishListDto);
-            return CreatedAtAction(nameof(GetWishListById), new { id = createdWishList.Id }, createdWishList);
-        }
+            var user_id = await _userService.GetIdByUsername(tokenUsername) ?? throw new NotFoundException("No user found with that username.");
+            var wishList = await _wishListService.GetWishListByProductId(user_id, product_id);
 
-        // UPDATE: api/user/wishlists/{id}
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateWishList(int id, [FromBody] WishListDto wishListDto)
-        {
-            if (wishListDto == null) return BadRequest("WishList data is required.");
-
-            var updatedWishList = await _wishListService.UpdateWishListAsync(id, wishListDto);
-            if (updatedWishList == null) return NotFound();
-            return Ok(updatedWishList);
-        }
-
-        // DELETE: api/user/wishlists/{id}
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteWishList(int id)
-        {
-            var deletedWishList = await _wishListService.DeleteWishListAsync(id);
-            if (deletedWishList == null) return NotFound();
-            return Ok(deletedWishList);
+            if (wishList == null)
+            {
+                throw new NotFoundException("You don't have this prodcut on your wishList");
+            }
+            var deletedWishList = await _wishListService.DeleteWishListById(wishList.Id);
+            if (deletedWishList == null) { throw new NotFoundException("You don't have this prodcut on your wishList."); };
+            return Ok(new DefaultResponse { message = "Successfully deleted" });
         }
     }
 }

@@ -1,65 +1,97 @@
+using System.Security.Claims;
+using Api.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.Builders;
 using Services.Interfaces;
-using Shared.DTOs;
+using Shared.Exceptions;
 
 namespace Api.Controllers
 {
     [Route("api/purchases")]
     [ApiController]
+    [Authorize(Roles = "Shopper")]
     public class PurchaseController : ControllerBase
     {
+        private readonly ICartPurchaseBuilderFactory _purchaseFactory;
         private readonly IPurchaseService _purchaseService;
-
-        public PurchaseController(IPurchaseService purchaseService)
+        private readonly IUserService _userService;
+        private readonly ILogger<PurchaseController> _logger;
+        public PurchaseController(IPurchaseService purchaseService, IUserService userService, ILogger<PurchaseController> logger, ICartPurchaseBuilderFactory cartPurchasesBuilderFactory)
         {
+            _purchaseFactory = cartPurchasesBuilderFactory;
             _purchaseService = purchaseService;
+            _userService = userService;
+            _logger = logger;
         }
 
         // GET: api/purchases
+        //ADD ORDER TOTAL
         [HttpGet]
-        public async Task<IActionResult> GetAllPurchases()
+        public async Task<IActionResult> GetAllUserPurchases()
         {
-            var purchases = await _purchaseService.GetAllPurchasesAsync();
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
+            var purchases = await _purchaseService.GetAllUserPurchases(userId);
             return Ok(purchases);
-        }
-
-        // GET: api/purchases/{id}
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetPurchaseById(int id)
-        {
-            var purchase = await _purchaseService.GetPurchaseByIdAsync(id);
-            if (purchase == null) return NotFound();
-            return Ok(purchase);
         }
 
         // POST: api/purchases
         [HttpPost]
-        public async Task<IActionResult> CreatePurchase([FromBody] PurchaseDto purchaseDto)
+        public async Task<IActionResult> Buy([FromBody] PurchaseRequest? purchaseDto)
         {
-            if (purchaseDto == null) return BadRequest("Purchase data is required.");
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
 
-            var createdPurchase = await _purchaseService.CreatePurchaseAsync(purchaseDto);
-            return CreatedAtAction(nameof(GetPurchaseById), new { id = createdPurchase.Id }, createdPurchase);
+            var builder = _purchaseFactory.Create(userId);
+            var preview = (await (await
+                builder.LoadCartAsync())
+                .ValidateApproved()
+                .ValidateStock()
+                .CalcBasePrice()
+                .FindCoupon(purchaseDto.coupon_code ?? null))
+                .CalcFinalPrice();
+            try
+            {
+
+                var result = (await (await (await preview
+                    .BeginTransactionAsync())
+                    .DecrementStock()
+                    .CreatePurchase()
+                    .ClearCart()
+                    .PersistAllChangesAsync())
+                    .CommitTransactionAsync())
+                    .AddMetricsData()
+                    .FormatOutput();
+                return Created("", result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                await builder.RollbackTransactionAsync();
+                _logger.LogCritical(ex.Message);
+                throw new BadRequestException("something failed. Please try again");
+            }
+
         }
 
-        // UPDATE: api/purchases/{id}
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdatePurchase(int id, [FromBody] PurchaseDto purchaseDto)
+        // POST: api/purchases/preview
+        [HttpPost("preview")]
+        public async Task<IActionResult> Preview([FromBody] PurchaseRequest? purchaseDto)
         {
-            if (purchaseDto == null) return BadRequest("Purchase data is required.");
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
 
-            var updatedPurchase = await _purchaseService.UpdatePurchaseAsync(id, purchaseDto);
-            if (updatedPurchase == null) return NotFound();
-            return Ok(updatedPurchase);
-        }
+            var builder = _purchaseFactory.Create(userId);
+            var result = (await (await builder.LoadCartAsync())
+                .ValidateApproved()
+                .ValidateStock()
+                .CalcBasePrice()
+                .FindCoupon(purchaseDto.coupon_code ?? null))
+                .CalcFinalPrice()
+                .FormatOutput();
 
-        // DELETE: api/purchases/{id}
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeletePurchase(int id)
-        {
-            var deletedPurchase = await _purchaseService.DeletePurchaseAsync(id);
-            if (deletedPurchase == null) return NotFound();
-            return Ok(deletedPurchase);
+            return Ok(result);
         }
     }
 }

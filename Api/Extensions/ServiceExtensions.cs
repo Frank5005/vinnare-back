@@ -1,8 +1,9 @@
 using Api.Services;
+using Api.Utils;
 using Services;
+using Services.Builders;
 using Services.Interfaces;
 using Services.Utils;
-
 namespace Api.Extensions
 {
     public static class ServiceExtensions
@@ -20,7 +21,10 @@ namespace Api.Extensions
             services.AddScoped<IJobService, JobService>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<ICartPurchaseBuilderFactory, CartPurchaseBuilderFactory>();
 
+            services.AddMemoryCache();
+            services.AddScoped<ICacheHelper, CacheHelper>();
             return services;
         }
     }
