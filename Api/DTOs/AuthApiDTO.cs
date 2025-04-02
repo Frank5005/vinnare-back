@@ -29,15 +29,32 @@ namespace Api.DTOs
     }
     public class UserCreateShopperRequest : UserRequestBase
     {
-
+        public string SecurityQuestion { get; set; }
+        public SecurityQuestionType GetSecurityQuestionType()
+        {
+            if (Enum.TryParse<SecurityQuestionType>(SecurityQuestion, true, out var parsedRole))
+            {
+                return parsedRole;
+            }
+            throw new BadRequestException("Invalid role type.");
+        }
     }
     public class UserCreateRequest : UserRequestBase
     {
         public string Role { get; set; }
+        public string SecurityQuestion { get; set; }
 
         public RoleType GetRoleType()
         {
             if (Enum.TryParse<RoleType>(Role, true, out var parsedRole))
+            {
+                return parsedRole;
+            }
+            throw new BadRequestException("Invalid role type.");
+        }
+        public SecurityQuestionType GetSecurityQuestionType()
+        {
+            if (Enum.TryParse<SecurityQuestionType>(SecurityQuestion, true, out var parsedRole))
             {
                 return parsedRole;
             }
