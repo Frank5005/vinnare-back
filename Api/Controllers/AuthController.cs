@@ -106,5 +106,11 @@ namespace Api.Controllers
         {
             throw new NullReferenceException("A wild exception appeared!. It used NullReferenceException. It’s super effective... ");
         }
+
+        [HttpGet("Dashboard")]
+        public void test()
+        {
+
+        }
     }
 }
