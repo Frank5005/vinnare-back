@@ -52,24 +52,22 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#technology-stack">Technology Stack</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#integrations">Integrations</a>
+    <li class="toctree-l2"><a class="reference internal" href="#tech-features">Tech features</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#future-enhancements">Future Enhancements</a>
+    <li class="toctree-l2"><a class="reference internal" href="#integrations">Integrations</a>
     </li>
     </ul>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../technical_issues/">Technical issues</a>
-                </li>
-              </ul>
               <p class="caption"><span class="caption-text">Code</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../code/architecture/">Architecture</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../code/ci_cd/">CI/CD Pipelines</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../code/code/">Code Structure</a>
-                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../code/db/">Database Structure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../code/testing/">Testing Strategy</a>
                   </li>
               </ul>
       </div>
@@ -136,22 +134,27 @@
 <li><strong>Testing</strong>: Moq and xUnit</li>
 <li><strong>Security</strong>: JWT authentication, password hashing with salt and pepper</li>
 </ul>
+<h2 id="tech-features">Tech features</h2>
+<ul>
+<li>Cloud (aws) deployment of both servers and databases</li>
+<li>Automated deployment of aplication using <a href="../code/ci_cd/">ci-cd</a></li>
+<li>Monitoring using aspire dashboard</li>
+<li>over 85% code coverage</li>
+<li>In-memory caching using the write through strategy</li>
+<li>SSL certificates (autosigned)</li>
+<li>Proxy (nginx) for redireccion and serving those certificates </li>
+<li>Docker compose to handle multiple containers</li>
+</ul>
 <h2 id="integrations">Integrations</h2>
 <ul>
 <li><strong>Initial Data Load</strong>: Fetches test data from FakeStore API for development and testing purposes.</li>
-</ul>
-<h2 id="future-enhancements">Future Enhancements</h2>
-<ul>
-<li>Scalability improvements (caching, performance optimization)</li>
-<li>Additional third-party integrations (payment gateways, analytics)</li>
-<li>Enhanced admin dashboard for better control and monitoring</li>
 </ul>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href=".." class="btn btn-neutral float-left" title="Vinnare eCommerce Project Documentation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../technical_issues/" class="btn btn-neutral float-right" title="Technical issues">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../code/architecture/" class="btn btn-neutral float-right" title="Architecture">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -181,7 +184,7 @@
       <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../technical_issues/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../code/architecture/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

@@ -69,9 +69,9 @@ Edit the appsettings.json or appsettings.Development.json file with the correct 
         }
     },
     "JwtSettings": {
-        "Issuer": "https://yourdomain.com",
-        "Audience": "https://yourdomain.com",
-        "SecretKey": "5A08E4EA295505537FA4FA244512E18F ",
+        "Issuer": "",
+        "Audience": "",
+        "SecretKey": " ",
         "AccessTokenExpirationMinutes": 4320
     },
     "AllowedHosts": "*",

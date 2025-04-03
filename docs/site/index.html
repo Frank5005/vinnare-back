@@ -65,17 +65,15 @@
                 <li class="toctree-l1"><a class="reference internal" href="features/">Features</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="technical_issues/">Technical issues</a>
-                </li>
-              </ul>
               <p class="caption"><span class="caption-text">Code</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="code/architecture/">Architecture</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="code/ci_cd/">CI/CD Pipelines</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="code/code/">Code Structure</a>
-                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="code/db/">Database Structure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="code/testing/">Testing Strategy</a>
                   </li>
               </ul>
       </div>
@@ -108,7 +106,7 @@
 <ul>
 <li><strong>Api/</strong>: Contains the API layer with controllers, DTOs, middleware, and extensions.</li>
 <li><strong>Data/</strong>: Manages the database context, entities, and migrations.</li>
-<li><strong>Services/</strong>: Implements business logic with service classes and interfaces.</li>
+<li><strong>Services/</strong>: Implements business logic with service classes, interfaces and builders.</li>
 <li><strong>Shared/</strong>: Contains shared configurations, DTOs, enums, and exceptions.</li>
 <li><strong>ConsoleAppMigration/</strong>: A console application for managing database migrations.</li>
 <li><strong>docs/</strong>: Documentation files for the project using MkDocs.</li>
@@ -120,24 +118,26 @@
 <ul>
 <li><strong>Service Registration</strong></li>
 <li>Controllers</li>
-<li>Swagger for API documentation</li>
-<li>Security settings (JWT, authentication, authorization)</li>
 <li>Database configuration using Entity Framework Core</li>
+<li>Open Telemetry configuration</li>
+<li>Rate limiting</li>
+<li>Logging configuration</li>
+<li>Swagger for API documentation</li>
 <li>
-<p>Logging configuration</p>
+<p>Settings used</p>
 </li>
 <li>
 <p><strong>Middleware Configuration</strong></p>
 </li>
-<li>Custom middleware for authentication and error handling</li>
+<li>Custom middleware for error handling</li>
+<li>Custom middleware for autentication</li>
 <li>HTTPS redirection</li>
-<li>Authentication &amp; Authorization enforcement</li>
-<li>API routing</li>
 </ul>
 <h2 id="how-to-run-the-project">How to Run the Project</h2>
 <p>To run the project, ensure you are in the <strong>root folder</strong>.</p>
 <h3 id="using-docker">Using Docker:</h3>
-<pre><code class="language-sh">docker build . -f ./Api/Dockerfile
+<pre><code class="language-sh">docker build . -t vinnare -f ./Api/Dockerfile
+docker run vinnare
 </code></pre>
 <h3 id="running-locally">Running Locally:</h3>
 <pre><code class="language-sh">dotnet restore
@@ -204,5 +204,5 @@ dotnet Api/bin/Debug/net8.0/Api.dll
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-03-19 23:37:28.807297+00:00
+Build Date UTC : 2025-04-02 22:59:42.089711+00:00
 -->
