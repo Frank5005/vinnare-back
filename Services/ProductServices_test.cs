@@ -115,7 +115,7 @@ public class ProductService_test
         var employeeId = Guid.NewGuid();
 
         _dbContext.Users.Add(new User { Id = userId });
-        _dbContext.Categories.Add(new Category { Id = 1, Name = "Tech" });
+        _dbContext.Categories.Add(new Category { Id = 1, Name = "Tech", Approved = true });
         await _dbContext.SaveChangesAsync();
 
         _mockUserService.Setup(u => u.GetIdByUsername("employee"))
@@ -157,7 +157,7 @@ public class ProductService_test
             Title = "New",
             Price = 120,
             Category = "Gadgets",
-            Approved = true
+            //Approved = true
         };
 
         var result = await _productService.UpdateProductAsync(product.Id, update);

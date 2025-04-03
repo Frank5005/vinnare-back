@@ -82,9 +82,9 @@ public class ReviewController_test
     public async Task UpdateReview_ShouldReturnOk_WhenUpdated()
     {
         var dto = new ReviewDto { Id = 1, Comment = "Updated comment" };
-        _mockReviewService.Setup(s => s.UpdateReviewAsync(1, dto)).ReturnsAsync(dto);
+        _mockReviewService.Setup(s => s.UpdateReviewAsync(dto)).ReturnsAsync(dto);
 
-        var result = await _controller.UpdateReview(1, dto);
+        var result = await _controller.UpdateReview(dto);
 
         var ok = Assert.IsType<OkObjectResult>(result);
         var returned = Assert.IsType<ReviewDto>(ok.Value);
@@ -95,9 +95,9 @@ public class ReviewController_test
     public async Task UpdateReview_ShouldReturnNotFound_WhenNull()
     {
         var dto = new ReviewDto { Id = 99, Comment = "Not found" };
-        _mockReviewService.Setup(s => s.UpdateReviewAsync(99, dto)).ReturnsAsync((ReviewDto?)null);
+        _mockReviewService.Setup(s => s.UpdateReviewAsync(dto)).ReturnsAsync((ReviewDto?)null);
 
-        var result = await _controller.UpdateReview(99, dto);
+        var result = await _controller.UpdateReview(dto);
 
         Assert.IsType<NotFoundResult>(result);
     }

@@ -26,7 +26,7 @@ public class ReviewService_test
     [Fact]
     public async Task GetAllReviewsAsync_ShouldReturnAll()
     {
-        _context.Reviews.Add(new Review { ProductId = 1, UserId = Guid.NewGuid(), Rate = 5, Comment = "Great",  Username = "testuser2", });
+        _context.Reviews.Add(new Review { ProductId = 1, UserId = Guid.NewGuid(), Rate = 5, Comment = "Great", Username = "testuser2", });
         await _context.SaveChangesAsync();
 
         var result = await _reviewService.GetAllReviewsAsync();
@@ -38,7 +38,7 @@ public class ReviewService_test
     [Fact]
     public async Task GetReviewByIdAsync_ShouldReturnCorrectReview()
     {
-        var review = new Review { Id = 10, ProductId = 2, UserId = Guid.NewGuid(), Rate = 4, Comment = "Nice",  Username = "testuser3", };
+        var review = new Review { Id = 10, ProductId = 2, UserId = Guid.NewGuid(), Rate = 4, Comment = "Nice", Username = "testuser3", };
         _context.Reviews.Add(review);
         await _context.SaveChangesAsync();
 
@@ -102,18 +102,16 @@ public class ReviewService_test
             Comment = "Solid"
         };
 
-        var result = await _reviewService.CreateReviewAsync(request);
+        var exception = await Assert.ThrowsAsync<Exception>(() =>
+        _reviewService.CreateReviewAsync(request));
 
-        Assert.NotNull(result);
-        Assert.Equal(99, result.ProductId);
-        Assert.Equal(userId, result.UserId);
-        Assert.Equal("Solid", result.Comment);
+        Assert.Equal("The user hasn't bought the product.", exception.Message);
     }
 
     [Fact]
     public async Task UpdateReviewAsync_ShouldModifyReview()
     {
-        var review = new Review { Id = 7, ProductId = 3, UserId = Guid.NewGuid(), Rate = 2, Comment = "Meh",  Username = "testuser4" };
+        var review = new Review { Id = 7, ProductId = 3, UserId = Guid.NewGuid(), Rate = 2, Comment = "Meh", Username = "testuser4" };
         _context.Reviews.Add(review);
         await _context.SaveChangesAsync();
 
@@ -126,7 +124,7 @@ public class ReviewService_test
             Comment = "Improved"
         };
 
-        var result = await _reviewService.UpdateReviewAsync(7, dto);
+        var result = await _reviewService.UpdateReviewAsync(dto);
 
         Assert.NotNull(result);
         Assert.Equal("Improved", result!.Comment);
@@ -136,14 +134,14 @@ public class ReviewService_test
     [Fact]
     public async Task UpdateReviewAsync_ShouldReturnNull_WhenNotFound()
     {
-        var result = await _reviewService.UpdateReviewAsync(999, new ReviewDto());
+        var result = await _reviewService.UpdateReviewAsync(new ReviewDto());
         Assert.Null(result);
     }
 
     [Fact]
     public async Task DeleteReviewAsync_ShouldRemoveAndReturnDto()
     {
-        var review = new Review { Id = 11, ProductId = 4, UserId = Guid.NewGuid(), Rate = 3, Comment = "Okay",  Username = "testuser", };
+        var review = new Review { Id = 11, ProductId = 4, UserId = Guid.NewGuid(), Rate = 3, Comment = "Okay", Username = "testuser", };
         _context.Reviews.Add(review);
         await _context.SaveChangesAsync();
 

@@ -11,7 +11,7 @@ namespace Services.Interfaces
         Task<int> GetReviewsRateByIdAsync(int id);
         Task<Review> CreateReviewAsync(ReviewRequest reviewRequest);
 
-        Task<ReviewDto?> UpdateReviewAsync(int id, ReviewDto reviewDto);
+        Task<ReviewDto?> UpdateReviewAsync(ReviewDto reviewDto);
 
         Task<ReviewDto?> DeleteReviewAsync(int id);
     }

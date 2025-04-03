@@ -172,6 +172,19 @@ namespace Services
             //Verify if the category exists
             var categoryExists = await _serviceProvider.GetRequiredService<ICategoryService>().CheckAvailableCategory(productDto.Category);
 
+            //Verify if the category it's approved
+            if (categoryExists.Approved == false)
+            {
+                throw new Exception("You can't use this category because it's not approved'.");
+            }
+
+            //Verify if we have a product with the same name
+            var productExists = await _context.Products.AnyAsync(p => p.Title == productDto.Title && p.OwnerId == productDto.OwnerId);
+            if (productExists)
+            {
+                throw new Exception("You already have a product with the same name.");
+            }
+
             var product = new Product
             {
                 OwnerId = productDto.OwnerId,
@@ -208,6 +221,19 @@ namespace Services
             if (categoryExists == null)
             {
                 throw new Exception("The category doesn't exists.");
+            }
+
+            //Verify if the category it's approved
+            if (categoryExists.Approved == false)
+            {
+                throw new Exception("You can't use this category because it's not approved'.");
+            }
+
+            //Verify if we have a product with the same name
+            var productExists = await _context.Products.AnyAsync(p => p.Title == productDto.Title && p.OwnerId == productDto.OwnerId);
+            if (productExists)
+            {
+                throw new Exception("You already have a product with the same name.");
             }
 
             Guid userId = (Guid)await _userService.GetIdByUsername(productDto.Username);

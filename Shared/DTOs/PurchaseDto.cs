@@ -5,7 +5,7 @@ namespace Shared.DTOs
         public int Id { get; set; }
         public List<int> Products { get; set; } = new();
         public List<decimal> Prices { get; set; } = new();
-        public List<decimal> Quantities { get; set; } = new();
+        public List<int> Quantities { get; set; } = new();
         public Guid UserId { get; set; }
         public string? CouponCode { get; set; }
         public decimal TotalPrice { get; set; }

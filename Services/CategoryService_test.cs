@@ -122,7 +122,7 @@ public class CategoryService_test
     [Fact]
     public async Task DeleteCategoryAsync_ShouldDelete()
     {
-        var category = new Category { Name = "ToDelete" };
+        var category = new Category { Name = "ToDelete", Approved = true };
         _dbContext.Categories.Add(category);
         await _dbContext.SaveChangesAsync();
 
@@ -136,7 +136,7 @@ public class CategoryService_test
     public async Task DeleteCategoryByEmployeeAsync_ShouldCreateJobOnly()
     {
         var userId = Guid.NewGuid();
-        var category = new Category { Name = "SoftDelete" };
+        var category = new Category { Name = "SoftDelete", Approved = true };
         _dbContext.Categories.Add(category);
         await _dbContext.SaveChangesAsync();
 
@@ -144,7 +144,7 @@ public class CategoryService_test
 
         var result = await _categoryService.DeleteCategoryByEmployeeAsync(category.Id, "employee");
 
-        Assert.Equal("You can't delete a category.", result);
+        Assert.Equal("Job created, waiting the admin approve.", result);
         _mockJobService.Verify(j => j.CreateJobAsync(It.Is<JobDto>(j => j.CategoryId == category.Id)), Times.Once);
     }
 

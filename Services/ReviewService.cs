@@ -62,7 +62,7 @@ namespace Services
             .ToListAsync();
         }
 
-        public async Task<int>  GetReviewsRateByIdAsync(int id)
+        public async Task<int> GetReviewsRateByIdAsync(int id)
         {
             int rate = 0, sum = 0, count = 0;
             List<ReviewDto> reviews = await _context.Reviews
@@ -75,10 +75,11 @@ namespace Services
                     Comment = r.Comment
                 })
                 .ToListAsync();
-            
-            for(int i = 0; i < reviews.Count; i++)
+
+            for (int i = 0; i < reviews.Count; i++)
             {
-                if(id == reviews[i].ProductId){
+                if (id == reviews[i].ProductId)
+                {
                     count += 1;
                     sum += reviews[i].Rate;
                 }
@@ -101,10 +102,25 @@ namespace Services
                 throw new Exception("The product doesn't exists.");
             }
 
+            // Verify if the user exists
+            var userExists = await _userService.GetIdByUsername(reviewRequest.Username) != null;
+            if (!userExists)
+            {
+                throw new Exception("The user doesn't exists.");
+            }
+
+            // Verify if the user has already bought the product
+            var userId = await _userService.GetIdByUsername(reviewRequest.Username);
+            var hasBoughtProduct = await _context.Purchases.AnyAsync(p => p.UserId == userId && p.Products.Contains(reviewRequest.ProductId));
+            if (!hasBoughtProduct)
+            {
+                throw new Exception("The user hasn't bought the product.");
+            }
+
             var review = new Review
             {
                 ProductId = reviewRequest.ProductId,
-                UserId = (Guid) await _userService.GetIdByUsername(reviewRequest.Username),
+                UserId = (Guid)await _userService.GetIdByUsername(reviewRequest.Username),
                 Rate = reviewRequest.Rate,
                 Comment = reviewRequest.Comment,
                 Username = reviewRequest.Username
@@ -116,9 +132,9 @@ namespace Services
             return review;
         }
 
-        public async Task<ReviewDto?> UpdateReviewAsync(int id, ReviewDto reviewDto)
+        public async Task<ReviewDto?> UpdateReviewAsync(ReviewDto reviewDto)
         {
-            var review = await _context.Reviews.FindAsync(id);
+            var review = await _context.Reviews.FindAsync(reviewDto.Id);
             if (review == null) return null;
 
             review.ProductId = reviewDto.ProductId;

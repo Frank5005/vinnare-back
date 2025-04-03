@@ -33,7 +33,10 @@ namespace Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllJobs()
         {
-            var jobs = await _jobService.GetAllJobsAsync();
+            var categories = await _categoryService.GetAllCategoriesAsync();
+            var products = await _productService.GetAllProductsAsync();
+            
+            var jobs = await _jobService.GetAllJobsAsync(categories, products);
 
             return Ok(jobs);
         }
