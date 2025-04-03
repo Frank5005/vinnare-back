@@ -53,10 +53,47 @@ git clone https://github.com/dcanasp/vinnare.git
 cd vinnare
 ```
 ### ⚙️ 2. Setting up the database connection
-Edit the appsettings.json or appsettings.Development.json file with the connection string to your PostgreSQL database:
+Edit the appsettings.json or appsettings.Development.json file with the correct information to get the connection to your PostgreSQL database:
 ```json
-"ConnectionStrings": {
-  "DefaultConnection": "Host=localhost;Port=5432;Database=name_database;Username=user;Password=password"
+{
+    "Database": {
+        "DefaultConnection": "Host=localhost;Port=5439;Database=postgres;Username=postgres;Password=1234"
+    },  
+    "Security": {
+        "PasswordPepper": ""
+    },
+    "Logging": {
+    "LogLevel": {
+        "Default": "Debug",
+        "Microsoft.AspNetCore": "Warning"
+        }
+    },
+    "JwtSettings": {
+        "Issuer": "https://yourdomain.com",
+        "Audience": "https://yourdomain.com",
+        "SecretKey": "5A08E4EA295505537FA4FA244512E18F ",
+        "AccessTokenExpirationMinutes": 4320
+    },
+    "AllowedHosts": "*",
+    "Serilog": {
+        "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File" ],
+        "MinimumLevel": "Information",
+        "WriteTo": [
+            { "Name": "Console" },
+            {
+                "Name": "File",
+                "Args": {
+                    "path": "../logs/vinnare_log.log",
+                    "rollingInterval": "Day"
+                }
+            }
+        ],
+        "Enrich": [ "FromLogContext", "WithThreadId", "WithMachineName" ],
+        "Properties": {
+            "Application": "vinnare"
+        }
+    }
+ 
 }
 ```
 ### 🧱 3. Create the database 
@@ -72,14 +109,15 @@ dotnet ef database update
 This will create all tables according to your existing models and migrations.
 ### ▶️ 5. Run the application
 ```bash
-dotnet run
+dotnet restore
+dotnet build
+dotnet run --project Api
 ```
 The API will be available (by default) in:
 ```console
-https://localhost:5001
-http://localhost:5000
+https://localhost:5142
 ```
 You can test the endpoints with tools like Postman or directly from Swagger in:
 ```console
-https://localhost:5001/swagger
+https://localhost:7242/swagger
 ```
