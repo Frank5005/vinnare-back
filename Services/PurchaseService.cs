@@ -25,7 +25,11 @@ namespace Services
                 {
                     Id = p.Id,
                     Products = p.Products,
+                    Prices = p.Prices,
+                    Quantities = p.Quantities,
                     UserId = p.UserId,
+                    TotalPrice = p.TotalPrice,
+                    TotalPriceBeforeDiscount = p.TotalPriceBeforeDiscount,
                     Date = p.Date
                 })
                 .ToListAsync();

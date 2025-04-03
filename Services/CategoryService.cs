@@ -98,6 +98,14 @@ namespace Services
                 //Console.WriteLine($"User ID: {userId}");
             }
 
+            //Verify if we have a category with the same name
+            var existingCategory = await _context.Categories
+                .FirstOrDefaultAsync(c => c.Name == categoryDto.Name);
+            if (existingCategory != null)
+            {
+                throw new Exception("A category with this name already exists.");
+            }
+
             var category = new Category
             {
                 Name = categoryDto.Name,
@@ -122,6 +130,14 @@ namespace Services
         }
         public async Task<Category> CreateCategoryAsync(CategoryRequest categoryDto)
         {
+            //Verify if we have a category with the same name
+            var existingCategory = await _context.Categories
+                .FirstOrDefaultAsync(c => c.Name == categoryDto.Name);
+            if (existingCategory != null)
+            {
+                throw new Exception("A category with this name already exists.");
+            }
+            
             var category = new Category
             {
                 Name = categoryDto.Name,
@@ -174,14 +190,17 @@ namespace Services
                 throw new NotFoundException("The category doesn't exists.");
             }
 
+            //Verify if the category has products associated
             var hasProducts = await _context.Products.AnyAsync(p => p.CategoryId == id);
             if (hasProducts)
             {
                 throw new Exception("You can't delete the category because it has products associated.");
             }
-            if (category == null)
+
+            //Verify if the category it's approved
+            if (category.Approved == false)
             {
-                throw new NotFoundException("The category doesn't exists.");
+                throw new Exception("You can't delete the category because it's not approved'.");
             }
 
             _context.Categories.Remove(category);
@@ -191,12 +210,18 @@ namespace Services
 
         public async Task<string> DeleteCategoryByEmployeeAsync(int id, string username)
         {
-            string message = "You can't delete a category.";
+            string message = "Job created, waiting the admin approve.";
             //Verify if the category exists
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
             {
                 throw new NotFoundException("The category doesn't exists.");
+            }
+
+            //Verify if the category it's approved
+            if (category.Approved == false)
+            {
+                throw new Exception("You can't delete the category because it's not approved'.");
             }
 
             var hasProducts = await _context.Products.AnyAsync(p => p.CategoryId == id);
@@ -222,7 +247,7 @@ namespace Services
                 CategoryId = category.Id
             });
 
-            _context.Categories.Remove(category);
+            //_context.Categories.Remove(category);
             await _context.SaveChangesAsync();
             return message;
         }

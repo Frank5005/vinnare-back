@@ -97,7 +97,7 @@ namespace Services.Builders
         {
             if (_discount != 0)
             {
-                _totalAfterDiscount = _totalPricePreDiscount * _discount;
+                _totalAfterDiscount = _totalPricePreDiscount - _totalPricePreDiscount * _discount;
             }
             else
             {

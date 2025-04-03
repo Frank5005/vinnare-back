@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Testing Strategy - Vinnare</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Testing Strategy";
+        var mkdocs_page_input_path = "code/testing.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Vinnare
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Vinnare eCommerce Project Documentation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../features/">Features</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/">Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ci_cd/">CI/CD Pipelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../db/">Database Structure</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Testing Strategy</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing-principles">Testing Principles</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#isolation">Isolation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#repeatability">Repeatability</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#expressive-assertions">Expressive Assertions</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#controller-tests">Controller Tests</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#service-tests">Service Tests</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#test-utilities">Test Utilities</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#testdbcontextfactory">TestDbContextFactory</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Vinnare</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Code</li>
+      <li class="breadcrumb-item active">Testing Strategy</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="testing-strategy">Testing Strategy</h1>
+<h2 id="overview">Overview</h2>
+<p>Vinnare follows a robust and maintainable testing strategy that prioritizes <strong>clarity</strong>, <strong>coverage</strong>, and <strong>reliability</strong>. We aim for consistent practices across all layers, from controllers to services, with a strong emphasis on isolating logic through mocking and in-memory databases.</p>
+<blockquote>
+<p><strong>Current test coverage exceeds 85%</strong>
+<img alt="testCoverage" src="../../diagrams/codeCoverage.png" /></p>
+</blockquote>
+<hr />
+<h2 id="testing-principles">Testing Principles</h2>
+<h3 id="isolation">Isolation</h3>
+<p>Each test runs in isolation without side effects. This is achieved through:</p>
+<ul>
+<li>
+<p><strong>Mocking interfaces</strong> like <code>ITokenService</code>, <code>IUserService</code>, or <code>ILogger&lt;T&gt;</code> to focus only on the logic under test.</p>
+</li>
+<li>
+<p><strong>In-memory databases</strong> (via <code>TestDbContextFactory</code>) for integration-like service tests without external dependencies.</p>
+</li>
+</ul>
+<h3 id="repeatability">Repeatability</h3>
+<p>Tests can be run multiple times with consistent results. All state is reset per test through fresh DB context instances and mock setups.</p>
+<h3 id="expressive-assertions">Expressive Assertions</h3>
+<p>Each test clearly communicates intent through structured <strong>Arrange-Act-Assert</strong> blocks, using:</p>
+<ul>
+<li>
+<p><code>Assert.IsType&lt;&gt;</code> to verify response types.</p>
+</li>
+<li>
+<p><code>Assert.Equal</code>, <code>Assert.Null</code>, or <code>Assert.NotNull</code> to validate output data.</p>
+</li>
+<li>
+<p><code>Assert.ThrowsAsync&lt;ExceptionType&gt;</code> to enforce failure expectations.</p>
+</li>
+</ul>
+<hr />
+<h2 id="controller-tests">Controller Tests</h2>
+<p>Controller-level tests validate HTTP logic and error handling using mocked services. Key patterns include:</p>
+<ul>
+<li>
+<p><strong>Simulated requests</strong> with DTOs to mirror real-world usage.</p>
+</li>
+<li>
+<p><strong>Mocked dependencies</strong> to ensure controller logic is verified independently of service implementations.</p>
+</li>
+<li>
+<p><strong>Exception validation</strong>, asserting that proper exceptions are thrown for invalid input or unauthorized access.</p>
+</li>
+</ul>
+<p>These ensure that endpoints behave as expected for both success and failure paths.</p>
+<hr />
+<h2 id="service-tests">Service Tests</h2>
+<p>Service logic is tested using <strong>real EF Core contexts</strong> configured with the <code>TestDbContextFactory</code>. This allows us to:</p>
+<ul>
+<li>
+<p>Verify <strong>CRUD operations</strong> on in-memory data.</p>
+</li>
+<li>
+<p>Simulate more realistic flows (e.g., cart manipulation, product lookup).</p>
+</li>
+<li>
+<p>Confirm DB-side behavior like relationships and cascade deletions.</p>
+</li>
+</ul>
+<p>Each service test focuses on real usage scenarios and data consistency.</p>
+<hr />
+<h2 id="test-utilities">Test Utilities</h2>
+<h3 id="testdbcontextfactory"><code>TestDbContextFactory</code></h3>
+<pre><code>public static VinnareDbContext Create()
+        {
+            var options = new DbContextOptionsBuilder&lt;VinnareDbContext&gt;()
+                .UseInMemoryDatabase(databaseName: $&quot;TestDb_{Guid.NewGuid()}&quot;)
+                .Options;
+
+            var context = new VinnareDbContext(options);
+            context.Database.EnsureCreated();
+            return context;
+        }
+</code></pre>
+<p>This static utility provides clean, isolated <code>VinnareDbContext</code> instances backed by <strong>in-memory databases</strong> with unique names per test run. It ensures:</p>
+<ul>
+<li>
+<p>No state leakage between tests.</p>
+</li>
+<li>
+<p>DB behavior remains testable without a real server.</p>
+</li>
+<li>
+<p>Data setup is fast and reliable.</p>
+</li>
+</ul>
+<hr />
+<h2 id="best-practices">Best Practices</h2>
+<ul>
+<li>
+<p>Keep test files named consistently with the class under test (e.g., <code>AuthController_test.cs</code>, <code>CartService_test.cs</code>).</p>
+</li>
+<li>
+<p>Place tests <strong>next to the logic they validate</strong> for improved maintainability.</p>
+</li>
+<li>
+<p>Mock only what is needed — let EF and data models behave naturally where it adds value.</p>
+</li>
+<li>
+<p>Avoid over-testing simple mappings or trivial getters/setters.</p>
+</li>
+<li>
+<p>Focus on <strong>behavior</strong>, not implementation.</p>
+</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../db/" class="btn btn-neutral float-left" title="Database Structure"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/dcanasp/vinnare" class="fa fa-code-fork" style="color: #fcfcfc"> Vinnare</a>
+        </span>
+    
+    
+      <span><a href="../db/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

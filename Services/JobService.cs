@@ -27,7 +27,7 @@ namespace Services
             _serviceProvider = serviceProvider;
         }
 
-        public async Task<IEnumerable<ViewJobResponse>> GetAllJobsAsync()
+        public async Task<IEnumerable<ViewJobResponse>> GetAllJobsAsync(IEnumerable<CategoryDto>? categories, IEnumerable<ProductDto>? products)
         {
             var jobs = await _context.Jobs.ToListAsync();
 
@@ -35,10 +35,8 @@ namespace Services
 
             foreach (var job in jobs)
             {
-                //var categoryName = await _categoryService.GetCategoryNameByIdAsync(job.Category.Id);
-                var categoryName = await _serviceProvider.GetRequiredService<ICategoryService>().GetCategoryNameByIdAsync(job.Category.Id);
-                //var productName = await _productService.GetProductNameByIdAsync(job.Product.Id);
-                var productName = await _serviceProvider.GetRequiredService<IProductService>().GetProductNameByIdAsync(job.Product.Id);
+                var categoryName = categories?.FirstOrDefault(c => c.Id == job.CategoryId)?.Name ?? "Unknown Category";
+                var productName = products?.FirstOrDefault(p => p.Id == job.ProductId)?.Title ?? "Unknown Product";
                 var creatorName = await _userService.GetUsernameById(job.CreatorId);
                 jobList.Add(new ViewJobResponse
                 {

@@ -51,13 +51,13 @@ namespace Api.Controllers
             return Ok(new ReviewResponse { Username = createdReview.Username, ProductId = createdReview.ProductId, Comment = createdReview.Comment });
         }
 
-        // UPDATE: api/reviews/{id}
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateReview(int id, [FromBody] ReviewDto reviewDto)
+        // UPDATE: api/reviews/update
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateReview([FromBody] ReviewDto reviewDto)
         {
             if (reviewDto == null) return BadRequest("Review data is required.");
 
-            var updatedReview = await _reviewService.UpdateReviewAsync(id, reviewDto);
+            var updatedReview = await _reviewService.UpdateReviewAsync(reviewDto);
             if (updatedReview == null) return NotFound();
             return Ok(updatedReview);
         }
