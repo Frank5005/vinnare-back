@@ -21,6 +21,18 @@ builder.Services.AddAuthenticationConfiguration();
 builder.Services.AddAuthorization();
 
 
+// CORS policy for the frontend application
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", builder =>
+    {
+        builder.WithOrigins("https://main.d3hcv6qzhmyahb.amplifyapp.com/")
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -36,5 +48,8 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+//Frontend CORS policy
+app.UseCors("AllowFrontend");
 
 app.Run();
