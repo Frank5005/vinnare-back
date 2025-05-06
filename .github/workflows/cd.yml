@@ -29,8 +29,8 @@ jobs:
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.ec2_host }}
-          username: ${{ secrets.ec2_user }}
-          key: ${{ secrets.ec2_ssh_key }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "Pulling latest image..."
             if [[ -z "${{ inputs.image_tag }}" ]]; then
