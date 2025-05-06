@@ -49,6 +49,9 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
+app.Urls.Add("http://*:8080"); // .NET escuche en el puerto 8080 (por ejemplo)
+
+
 //Frontend CORS policy
 app.UseCors("AllowFrontend");
 
