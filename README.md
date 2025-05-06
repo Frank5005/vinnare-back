@@ -106,7 +106,7 @@ CREATE DATABASE database_name;
 ```bash
 dotnet ef database update
 ```
-This will create all tables according to your existing models and migrations. W
+This will create all tables according to your existing models and migrations. YA
 ### ▶️ 5. Run the application
 ```bash
 dotnet restore
