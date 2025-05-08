@@ -88,6 +88,7 @@ namespace Api.Controllers
                 Id = Guid.NewGuid(),
                 Email = userRequest.Email,
                 Username = userRequest.Username,
+                Name = userRequest.Name,
                 Password = userRequest.Password,
                 Address = userRequest.Address,
                 Role = RoleType.Shopper,
