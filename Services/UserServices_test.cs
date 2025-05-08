@@ -70,6 +70,7 @@ public class UserService_test
         {
             Email = "newuser@example.com",
             Username = "newuser",
+            Name = "New User",
             Password = "password123",
             Role = RoleType.Seller,
             Address = "123 Main St",
@@ -92,6 +93,7 @@ public class UserService_test
             Email = "hashuser@example.com",
             Username = "hashuser",
             Password = "passwordToHash",
+            Name = "New User",
             Role = RoleType.Seller,
             Address = "123 Main St",
             SecurityQuestion = SecurityQuestionType.WhatIsYourBirthCity,
