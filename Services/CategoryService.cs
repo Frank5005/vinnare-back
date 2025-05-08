@@ -98,7 +98,6 @@ namespace Services
             if (userId == Guid.Empty)
             {
                 throw new NotFoundException("User not found.");
-                //Console.WriteLine($"User ID: {userId}");
             }
 
             //Verify if we have a category with the same name
@@ -109,26 +108,34 @@ namespace Services
                 throw new Exception("A category with this name already exists.");
             }
 
+            // Get user role
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found.");
+            }
+
             var category = new Category
             {
                 Name = categoryDto.Name,
-                Approved = false,
+                Approved = user.Role == RoleType.Admin,  // Set Approved based on user role
                 ImageUrl = categoryDto.ImageUrl
             };
 
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-
-            await _jobService.CreateJobAsync(new JobDto
+            // Only create job if user is not admin
+            if (user.Role != RoleType.Admin)
             {
-                Type = JobType.Category,
-                Operation = OperationType.Create,
-                CreatorId = userId,
-                CategoryId = category.Id
-            });
-
-            //await _context.SaveChangesAsync();
+                await _jobService.CreateJobAsync(new JobDto
+                {
+                    Type = JobType.Category,
+                    Operation = OperationType.Create,
+                    CreatorId = userId,
+                    CategoryId = category.Id
+                });
+            }
 
             return category;
         }

@@ -54,7 +54,7 @@ namespace Api.Controllers
             if (tokenRole == "Admin")
             {
                 var createdCategory = await _categoryService.CreateCategoryAsync(categoryDto);
-                //createdCategory.Approved = true;
+                createdCategory.Approved = true;
                 return Ok(new CategoryResponse { Id = createdCategory.Id, Message = "Category created successfully" });
             }
             else
