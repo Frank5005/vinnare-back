@@ -31,7 +31,8 @@ namespace Services
                 .Select(c => new CategoryDto
                 {
                     Id = c.Id,
-                    Name = c.Name
+                    Name = c.Name,
+                    ImageUrl = c.ImageUrl
                 })
                 .ToListAsync();
         }
@@ -43,7 +44,8 @@ namespace Services
                 .Select(c => new CategoryView
                 {
                     Id = c.Id,
-                    Name = c.Name
+                    Name = c.Name,
+                    ImageUrl = c.ImageUrl
                 })
                 .ToListAsync();
         }
@@ -76,7 +78,8 @@ namespace Services
             return new CategoryDto
             {
                 Id = category.Id,
-                Name = category.Name
+                Name = category.Name,
+                ImageUrl = category.ImageUrl
             };
         }
 
@@ -109,7 +112,8 @@ namespace Services
             var category = new Category
             {
                 Name = categoryDto.Name,
-                Approved = false
+                Approved = false,
+                ImageUrl = categoryDto.ImageUrl
             };
 
             _context.Categories.Add(category);
@@ -141,7 +145,9 @@ namespace Services
             var category = new Category
             {
                 Name = categoryDto.Name,
-                Approved = true
+                Approved = true,
+                ImageUrl= categoryDto.ImageUrl
+                
             };
 
             _context.Categories.Add(category);

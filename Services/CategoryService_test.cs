@@ -31,7 +31,7 @@ public class CategoryService_test
     [Fact]
     public async Task GetAllCategoriesAsync_ShouldReturnAll()
     {
-        _dbContext.Categories.Add(new Category { Name = "Tech" });
+        _dbContext.Categories.Add(new Category { Name = "Tech", ImageUrl = "tech.jpg" });
         await _dbContext.SaveChangesAsync();
 
         var result = await _categoryService.GetAllCategoriesAsync();
@@ -44,8 +44,8 @@ public class CategoryService_test
     public async Task GetAvailableCategoriesAsync_ShouldReturnApproved()
     {
         _dbContext.Categories.AddRange(
-            new Category { Name = "Toys", Approved = true },
-            new Category { Name = "Games", Approved = false }
+            new Category { Name = "Toys", Approved = true, ImageUrl = "toys.jpg" },
+            new Category { Name = "Games", Approved = false, ImageUrl = "games.jpg" }
         );
         await _dbContext.SaveChangesAsync();
 
@@ -58,7 +58,7 @@ public class CategoryService_test
     [Fact]
     public async Task GetCategoryByIdAsync_ShouldReturnCorrectCategory()
     {
-        var category = new Category { Id = 10, Name = "Food" };
+        var category = new Category { Id = 10, Name = "Food", ImageUrl = "food.jpg" };
         _dbContext.Categories.Add(category);
         await _dbContext.SaveChangesAsync();
 
@@ -71,7 +71,7 @@ public class CategoryService_test
     [Fact]
     public async Task GetCategoryNameByIdAsync_ShouldReturnName()
     {
-        var category = new Category { Id = 99, Name = "Books" };
+        var category = new Category { Id = 99, Name = "Books", ImageUrl = "books.jpg" };
         _dbContext.Categories.Add(category);
         await _dbContext.SaveChangesAsync();
 
@@ -85,7 +85,7 @@ public class CategoryService_test
     {
         _mockUserService.Setup(u => u.GetIdByUsername("employee")).ReturnsAsync(Guid.NewGuid());
 
-        var request = new CategoryRequest { Name = "NewCat", Username = "employee" };
+        var request = new CategoryRequest { Name = "NewCat", Username = "employee", ImageUrl = "newcat.jpg" };
 
         var result = await _categoryService.CreateCategoryByEmployeeAsync(request);
 
@@ -98,7 +98,7 @@ public class CategoryService_test
     [Fact]
     public async Task CreateCategoryAsync_ShouldCreateDirectly()
     {
-        var request = new CategoryRequest { Name = "AdminCat" };
+        var request = new CategoryRequest { Name = "AdminCat", ImageUrl = "admincat.jpg" };
 
         var result = await _categoryService.CreateCategoryAsync(request);
 
@@ -110,7 +110,7 @@ public class CategoryService_test
     [Fact]
     public async Task UpdateCategoryAsync_ShouldUpdateName()
     {
-        var category = new Category { Name = "Old", Approved = true };
+        var category = new Category { Name = "Old", Approved = true, ImageUrl = "old.jpg" };
         _dbContext.Categories.Add(category);
         await _dbContext.SaveChangesAsync();
 
@@ -122,7 +122,7 @@ public class CategoryService_test
     [Fact]
     public async Task DeleteCategoryAsync_ShouldDelete()
     {
-        var category = new Category { Name = "ToDelete", Approved = true };
+        var category = new Category { Name = "ToDelete", Approved = true, ImageUrl = "todelete.jpg" };
         _dbContext.Categories.Add(category);
         await _dbContext.SaveChangesAsync();
 
@@ -136,7 +136,7 @@ public class CategoryService_test
     public async Task DeleteCategoryByEmployeeAsync_ShouldCreateJobOnly()
     {
         var userId = Guid.NewGuid();
-        var category = new Category { Name = "SoftDelete", Approved = true };
+        var category = new Category { Name = "SoftDelete", Approved = true, ImageUrl = "softdelete.jpg" };
         _dbContext.Categories.Add(category);
         await _dbContext.SaveChangesAsync();
 
@@ -151,7 +151,7 @@ public class CategoryService_test
     [Fact]
     public async Task ApproveCategory_ShouldSetApproved_WhenCategoryExists()
     {
-        var category = new Category { Id = 1, Name = "fake", Approved = false };
+        var category = new Category { Id = 1, Name = "fake", Approved = false, ImageUrl = "fake.jpg" };
         _dbContext.Categories.Add(category);
         _dbContext.SaveChanges();
 
