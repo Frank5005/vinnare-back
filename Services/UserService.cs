@@ -30,7 +30,9 @@ namespace Services
                     Email = user.Email,
                     Username = user.Username,
                     Password = user.Password,
-                    Role = user.Role.ToString()
+                    Role = user.Role.ToString(),
+                    Address = user.Address,
+                    SecurityAnswer = user.SecurityAnswer,
                 })
                 .ToListAsync();
         }
@@ -114,6 +116,7 @@ namespace Services
             {
                 Email = userDto.Email,
                 Username = userDto.Username,
+                Name = userDto.Name,
                 Password = hashedPassword,
                 Role = userDto.Role,
                 Date = DateTime.UtcNow,
