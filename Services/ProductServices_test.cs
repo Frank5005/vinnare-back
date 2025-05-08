@@ -75,7 +75,7 @@ public class ProductService_test
     [Fact]
     public async Task CreateProductAsync_ShouldThrow_WhenOwnerNotExists()
     {
-        _dbContext.Categories.Add(new Category { Name = "Books" });
+        _dbContext.Categories.Add(new Category { Name = "Books", ImageUrl = "books.jpg" });
         await _dbContext.SaveChangesAsync();
 
         var request = new ProductRequest { OwnerId = Guid.NewGuid(), Category = "Books" };
@@ -115,7 +115,7 @@ public class ProductService_test
         var employeeId = Guid.NewGuid();
 
         _dbContext.Users.Add(new User { Id = userId });
-        _dbContext.Categories.Add(new Category { Id = 1, Name = "Tech", Approved = true });
+        _dbContext.Categories.Add(new Category { Id = 1, Name = "Tech", Approved = true, ImageUrl = "tech.jpg" });
         await _dbContext.SaveChangesAsync();
 
         _mockUserService.Setup(u => u.GetIdByUsername("employee"))
@@ -145,7 +145,7 @@ public class ProductService_test
     public async Task UpdateProductAsync_ShouldUpdateFields()
     {
         var userId = Guid.NewGuid();
-        var category = new Category { Name = "Gadgets" };
+        var category = new Category { Name = "Gadgets", ImageUrl = "gadgets.jpg" };
         _dbContext.Categories.Add(category);
 
         var product = new Product { Title = "Old", OwnerId = userId, Price = 100, Category = "Old", Approved = false };

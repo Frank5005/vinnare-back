@@ -4,6 +4,7 @@ namespace Shared.DTOs
     {
         public string Name { get; set; }
         public string Username { get; set; }
+        public string ImageUrl { get; set; }
     }
 
     public class CategoryResponse
@@ -16,6 +17,7 @@ namespace Shared.DTOs
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string ImageUrl { get; set; }
     }
 
     public class CategoryUpdated
@@ -33,6 +35,7 @@ namespace Shared.DTOs
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string ImageUrl { get; set; }
         public bool Approved { get; set; }
     }
 }
