@@ -6,6 +6,7 @@ using Services;
 using Services.Interfaces;
 using Services.Utils;
 using Shared.DTOs;
+using Shared.Enums;
 using Xunit;
 
 public class CategoryService_test
@@ -83,7 +84,12 @@ public class CategoryService_test
     [Fact]
     public async Task CreateCategoryByEmployeeAsync_ShouldCreateWithJob()
     {
-        _mockUserService.Setup(u => u.GetIdByUsername("employee")).ReturnsAsync(Guid.NewGuid());
+        var userId = Guid.NewGuid();
+        _mockUserService.Setup(u => u.GetIdByUsername("employee")).ReturnsAsync(userId);
+
+        // Add user to database
+        _dbContext.Users.Add(new User { Id = userId, Username = "employee", Role = RoleType.Seller });
+        await _dbContext.SaveChangesAsync();
 
         var request = new CategoryRequest { Name = "NewCat", Username = "employee", ImageUrl = "newcat.jpg" };
 
