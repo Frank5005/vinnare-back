@@ -3,9 +3,12 @@ using Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Services;
+using Services.Interfaces;
 using Services.Utils;
 using Shared.DTOs;
 using Shared.Enums;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Xunit;
 
 public class UserService_test
@@ -17,17 +20,19 @@ public class UserService_test
     public UserService_test()
     {
         _dbContext = TestDbContextFactory.Create();
+        _dbContext.Database.EnsureDeleted();
         _dbContext.Database.EnsureCreated();
 
-        _dbContext.Users.Add(new User
+        var testUser = new User
         {
             Id = Guid.NewGuid(),
             Email = "test1@example.com",
             Username = "testuser1",
             Password = "hashedpassword",
             Role = RoleType.Admin
-        });
+        };
 
+        _dbContext.Users.Add(testUser);
         _dbContext.SaveChanges();
 
         _mockPasswordHasher = new Mock<IPasswordHasher>();
@@ -40,20 +45,6 @@ public class UserService_test
     [Fact]
     public async Task GetAllUsersAsync_ShouldReturnUsers()
     {
-
-        _dbContext.Database.EnsureDeleted();
-        _dbContext.Database.EnsureCreated();
-
-        _dbContext.Users.Add(new User
-        {
-            Id = Guid.NewGuid(),
-            Email = "test1@example.com",
-            Username = "testuser1",
-            Password = "hashedpassword",
-            Role = RoleType.Admin
-        });
-
-        _dbContext.SaveChanges();
         // Act
         var users = await _userService.GetAllUsersAsync();
 
@@ -65,13 +56,9 @@ public class UserService_test
     [Fact]
     public async Task GetUserByIdAsync_ShouldReturnCorrectUser()
     {
-        // Arrange
         var testUser = await _dbContext.Users.FirstAsync();
-
-        // Act
         var result = await _userService.GetUserByIdAsync(testUser.Id);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(testUser.Email, result.Email);
     }
@@ -79,11 +66,11 @@ public class UserService_test
     [Fact]
     public async Task CreateUserAsync_ShouldAddUser()
     {
-        // Arrange
         var newUser = new UserDto
         {
             Email = "newuser@example.com",
             Username = "newuser",
+            Name = "New User",
             Password = "password123",
             Role = RoleType.Seller,
             Address = "123 Main St",
@@ -91,11 +78,9 @@ public class UserService_test
             SecurityAnswer = "Blue"
         };
 
-        // Act
         var createdUser = await _userService.CreateUserAsync(newUser);
+        var userInDb = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == newUser.Email);
 
-        // Assert
-        var userInDb = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == "newuser@example.com");
         Assert.NotNull(userInDb);
         Assert.Equal(newUser.Email, createdUser.Email);
     }
@@ -103,48 +88,29 @@ public class UserService_test
     [Fact]
     public async Task CreateUserAsync_ShouldHashPassword()
     {
-        // Arrange
         var newUser = new UserDto
         {
             Email = "hashuser@example.com",
             Username = "hashuser",
             Password = "passwordToHash",
+            Name = "New User",
             Role = RoleType.Seller,
             Address = "123 Main St",
             SecurityQuestion = SecurityQuestionType.WhatIsYourBirthCity,
             SecurityAnswer = "New York"
         };
 
-        // Act
         await _userService.CreateUserAsync(newUser);
 
-        // Assert
         _mockPasswordHasher.Verify(p => p.HashPassword("passwordToHash"), Times.Once);
     }
 
     [Fact]
     public async Task GetUserByUsername_ShouldReturnCorrectUser()
     {
-        _dbContext.Database.EnsureDeleted();
-        _dbContext.Database.EnsureCreated();
-
-        _dbContext.Users.Add(new User
-        {
-            Id = Guid.NewGuid(),
-            Email = "test1@example.com",
-            Username = "testuser1",
-            Password = "hashedpassword",
-            Role = RoleType.Admin
-        });
-
-        _dbContext.SaveChanges();
-        // Arrange
         var testUser = await _dbContext.Users.FirstAsync();
-
-        // Act
         var result = await _userService.GetUserByUsername(testUser.Username);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(testUser.Username, result.Username);
         Assert.Equal(testUser.Email, result.Email);
@@ -153,23 +119,16 @@ public class UserService_test
     [Fact]
     public async Task GetUserByUsername_ShouldReturnNull_WhenUserDoesNotExist()
     {
-        // Act
         var result = await _userService.GetUserByUsername("nonexistentuser");
-
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task GetIdByUsername_ShouldReturnCorrectId()
     {
-        // Arrange
         var testUser = await _dbContext.Users.FirstAsync();
-
-        // Act
         var result = await _userService.GetIdByUsername(testUser.Username);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(testUser.Id, result);
     }
@@ -177,18 +136,15 @@ public class UserService_test
     [Fact]
     public async Task GetIdByUsername_ShouldReturnNull_WhenUserDoesNotExist()
     {
-        // Act
         var result = await _userService.GetIdByUsername("nonexistentuser");
-
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task UpdateUserAsync_ShouldUpdateFields()
     {
-        // Arrange
         var testUser = await _dbContext.Users.FirstAsync();
+
         var updateRequest = new UserDto
         {
             Email = "updated@example.com",
@@ -198,37 +154,31 @@ public class UserService_test
 
         _mockPasswordHasher.Setup(p => p.HashPassword("newpassword")).Returns("hashedNewPassword");
 
-        // Act
         var updatedUser = await _userService.UpdateUserAsync(testUser.Id, updateRequest);
+        var updatedUserInDb = await _dbContext.Users.FindAsync(testUser.Id);
 
-        // Assert
         Assert.NotNull(updatedUser);
         Assert.Equal("updated@example.com", updatedUser.Email);
         Assert.Equal("Updated Name", updatedUser.Name);
-        Assert.NotEqual(testUser.Password, updatedUser.Password); // Ensure password was changed
+        Assert.Equal("hashedNewPassword", updatedUserInDb.Password);
     }
 
     [Fact]
     public async Task UpdateUserAsync_ShouldReturnNull_WhenUserDoesNotExist()
     {
-        // Arrange
         var updateRequest = new UserDto
         {
             Email = "updated@example.com",
             Password = "newpassword"
         };
 
-        // Act
         var result = await _userService.UpdateUserAsync(Guid.NewGuid(), updateRequest);
-
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task DeleteUsersAsync_ShouldDeleteUsers()
     {
-        // Arrange
         var testUser1 = new User
         {
             Id = Guid.NewGuid(),
@@ -252,10 +202,8 @@ public class UserService_test
 
         var usernamesToDelete = new List<string> { "deleteuser1", "deleteuser2" };
 
-        // Act
         var deletedUsers = await _userService.DeleteUsersAsync(usernamesToDelete);
 
-        // Assert
         Assert.Equal(2, deletedUsers.Count);
         Assert.DoesNotContain(await _dbContext.Users.ToListAsync(), u => usernamesToDelete.Contains(u.Username));
     }
@@ -263,14 +211,27 @@ public class UserService_test
     [Fact]
     public async Task DeleteUsersAsync_ShouldReturnEmptyList_WhenUsersNotFound()
     {
-        // Arrange
         var usernamesToDelete = new List<string> { "nonexistentuser1", "nonexistentuser2" };
-
-        // Act
         var deletedUsers = await _userService.DeleteUsersAsync(usernamesToDelete);
-
-        // Assert
         Assert.Empty(deletedUsers);
     }
-}
 
+    [Fact]
+    public async Task GetUserIdFromToken_ShouldExtractUserId()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.WriteToken(new JwtSecurityToken(claims: new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        }));
+
+        // Act
+        var result = await _userService.GetUserIdFromToken(token);
+
+        // Assert
+        Assert.Equal(userId, result);
+    }
+}
