@@ -20,5 +20,6 @@ namespace Services.Interfaces
         Task<string> DeleteProductAsync(int id);
         Task<string> DeleteProductByEmployeeAsync(int id, string username);
         Task ApproveProduct(int productId, bool approve);
+        Task<IEnumerable<ProductViewPage>> SearchProductsByNameAsync(string name);
     }
 }

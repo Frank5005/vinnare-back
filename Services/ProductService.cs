@@ -364,11 +364,32 @@ namespace Services
 
         public async Task ApproveProduct(int productId, bool approve)
         {
-
             var product = await _context.Products.FindAsync(productId);
             product!.Approved = approve;
             await _context.SaveChangesAsync();
+        }
 
+        public async Task<IEnumerable<ProductViewPage>> SearchProductsByNameAsync(string name)
+        {
+            var productViewPages = await _context.Products
+                .Where(p => p.Available > 0 && p.Approved && p.Title.ToLower().Contains(name.ToLower()))
+                .GroupJoin(_context.Reviews,
+                    product => product.Id,
+                    review => review.ProductId,
+                    (product, reviews) => new { product, reviews })
+                .Select(g => new ProductViewPage
+                {
+                    Id = g.product.Id,
+                    Title = g.product.Title,
+                    Price = g.product.Price,
+                    Description = g.product.Description,
+                    Category = g.product.Category,
+                    Image = g.product.Image,
+                    Rate = g.reviews.Any() ? (int)g.reviews.Average(r => r.Rate) : 0
+                })
+                .ToListAsync();
+
+            return productViewPages;
         }
     }
 }

@@ -141,5 +141,19 @@ namespace Api.Controllers
 
             return NoContent();
         }
+
+        // GET: api/user/id/{username}
+        [HttpGet("id/{username}")]
+        public async Task<IActionResult> GetUserIdByUsername(string username)
+        {
+            if (string.IsNullOrEmpty(username))
+                return BadRequest("Username is required.");
+
+            var userId = await _userService.GetIdByUsername(username);
+            if (userId == null)
+                return NotFound($"No user found with username: {username}");
+
+            return Ok(new { Id = userId });
+        }
     }
 }
