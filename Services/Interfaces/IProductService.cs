@@ -22,5 +22,6 @@ namespace Services.Interfaces
         Task ApproveProduct(int productId, bool approve);
         Task<IEnumerable<ProductViewPage>> SearchProductsByNameAsync(string name);
         Task<IEnumerable<ProductViewPage>> GetLatestProductsAsync(int count = 3);
+        Task<IEnumerable<ProductViewPage>> GetTopSellingProductsAsync(int count = 3);
     }
 }

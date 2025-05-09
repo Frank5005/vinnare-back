@@ -187,6 +187,7 @@ namespace Services
             }
 
             category.Name = categoryDto.Name ?? category.Name;
+            category.ImageUrl = categoryDto.ImageUrl ?? category.ImageUrl;
             //category.Approved = categoryDto.Approved ?? category.Approved;
 
             await _context.SaveChangesAsync();

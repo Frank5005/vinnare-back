@@ -416,5 +416,38 @@ namespace Services
 
             return productViewPages;
         }
+
+        public async Task<IEnumerable<ProductViewPage>> GetTopSellingProductsAsync(int count = 3)
+        {
+            var productViewPages = await _context.Products
+                .Where(p => p.Available > 0 && p.Approved)
+                .Select(p => new
+                {
+                    Product = p,
+                    TotalSold = _context.Purchases
+                        .Where(pur => pur.Products.Contains(p.Id))
+                        .Sum(pur => pur.Quantities[pur.Products.IndexOf(p.Id)])
+                })
+                .OrderByDescending(x => x.TotalSold)
+                .Take(count)
+                .Select(x => x.Product)
+                .GroupJoin(_context.Reviews,
+                    product => product.Id,
+                    review => review.ProductId,
+                    (product, reviews) => new { product, reviews })
+                .Select(g => new ProductViewPage
+                {
+                    Id = g.product.Id,
+                    Title = g.product.Title,
+                    Price = g.product.Price,
+                    Description = g.product.Description,
+                    Category = g.product.Category,
+                    Image = g.product.Image,
+                    Rate = g.reviews.Any() ? (int)g.reviews.Average(r => r.Rate) : 0
+                })
+                .ToListAsync();
+
+            return productViewPages;
+        }
     }
 }

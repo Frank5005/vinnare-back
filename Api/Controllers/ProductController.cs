@@ -69,6 +69,14 @@ namespace Api.Controllers
             return Ok(products);
         }
 
+        // GET: api/product/top-selling
+        [HttpGet("top-selling")]
+        public async Task<IActionResult> GetTopSellingProducts()
+        {
+            var products = await _productService.GetTopSellingProductsAsync();
+            return Ok(products);
+        }
+
         // GET: api/product/store/{category}
         [HttpGet("store/{id:int}")]
         public async Task<IActionResult> GetProductsByCategory(int id)
