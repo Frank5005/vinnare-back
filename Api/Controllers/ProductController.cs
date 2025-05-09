@@ -61,7 +61,15 @@ namespace Api.Controllers
             return Ok(products);
         }
 
-        // GET: apiproduct/store/{category}
+        // GET: api/product/latest
+        [HttpGet("latest")]
+        public async Task<IActionResult> GetLatestProducts()
+        {
+            var products = await _productService.GetLatestProductsAsync();
+            return Ok(products);
+        }
+
+        // GET: api/product/store/{category}
         [HttpGet("store/{id:int}")]
         public async Task<IActionResult> GetProductsByCategory(int id)
         {
