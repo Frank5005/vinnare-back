@@ -55,6 +55,7 @@ namespace Api.Controllers
             var userDto = new UserDto
             {
                 Id = Guid.NewGuid(),
+                Name = userRequest.Name,
                 Email = userRequest.Email,
                 Username = userRequest.Username,
                 Password = userRequest.Password,
