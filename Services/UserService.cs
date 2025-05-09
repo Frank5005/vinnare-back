@@ -110,6 +110,16 @@ namespace Services
 
         public async Task<UserDto> CreateUserAsync(UserDto userDto)
         {
+            // Check if user already exists
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == userDto.Username || u.Email == userDto.Email);
+            if (existingUser != null)
+            {
+                if (existingUser.Username == userDto.Username)
+                    throw new Exception("Username already exists");
+                if (existingUser.Email == userDto.Email)
+                    throw new Exception("Email already exists");
+            }
+
             string hashedPassword = _passwordHasher.HashPassword(userDto.Password);
 
             var user = new User
