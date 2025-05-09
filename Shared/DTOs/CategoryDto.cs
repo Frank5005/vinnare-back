@@ -23,6 +23,7 @@ namespace Shared.DTOs
     public class CategoryUpdated
     {
         public string? Name { get; set; }
+        public string? ImageUrl { get; set; }
         //public bool? Approved { get; set; }
     }
 
