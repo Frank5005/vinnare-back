@@ -55,7 +55,7 @@ namespace Api.Controllers
                 throw new NotFoundException("User not found");
             }
 
-            if (user.SecurityQuestion != request.SecurityQuestion ||
+            if (user.SecurityQuestion != Enum.Parse<SecurityQuestionType>(request.SecurityQuestion) ||
                 !string.Equals(user.SecurityAnswer, request.SecurityAnswer, StringComparison.OrdinalIgnoreCase))
             {
                 return Unauthorized(new { message = "Security question or answer is incorrect" });

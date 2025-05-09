@@ -14,7 +14,15 @@ namespace Api.DTOs
     public class verifyRequest
     {
         public string Email { get; set; }
-        public SecurityQuestionType SecurityQuestion { get; set; }
+        public string SecurityQuestion { get; set; }
+        public SecurityQuestionType GetSecurityQuestionType()
+        {
+            if (Enum.TryParse<SecurityQuestionType>(SecurityQuestion, true, out var parsedRole))
+            {
+                return parsedRole;
+            }
+            throw new BadRequestException("Invalid Security Question type.");
+        }
         public string SecurityAnswer { get; set; }
     }
 
