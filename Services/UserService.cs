@@ -212,25 +212,6 @@ namespace Services
             };
         }
 
-        public async Task<UserDto?> UpdateUserPsw(UserDto userDto)
-        {
-            var existingUser = await _context.Users.FindAsync(userDto.Id);
-            if (existingUser == null) return null;
-
-            // Update in DB
-            _context.Users.Update(existingUser);
-            await _context.SaveChangesAsync();
-
-            return new UserDto
-            {
-                Id = existingUser.Id,
-                Email = existingUser.Email,
-                Username = existingUser.Username,
-                Name = existingUser.Name,
-                Role = existingUser.Role
-            };
-        }
-
         public async Task<List<UserDto>> DeleteUsersAsync(List<string> usernames)
         {
             var users = await _context.Users.Where(u => usernames.Contains(u.Username)).ToListAsync();
