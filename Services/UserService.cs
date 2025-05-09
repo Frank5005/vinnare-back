@@ -78,6 +78,25 @@ namespace Services
                 Role = user.Role
             };
         }
+        public async Task<UserDto?> GetUserByEmail(string email)
+        {
+            var userQuery = from n in _context.Users
+                            where n.Email == email
+                            select n;
+
+            var user = await userQuery.FirstOrDefaultAsync();
+
+            if (user == null) return null;
+
+            return new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                Password = user.Password,
+                Role = user.Role
+            };
+        }
 
         public async Task<Guid?> GetIdByUsername(string username)
         {

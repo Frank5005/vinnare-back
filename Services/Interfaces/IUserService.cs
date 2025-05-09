@@ -7,6 +7,7 @@ namespace Services.Interfaces
         Task<IEnumerable<UserDtoString>> GetAllUsersAsync();
         Task<UserDto?> GetUserByIdAsync(Guid id);
         Task<UserDto?> GetUserByUsername(string username);
+        Task<UserDto?> GetUserByEmail(string email);
         Task<Guid?> GetIdByUsername(string username);
         Task<string> GetUsernameById(Guid id);
         Task<Guid> GetUserIdFromToken(string token);
