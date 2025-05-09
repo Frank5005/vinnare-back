@@ -34,14 +34,6 @@ namespace Api.Controllers
             return Ok(categories);
         }
 
-        // GET: api/category/available
-        [HttpGet("available")]
-        public async Task<IActionResult> GetAvailableCategories()
-        {
-            var categories = await _categoryService.GetAvailableCategoriesAsync();
-            return Ok(categories);
-        }
-
         // GET: api/category/top
         [HttpGet("top")]
         public async Task<IActionResult> GetTopThreeCategories()
