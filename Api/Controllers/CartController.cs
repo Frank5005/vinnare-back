@@ -126,7 +126,7 @@ namespace Api.Controllers
         public async Task<CartDto> getCartItem(int product_id)
         {
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
+            var userId = await _userService.GetIdByEmail(tokenUsername) ?? throw new BadRequestException("User does not exist");
             var cartElement = await _cartService.GetCartByUserId_ProductId(userId, product_id) ?? throw new NotFoundException("Cart element does not exist");
             return cartElement;
         }
