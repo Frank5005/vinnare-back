@@ -271,5 +271,25 @@ namespace Services
             category!.Approved = approve;
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<CategoryView>> GetTopThreeCategoriesAsync()
+        {
+            return await _context.Categories
+                .Where(c => c.Approved)
+                .Select(c => new
+                {
+                    Category = c,
+                    ProductCount = _context.Products.Count(p => p.CategoryId == c.Id && p.Approved && p.Available > 0)
+                })
+                .OrderByDescending(x => x.ProductCount)
+                .Take(3)
+                .Select(x => new CategoryView
+                {
+                    Id = x.Category.Id,
+                    Name = x.Category.Name,
+                    ImageUrl = x.Category.ImageUrl
+                })
+                .ToListAsync();
+        }
     }
 }

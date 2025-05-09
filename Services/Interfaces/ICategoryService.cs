@@ -19,5 +19,6 @@ namespace Services.Interfaces
         Task<string> DeleteCategoryAsync(int id);
         Task<string> DeleteCategoryByEmployeeAsync(int id, string username);
         Task ApproveCategory(int categoryId, bool approve);
+        Task<IEnumerable<CategoryView>> GetTopThreeCategoriesAsync();
     }
 }
