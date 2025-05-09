@@ -15,14 +15,14 @@ namespace Api.Services
             _jwtSettings = jwtSettings.Value ?? throw new ArgumentNullException("Jwt settings is not configured.");
         }
 
-        public string GenerateToken(string username, string role)
+        public string GenerateToken(string email, string role)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(JwtRegisteredClaimNames.Sub, email),
                 new Claim(ClaimTypes.Role, role),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
