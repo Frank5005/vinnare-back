@@ -1,5 +1,4 @@
 using Api.DTOs;
-using Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -35,88 +34,12 @@ namespace Api.Controllers
             if (passed == false)
             {
                 throw new UnauthorizedException("Wrong password");
-            }
-            ;
+            };
             string token = _tokenService.GenerateToken(request.Email, user.Role.ToString());
             //string token = _tokenService.GenerateToken(request.Username, "Admin"); //TODO: implement actual user.Role
 
             return Ok(new LoginResponse { Token = token, Email = user.Email, Username = user.Username });
         }
-
-        // POST: api/verify
-        [AllowAnonymous]
-        [HttpPost("verify")]
-        public async Task<IActionResult> Verify([FromBody] verifyRequest request)
-        {
-            var user = await _userService.GetUserByEmail(request.Email);
-
-            if (user == null)
-            {
-                throw new NotFoundException("User not found");
-            }
-
-            //var parsedQuestion = request.GetSecurityQuestionType();
-
-            if (user.SecurityQuestion != Enum.Parse<SecurityQuestionType>(request.SecurityQuestion) ||
-                !string.Equals(user.SecurityAnswer, request.SecurityAnswer, StringComparison.OrdinalIgnoreCase))
-            {
-                return Unauthorized(new { message = "Security question or answer is incorrect" });
-            }
-
-            return Ok(new { message = "User is valid" });
-        }
-
-        // POST: api/reset-password
-        [AllowAnonymous]
-        [HttpPut("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
-        {
-            var user = await _userService.GetUserByEmail(request.Email);
-            if (user == null)
-            {
-                return NotFound(new { message = "User not found" });
-            }
-
-            user.Password = _passwordHasher.HashPassword(request.NewPassword);
-
-            var userDto = new UserDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                Username = user.Username,
-                Password = user.Password,
-                Address = user.Address,
-                Role = user.Role,
-                SecurityQuestion = user.SecurityQuestion,
-                SecurityAnswer = user.SecurityAnswer
-            };
-
-            await _userService.UpdateUserPsw(userDto);
-
-            return Ok(new { message = "Password updated successfully" });
-        }
-
-
-        // GET: api/security-questions
-        [HttpGet("security-questions")]
-        public IActionResult GetSecurityQuestions()
-        {
-            var questions = Enum.GetValues(typeof(SecurityQuestionType))
-                .Cast<SecurityQuestionType>()
-                .Select(q => new
-                {
-                    value = q,
-                    label = string.Concat(
-                        System.Text.RegularExpressions.Regex.Replace(q.ToString(), "([a-z])([A-Z])", "$1 $2")
-                    )
-                });
-
-            return Ok(questions);
-        }
-
-
-
 
         // POST: api/admin/auth
         [Authorize(Roles = "Admin")]

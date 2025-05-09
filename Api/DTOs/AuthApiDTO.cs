@@ -1,4 +1,4 @@
-﻿using Api.Utils;
+﻿﻿﻿using Api.Utils;
 using Shared.DTOs;
 using Shared.Enums;
 using Shared.Exceptions;
@@ -10,30 +10,6 @@ namespace Api.DTOs
         public string Email { get; set; }
         public string Password { get; set; }
     }
-
-    public class verifyRequest
-    {
-        public string Email { get; set; }
-        public string? SecurityQuestion { get; set; }
-        /*
-        public SecurityQuestionType GetSecurityQuestionType()
-        {
-            if (Enum.TryParse<SecurityQuestionType>(SecurityQuestion, true, out var parsedRole))
-            {
-                return parsedRole;
-            }
-            throw new BadRequestException("Invalid Security Question type.");
-        }
-        */
-        public string SecurityAnswer { get; set; }
-    }
-
-    public class ResetPasswordRequest
-{
-    public string Email { get; set; }
-    public string NewPassword { get; set; }
-}
-
 
     public class LoginResponse
     {
