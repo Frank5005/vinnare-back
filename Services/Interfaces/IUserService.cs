@@ -1,3 +1,4 @@
+using Data.Entities;
 using Shared.DTOs;
 
 namespace Services.Interfaces
@@ -14,6 +15,7 @@ namespace Services.Interfaces
         Task<UserDto> CreateUserAsync(UserDto userDto);
 
         Task<UserDto?> UpdateUserAsync(Guid id, UserDto userDto);
+        Task<UserDto?> UpdateUserPsw(UserDto userDto);
         Task<List<UserDto>> DeleteUsersAsync(List<string> usernames);
     }
 }

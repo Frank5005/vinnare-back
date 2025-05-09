@@ -11,6 +11,20 @@ namespace Api.DTOs
         public string Password { get; set; }
     }
 
+    public class verifyRequest
+    {
+        public string Email { get; set; }
+        public string SecurityQuestion { get; set; }
+        public string SecurityAnswer { get; set; }
+    }
+
+    public class ResetPasswordRequest
+{
+    public string Email { get; set; }
+    public string NewPassword { get; set; }
+}
+
+
     public class LoginResponse
     {
         public string Token { get; set; }
