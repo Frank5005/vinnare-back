@@ -44,6 +44,7 @@ namespace Api.Controllers
         }
 
         // POST: api/verify
+        [AllowAnonymous]
         [HttpPost("verify")]
         public async Task<IActionResult> Verify([FromBody] verifyRequest request)
         {
@@ -64,6 +65,7 @@ namespace Api.Controllers
         }
 
         // POST: api/reset-password
+        [AllowAnonymous]
         [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
