@@ -31,7 +31,7 @@ namespace Api.Controllers
         public async Task<IActionResult> GetFullCartById()
         {
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
+            var userId = await _userService.GetIdByEmail(tokenUsername) ?? throw new BadRequestException("User does not exist");
 
             var cart = await _cartService.GetFullCartByUserId(userId);
             if (cart == null) { throw new NotFoundException("Your cart is empty"); }
@@ -46,7 +46,7 @@ namespace Api.Controllers
         public async Task<IActionResult> GetCartById()
         {
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
+            var userId = await _userService.GetIdByEmail(tokenUsername) ?? throw new BadRequestException("User does not exist");
 
             var cart = await _cartService.GetCartByUserId(userId);
             if (cart == null) { throw new NotFoundException("Your cart is empty"); }
@@ -54,13 +54,13 @@ namespace Api.Controllers
         }
 
         // POST: api/cart
-        [HttpPost]
+         [HttpPost]
         public async Task<IActionResult> CreateCart([FromBody] CreateCartRequest cartRequest)
         {
             if (cartRequest == null) { throw new BadRequestException("Cart data is required."); }
 
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
+            var userId = await _userService.GetIdByEmail(tokenUsername) ?? throw new BadRequestException("User does not exist");
             var product = await _productService.GetProductForCartWishByIdAsync(cartRequest.productId);
 
             if (product == null)

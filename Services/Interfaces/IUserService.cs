@@ -10,6 +10,7 @@ namespace Services.Interfaces
         Task<UserDto?> GetUserByUsername(string username);
         Task<UserDto?> GetUserByEmail(string email);
         Task<Guid?> GetIdByUsername(string username);
+        Task<Guid?> GetIdByEmail(string email);
         Task<string> GetUsernameById(Guid id);
         Task<Guid> GetUserIdFromToken(string token);
         Task<UserDto> CreateUserAsync(UserDto userDto);
