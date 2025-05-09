@@ -14,7 +14,7 @@ namespace Api.DTOs
     public class verifyRequest
     {
         public string Email { get; set; }
-        public string SecurityQuestion { get; set; }
+        public SecurityQuestionType SecurityQuestion { get; set; }
         public string SecurityAnswer { get; set; }
     }
 
