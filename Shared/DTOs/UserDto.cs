@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Shared.Enums;
 
 namespace Shared.DTOs
@@ -16,6 +17,7 @@ namespace Shared.DTOs
     public class VerifyUserRequest
     {
         public string Email { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public SecurityQuestionType SecurityQuestion { get; set; }
         public string SecurityAnswer { get; set; }
     }
