@@ -39,8 +39,8 @@ namespace Services.Builders
             _cartItems = await _dbContext.Carts
                 .Where(c => c.UserId == _userId)
                 .Include(c => c.Product)
+                .Include(c => c.User)
                 .ToListAsync();
-
 
             if (_cartItems.Count == 0)
             {
@@ -131,6 +131,7 @@ namespace Services.Builders
                 Prices = _cartItems.Select(p => p.Product.Price).ToList(),
                 Quantities = _cartItems.Select(p => p.Quantity).ToList(),
                 UserId = _userId,
+                User = user,
                 CouponCode = _couponData?.coupon_code ?? null,
                 TotalPrice = _finalPrice,
                 TotalPriceBeforeDiscount = _totalPricePreDiscount,
