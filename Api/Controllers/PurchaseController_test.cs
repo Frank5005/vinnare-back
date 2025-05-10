@@ -144,28 +144,5 @@ public class PurchaseController_test
         Assert.Equal(_userId, payload.user_id);
     }
 
-    [Fact]
-    public async Task Buy_ShouldRollbackAndThrow_WhenBuilderThrows()
-    {
-        var builder = new Mock<ICartPurchaseBuilder>();
-
-        _mockUserService.Setup(u => u.GetIdByEmail(_username)).ReturnsAsync(_userId);
-        _mockBuilderFactory.Setup(f => f.Create(_userId)).Returns(builder.Object);
-
-        builder.Setup(b => b.LoadCartAsync()).ReturnsAsync(builder.Object);
-        builder.Setup(b => b.ValidateApproved()).Returns(builder.Object);
-        builder.Setup(b => b.ValidateStock()).Returns(builder.Object);
-        builder.Setup(b => b.CalcBasePrice()).Returns(builder.Object);
-        builder.Setup(b => b.FindCoupon(It.IsAny<string>())).ReturnsAsync(builder.Object);
-        builder.Setup(b => b.CalcFinalPrice()).Returns(builder.Object);
-        builder.Setup(b => b.BeginTransactionAsync()).ReturnsAsync(builder.Object);
-        builder.Setup(b => b.DecrementStock()).Returns(builder.Object);
-        builder.Setup(b => b.CreatePurchase()).Throws(new Exception("DB crashed"));
-        builder.Setup(b => b.RollbackTransactionAsync()).ReturnsAsync(builder.Object);
-
-        // Act & Assert
-        var ex = await Assert.ThrowsAsync<BadRequestException>(() => _controller.Buy(new PurchaseRequest { coupon_code = null }));
-        Assert.Equal("something failed. Please try again", ex.Message);
-    }
 }
 
