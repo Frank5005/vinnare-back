@@ -29,7 +29,7 @@ namespace Api.Controllers
         public async Task<IActionResult> GetAllWishLists()
         {
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user_id = await _userService.GetIdByUsername(tokenUsername) ?? throw new NotFoundException("No user found with that username.");
+            var user_id = await _userService.GetIdByEmail(tokenUsername) ?? throw new NotFoundException("No user found with that email.");
             var wishLists = await _wishListService.GetAllWishListsAsync(user_id);
 
             return Ok(new GetWishListResponse { UserId = user_id, Products = wishLists });
@@ -42,7 +42,7 @@ namespace Api.Controllers
         {
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var user_id = await _userService.GetIdByUsername(tokenUsername);
+            var user_id = await _userService.GetIdByEmail(tokenUsername);
             if (user_id == null)
             {
                 throw new NotFoundException("No user found with that username.");
@@ -69,7 +69,7 @@ namespace Api.Controllers
         {
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var user_id = await _userService.GetIdByUsername(tokenUsername) ?? throw new NotFoundException("No user found with that username.");
+            var user_id = await _userService.GetIdByEmail(tokenUsername) ?? throw new NotFoundException("No user found with that username.");
             var wishList = await _wishListService.GetWishListByProductId(user_id, product_id);
 
             if (wishList == null)

@@ -121,7 +121,6 @@ namespace Services
                             select n.Id;
 
             var id = await userQuery.FirstOrDefaultAsync();
-
             return id == Guid.Empty ? Guid.Empty : id;
         }
 

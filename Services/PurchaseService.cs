@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Enums;
 
 namespace Services
 {
@@ -21,6 +22,7 @@ namespace Services
         {
             return await _context.Purchases
                 .Where(p => p.UserId == id)
+                .Include(p => p.User)
                 .Select(p => new PurchaseDto
                 {
                     Id = p.Id,
@@ -28,9 +30,13 @@ namespace Services
                     Prices = p.Prices,
                     Quantities = p.Quantities,
                     UserId = p.UserId,
+                    UserName = p.User.Name,
+                    Address = p.User.Address,
                     TotalPrice = p.TotalPrice,
                     TotalPriceBeforeDiscount = p.TotalPriceBeforeDiscount,
-                    Date = p.Date
+                    Date = p.Date,
+                    PaymentStatus = p.PaymentStatus,
+                    Status = p.Status
                 })
                 .ToListAsync();
         }

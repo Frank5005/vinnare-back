@@ -43,11 +43,11 @@ public class WishListController_test
     public async Task GetAllWishLists_ShouldReturnOk_WithWishList()
     {
         // Arrange
-        var username = "testuser";
+        var username = "testuser@example.com";
         var userId = Guid.NewGuid();
         SetUser(username);
 
-        _mockUserService.Setup(s => s.GetIdByUsername(username)).ReturnsAsync(userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(username)).ReturnsAsync(userId);
         _mockWishListService.Setup(s => s.GetAllWishListsAsync(userId)).ReturnsAsync(new List<int> { 1, 2, 3 });
 
         // Act
@@ -74,7 +74,7 @@ public class WishListController_test
             ProductId = 123
         };
 
-        _mockUserService.Setup(s => s.GetIdByUsername(username)).ReturnsAsync(userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(username)).ReturnsAsync(userId);
         _mockProductService.Setup(p => p.GetProductForCartWishByIdAsync(request.ProductId))
             .ReturnsAsync(new ProductDto { Id = 123, Approved = true });
 
@@ -101,7 +101,7 @@ public class WishListController_test
             ProductId = 99
         };
 
-        _mockUserService.Setup(s => s.GetIdByUsername(username)).ReturnsAsync(tokenUserId);
+        _mockUserService.Setup(s => s.GetIdByEmail(username)).ReturnsAsync(tokenUserId);
 
         // Act & Assert
         await Assert.ThrowsAsync<UnauthorizedException>(() => _controller.CreateWishList(request));
@@ -118,7 +118,7 @@ public class WishListController_test
 
         SetUser(username);
 
-        _mockUserService.Setup(s => s.GetIdByUsername(username)).ReturnsAsync(userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(username)).ReturnsAsync(userId);
         _mockWishListService.Setup(s => s.GetWishListByProductId(userId, productId)).ReturnsAsync(wishListDto);
         _mockWishListService.Setup(s => s.DeleteWishListById(wishListDto.Id)).ReturnsAsync(wishListDto);
 
@@ -141,7 +141,7 @@ public class WishListController_test
 
         SetUser(username);
 
-        _mockUserService.Setup(s => s.GetIdByUsername(username)).ReturnsAsync(userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(username)).ReturnsAsync(userId);
         _mockWishListService.Setup(s => s.GetWishListByProductId(userId, productId)).ReturnsAsync((WishListDto?)null);
 
         // Act & Assert
