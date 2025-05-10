@@ -42,8 +42,11 @@ namespace Api.Controllers
             if (user.SecurityQuestion != verifyRequest.SecurityQuestion)
                 return BadRequest("Incorrect security question");
 
-            if (user.SecurityAnswer.Trim().ToLower() != verifyRequest.SecurityAnswer.Trim().ToLower())
+            if (string.IsNullOrWhiteSpace(user.SecurityAnswer) || string.IsNullOrWhiteSpace(verifyRequest.SecurityAnswer) ||
+                user.SecurityAnswer.Trim().ToLower() != verifyRequest.SecurityAnswer.Trim().ToLower())
+            {
                 return BadRequest("Incorrect answer");
+            }
 
             if (user.Role == RoleType.Admin || user.Role == RoleType.Seller)
                 return BadRequest("This password cannot be reset because the user is an admin or seller");
