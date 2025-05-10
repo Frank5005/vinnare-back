@@ -31,7 +31,7 @@ namespace Api.Controllers
         public async Task<IActionResult> GetAllUserPurchases()
         {
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
+            var userId = await _userService.GetIdByEmail(tokenUsername) ?? throw new BadRequestException("User does not exist");
             var purchases = await _purchaseService.GetAllUserPurchases(userId);
             return Ok(purchases);
         }
@@ -41,7 +41,7 @@ namespace Api.Controllers
         public async Task<IActionResult> Buy([FromBody] PurchaseRequest? purchaseDto)
         {
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
+            var userId = await _userService.GetIdByEmail(tokenUsername) ?? throw new BadRequestException("User does not exist");
 
             var builder = _purchaseFactory.Create(userId);
             var preview = (await (await
@@ -80,7 +80,7 @@ namespace Api.Controllers
         public async Task<IActionResult> Preview([FromBody] PurchaseRequest? purchaseDto)
         {
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
+            var userId = await _userService.GetIdByEmail(tokenUsername) ?? throw new BadRequestException("User does not exist");
 
             var builder = _purchaseFactory.Create(userId);
             var result = (await (await builder.LoadCartAsync())

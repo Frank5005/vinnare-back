@@ -78,6 +78,29 @@ namespace Services
                 Role = user.Role
             };
         }
+        public async Task<UserDto?> GetUserByEmail(string email)
+        {
+            var userQuery = from n in _context.Users
+                            where n.Email == email
+                            select n;
+
+            var user = await userQuery.FirstOrDefaultAsync();
+
+            if (user == null) return null;
+
+            return new UserDto
+            {
+                Name = user.Name,
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                Password = user.Password,
+                Address = user.Address,
+                SecurityAnswer = user.SecurityAnswer,
+                SecurityQuestion = user.SecurityQuestion,
+                Role = user.Role
+            };
+        }
 
         public async Task<Guid?> GetIdByUsername(string username)
         {
@@ -98,8 +121,7 @@ namespace Services
                             select n.Id;
 
             var id = await userQuery.FirstOrDefaultAsync();
-
-            return id == Guid.Empty ? null : id;
+            return id == Guid.Empty ? Guid.Empty : id;
         }
 
         
@@ -203,6 +225,7 @@ namespace Services
                 Role = user.Role
             };
         }
+
         public async Task<List<UserDto>> DeleteUsersAsync(List<string> usernames)
         {
             var users = await _context.Users.Where(u => usernames.Contains(u.Username)).ToListAsync();

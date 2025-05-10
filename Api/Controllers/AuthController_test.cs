@@ -34,12 +34,12 @@ public class AuthController_test
     public async Task Login_ShouldReturnOk_WhenCredentialsAreValid()
     {
         // Arrange
-        var request = new LoginRequest { Username = "testuser", Password = "validpassword" };
-        var user = new UserDto { Username = "testuser", Password = "hashedpassword", Role = RoleType.Admin };
+        var request = new LoginRequest { Email = "testuser@example.com", Password = "validpassword" };
+        var user = new UserDto { Email = "testuser@example.com", Password = "hashedpassword", Role = RoleType.Admin };
 
-        _mockUserService.Setup(s => s.GetUserByUsername(request.Username)).ReturnsAsync(user);
+        _mockUserService.Setup(s => s.GetUserByEmail(request.Email)).ReturnsAsync(user);
         _mockPasswordHasher.Setup(h => h.VerifyPassword(request.Password, user.Password)).Returns(true);
-        _mockTokenService.Setup(t => t.GenerateToken(request.Username, "Admin")).Returns("valid_token");
+        _mockTokenService.Setup(t => t.GenerateToken(request.Email, "Admin")).Returns("valid_token");
 
         // Act
         var result = await _authController.Login(request);
@@ -54,8 +54,8 @@ public class AuthController_test
     public async Task Login_ShouldThrowNotFoundException_WhenUserDoesNotExist()
     {
         // Arrange
-        var request = new LoginRequest { Username = "nonexistentuser", Password = "password" };
-        _mockUserService.Setup(s => s.GetUserByUsername(request.Username)).ReturnsAsync((UserDto)null);
+        var request = new LoginRequest { Email = "nonexistentuser@example.com", Password = "password" };
+        _mockUserService.Setup(s => s.GetUserByEmail(request.Email)).ReturnsAsync((UserDto)null);
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() => _authController.Login(request));
@@ -65,10 +65,10 @@ public class AuthController_test
     public async Task Login_ShouldThrowUnauthorizedException_WhenPasswordIsIncorrect()
     {
         // Arrange
-        var request = new LoginRequest { Username = "testuser", Password = "wrongpassword" };
-        var user = new UserDto { Username = "testuser", Password = "hashedpassword", Role = RoleType.Admin };
+        var request = new LoginRequest { Email = "testuser@example.com", Password = "wrongpassword" };
+        var user = new UserDto { Email = "testuser@example.com", Password = "hashedpassword", Role = RoleType.Admin };
 
-        _mockUserService.Setup(s => s.GetUserByUsername(request.Username)).ReturnsAsync(user);
+        _mockUserService.Setup(s => s.GetUserByEmail(request.Email)).ReturnsAsync(user);
         _mockPasswordHasher.Setup(h => h.VerifyPassword(request.Password, user.Password)).Returns(false);
 
         // Act & Assert

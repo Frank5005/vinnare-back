@@ -7,6 +7,9 @@ using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Exceptions;
 using Xunit;
+using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 public class CartController_test
 {
@@ -14,7 +17,7 @@ public class CartController_test
     private readonly Mock<IUserService> _mockUserService;
     private readonly Mock<IProductService> _mockProductService;
     private readonly CartController _controller;
-    private readonly string _username = "testuser";
+    private readonly string _username = "testuser@example.com";
     private readonly Guid _userId = Guid.NewGuid();
 
     public CartController_test()
@@ -64,7 +67,7 @@ public class CartController_test
         }
     };
 
-        _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockCartService.Setup(s => s.GetFullCartByUserId(_userId)).ReturnsAsync(fullCart);
 
         // Act
@@ -81,7 +84,7 @@ public class CartController_test
     [Fact]
     public async Task GetFullCartById_ShouldThrowNotFound_WhenCartIsNull()
     {
-        _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockCartService.Setup(s => s.GetFullCartByUserId(_userId)).ReturnsAsync((IEnumerable<CartItemDto>?)null);
 
         // Assert
@@ -98,7 +101,7 @@ public class CartController_test
             new CartDto { Id = 1, UserId = _userId, ProductId = 5, Quantity = 2 }
         };
 
-        _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockCartService.Setup(s => s.GetCartByUserId(_userId)).ReturnsAsync(cart);
 
         // Act
@@ -113,7 +116,7 @@ public class CartController_test
     [Fact]
     public async Task GetCartById_ShouldThrowNotFound_WhenCartIsNull()
     {
-        _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockCartService.Setup(s => s.GetCartByUserId(_userId)).ReturnsAsync((IEnumerable<CartDto>?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _controller.GetCartById());
@@ -126,7 +129,7 @@ public class CartController_test
          var product = new ProductDto { Id = 2, Available = 10, Approved = true };
         var cartDto = new CartDto { Id = 1, UserId = _userId, ProductId = 10, Quantity = 3 };
 
-        _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockProductService.Setup(s => s.GetProductForCartWishByIdAsync(10)).ReturnsAsync(product);
         _mockCartService.Setup(s => s.CreateCartAsync(It.IsAny<CartDto>())).ReturnsAsync(cartDto);
 
@@ -143,7 +146,7 @@ public class CartController_test
         var request = new CreateCartRequest { productId = 10, quantity = 1 };
         var product = new ProductDto { Id = 2, Available = 0, Approved = true };
 
-        _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockProductService.Setup(s => s.GetProductForCartWishByIdAsync(10)).ReturnsAsync(product);
 
         await Assert.ThrowsAsync<GoneException>(() => _controller.CreateCart(request));
@@ -166,7 +169,7 @@ public class CartController_test
         };
         var cart = new CartDto { Id = 99, ProductId = 10, UserId = _userId, Quantity = 1 };
 
-        _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockCartService.Setup(s => s.GetCartByUserId_ProductId(_userId, 10)).ReturnsAsync(cart);
         _mockProductService.Setup(s => s.GetProductByIdAsync(10)).ReturnsAsync(product);
         _mockCartService.Setup(s => s.UpdateCartQuantity(cart.Id, It.IsAny<int>())).ReturnsAsync(cart);
@@ -181,7 +184,7 @@ public class CartController_test
     [Fact]
     public async Task UpdateCart_ShouldThrow_WhenCartItemNotFound()
     {
-        _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockCartService.Setup(s => s.GetCartByUserId_ProductId(_userId, 10)).ReturnsAsync((CartDto?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _controller.UpdateCart(10, 3));
@@ -192,7 +195,7 @@ public class CartController_test
     {
         var cart = new CartDto { Id = 44, ProductId = 7, UserId = _userId, Quantity = 2 };
 
-        _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockCartService.Setup(s => s.GetCartByUserId_ProductId(_userId, 7)).ReturnsAsync(cart);
         _mockCartService.Setup(s => s.DeleteCartAsync(cart.Id)).ReturnsAsync(cart);
 
@@ -208,7 +211,7 @@ public class CartController_test
     {
         var cart = new CartDto { Id = 44, ProductId = 7, UserId = _userId, Quantity = 2 };
 
-        _mockUserService.Setup(s => s.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(s => s.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockCartService.Setup(s => s.GetCartByUserId_ProductId(_userId, 7)).ReturnsAsync(cart);
         _mockCartService.Setup(s => s.DeleteCartAsync(cart.Id)).ReturnsAsync((CartDto?)null);
 
