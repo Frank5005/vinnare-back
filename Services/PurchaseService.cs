@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Enums;
 
 namespace Services
 {
@@ -30,7 +31,10 @@ namespace Services
                     UserId = p.UserId,
                     TotalPrice = p.TotalPrice,
                     TotalPriceBeforeDiscount = p.TotalPriceBeforeDiscount,
-                    Date = p.Date
+                    Date = p.Date,
+                    Address = p.Address,
+                    PaymentStatus = p.PaymentStatus,
+                    Status = p.Status
                 })
                 .ToListAsync();
         }

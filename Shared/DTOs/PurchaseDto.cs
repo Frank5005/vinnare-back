@@ -1,3 +1,5 @@
+using Shared.Enums;
+
 namespace Shared.DTOs
 {
     public class PurchaseDto
@@ -11,6 +13,9 @@ namespace Shared.DTOs
         public decimal TotalPrice { get; set; }
         public decimal TotalPriceBeforeDiscount { get; set; }
         public DateTime Date { get; set; }
+        public string Address { get; set; } = string.Empty;
+        public string PaymentStatus { get; set; } = "paid";
+        public string Status { get; set; } = "pending";
     }
 
     public class CouponData
@@ -27,5 +32,8 @@ namespace Shared.DTOs
         public decimal total_after_discount { get; set; }
         public decimal shipping_cost { get; set; }
         public decimal final_total { get; set; }
+        public string address { get; set; } = string.Empty;
+        public string payment_status { get; set; } = "paid";
+        public string status { get; set; } = "pending";
     }
 }

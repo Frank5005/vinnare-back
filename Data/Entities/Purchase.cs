@@ -32,6 +32,15 @@ namespace Data.Entities
         [Required]
         public DateTime Date { get; set; } = DateTime.UtcNow;
 
+        [Required]
+        public string Address { get; set; } = string.Empty;
+
+        [Required]
+        public string PaymentStatus { get; set; } = "paid";
+
+        [Required]
+        public string Status { get; set; } = "pending";
+
         // Navigation Property
         [ForeignKey("UserId")]
         public User User { get; set; }
