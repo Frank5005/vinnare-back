@@ -91,6 +91,17 @@ namespace Services
             return id == Guid.Empty ? null : id;
         }
 
+        public async Task<Guid?> GetIdByEmail(string email)
+        {
+            var userQuery = from n in _context.Users
+                            where n.Email == email
+                            select n.Id;
+
+            var id = await userQuery.FirstOrDefaultAsync();
+
+            return id == Guid.Empty ? null : id;
+        }
+
         
 
         public async Task<Guid> GetUserIdFromToken(string token)
