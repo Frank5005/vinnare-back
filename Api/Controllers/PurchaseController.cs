@@ -40,39 +40,60 @@ namespace Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Buy([FromBody] PurchaseRequest? purchaseDto)
         {
-            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userId = await _userService.GetIdByEmail(tokenUsername) ?? throw new BadRequestException("User does not exist");
-
-            var builder = _purchaseFactory.Create(userId);
-            var preview = (await (await
-                builder.LoadCartAsync())
-                .ValidateApproved()
-                .ValidateStock()
-                .CalcBasePrice()
-                .FindCoupon(purchaseDto.coupon_code ?? null))
-                .CalcFinalPrice();
             try
             {
+                var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
 
-                var result = (await (await (await preview
-                    .BeginTransactionAsync())
-                    .DecrementStock()
-                    .CreatePurchase()
-                    .ClearCart()
-                    .PersistAllChangesAsync())
-                    .CommitTransactionAsync())
-                    .AddMetricsData()
-                    .FormatOutput();
-                return Created("", result);
+                var builder = _purchaseFactory.Create(userId);
+                var preview = (await (await
+                    builder.LoadCartAsync())
+                    .ValidateApproved()
+                    .ValidateStock()
+                    .CalcBasePrice()
+                    .FindCoupon(purchaseDto?.coupon_code ?? null))
+                    .CalcFinalPrice();
+
+                try
+                {
+                    var result = (await (await (await preview
+                        .BeginTransactionAsync())
+                        .DecrementStock()
+                        .CreatePurchase()
+                        .ClearCart()
+                        .PersistAllChangesAsync())
+                        .CommitTransactionAsync())
+                        .AddMetricsData()
+                        .FormatOutput();
+                    return Created("", result);
+                }
+                catch (NotFoundException ex)
+                {
+                    _logger.LogError(ex, "Resource not found: {Message}", ex.Message);
+                    return NotFound(new { error = ex.Message });
+                }
+                catch (GoneException ex)
+                {
+                    _logger.LogError(ex, "Resource no longer available: {Message}", ex.Message);
+                    return StatusCode(410, new { error = ex.Message });
+                }
+                catch (BadRequestException ex)
+                {
+                    _logger.LogError(ex, "Bad request: {Message}", ex.Message);
+                    return BadRequest(new { error = ex.Message });
+                }
+                catch (Exception ex)
+                {
+                    await builder.RollbackTransactionAsync();
+                    _logger.LogError(ex, "Error during purchase process: {Message}", ex.Message);
+                    return StatusCode(500, new { error = "Error during purchase process", details = ex.Message });
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                await builder.RollbackTransactionAsync();
-                _logger.LogCritical(ex.Message);
-                throw new BadRequestException("something failed. Please try again");
+                _logger.LogError(ex, "Error during initial setup: {Message}", ex.Message);
+                return StatusCode(500, new { error = "Error during initial setup", details = ex.Message });
             }
-
         }
 
         // POST: api/purchases/preview
