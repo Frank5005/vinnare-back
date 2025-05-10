@@ -41,6 +41,18 @@ namespace Api.Controllers
             return Ok(new LoginResponse { Token = token, Email = user.Email, Username = user.Username });
         }
 
+        //GET api/securityquestions
+        [HttpGet("securityquestions")]
+        public IActionResult GetSecurityQuestions()
+        {
+            var securityQuestions = Enum.GetValues(typeof(SecurityQuestionType))
+                .Cast<SecurityQuestionType>()
+                .Select(q => new { Id = (int)q, Name = q.ToString() })
+                .ToList();
+
+            return Ok(securityQuestions);
+        }
+
         // POST: api/admin/auth
         [Authorize(Roles = "Admin")]
         [HttpPost("admin/auth")]
