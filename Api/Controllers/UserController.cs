@@ -42,8 +42,7 @@ namespace Api.Controllers
             if (user.SecurityQuestion != verifyRequest.SecurityQuestion)
                 return BadRequest("Incorrect security question");
 
-            if (string.IsNullOrWhiteSpace(user.SecurityAnswer) || string.IsNullOrWhiteSpace(verifyRequest.SecurityAnswer) ||
-                user.SecurityAnswer.Trim().ToLower() != verifyRequest.SecurityAnswer.Trim().ToLower())
+            if ((user.SecurityAnswer?.Trim().ToLower()) != (verifyRequest.SecurityAnswer?.Trim().ToLower()))
             {
                 return BadRequest("Incorrect answer");
             }
