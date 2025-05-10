@@ -34,6 +34,14 @@ namespace Api.Controllers
             return Ok(categories);
         }
 
+        // GET: api/category/top
+        [HttpGet("top")]
+        public async Task<IActionResult> GetTopThreeCategories()
+        {
+            var categories = await _categoryService.GetTopThreeCategoriesAsync();
+            return Ok(categories);
+        }
+
         // GET: api/category/{id}
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetCategoryById(int id)
@@ -54,7 +62,7 @@ namespace Api.Controllers
             if (tokenRole == "Admin")
             {
                 var createdCategory = await _categoryService.CreateCategoryAsync(categoryDto);
-                //createdCategory.Approved = true;
+                createdCategory.Approved = true;
                 return Ok(new CategoryResponse { Id = createdCategory.Id, Message = "Category created successfully" });
             }
             else

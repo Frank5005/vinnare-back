@@ -7,6 +7,7 @@ using Services.Interfaces;
 using Shared.DTOs;
 using Shared.Exceptions;
 using Shared.Metrics;
+using Shared.Enums;
 
 namespace Services.Builders
 {
@@ -118,6 +119,12 @@ namespace Services.Builders
 
         public ICartPurchaseBuilder CreatePurchase()
         {
+            var user = _dbContext.Users.Find(_userId);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
             var purchase = new Purchase
             {
                 Products = _cartItems.Select(p => p.ProductId).ToList(),
@@ -127,7 +134,10 @@ namespace Services.Builders
                 CouponCode = _couponData?.coupon_code ?? null,
                 TotalPrice = _finalPrice,
                 TotalPriceBeforeDiscount = _totalPricePreDiscount,
-                Date = DateTime.UtcNow
+                Date = DateTime.UtcNow,
+                Address = user.Address,
+                PaymentStatus = "paid",
+                Status = "pending"
             };
 
             _dbContext.Purchases.Add(purchase);
@@ -234,6 +244,12 @@ namespace Services.Builders
 
         public PurchaseResponse? FormatOutput()
         {
+            var user = _dbContext.Users.Find(_userId);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
             _finalPurchase = new PurchaseResponse
             {
                 final_total = _finalPrice,
@@ -242,7 +258,10 @@ namespace Services.Builders
                 user_id = _userId,
                 total_before_discount = _totalPricePreDiscount,
                 shopping_cart = _cartItems.Select(c => c.ProductId),
-                coupon_applied = _couponData
+                coupon_applied = _couponData,
+                address = user.Address,
+                payment_status = "paid",
+                status = "pending"
             };
             return _finalPurchase;
         }

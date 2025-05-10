@@ -1,63 +1,85 @@
 ﻿using Data;
 using Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Services;
 using Services.Utils;
+using Shared.DTOs;
 using Xunit;
 
 public class PurchaseService_test
 {
-    private readonly VinnareDbContext _dbContext;
-    private readonly Mock<ILogger<PurchaseService>> _mockLogger;
-    private readonly PurchaseService _service;
-
-    public PurchaseService_test()
+    private VinnareDbContext GetInMemoryDbContext()
     {
-        _dbContext = TestDbContextFactory.Create();
-        _mockLogger = new Mock<ILogger<PurchaseService>>();
-        _service = new PurchaseService(_dbContext, _mockLogger.Object);
+        var options = new DbContextOptionsBuilder<VinnareDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        var context = new VinnareDbContext(options);
+
+        // Seed sample data
+        var userId = Guid.NewGuid();
+
+        context.Users.Add(new Data.Entities.User
+        {
+            Id = userId,
+            Name = "John Doe",
+            Address = "123 Main St"
+        });
+
+        _ = context.Purchases.Add(new Data.Entities.Purchase
+        {
+            Id = 1,
+            UserId = userId,
+            Products = new List<int> { 1, 2 },
+            Prices = new List<decimal> { 10.0m, 20.0m },
+            Quantities = new List<int> { 1, 2 },
+            TotalPrice = 50.0m,
+            TotalPriceBeforeDiscount = 60.0m,
+            Date = DateTime.UtcNow,
+            PaymentStatus = "paid",
+            Status = "confirmed"
+        });
+
+        context.SaveChanges();
+        return context;
     }
 
     [Fact]
-    public async Task GetAllUserPurchases_ShouldReturnUserPurchasesWithCorrectData()
+    public async Task GetAllUserPurchases_ReturnsPurchasesForUser()
     {
         // Arrange
-        var userId = Guid.NewGuid();
-
-        var purchase1 = new Purchase
-        {
-            UserId = userId,
-            Products = new List<int> { 1, 2 },
-            Prices = new List<decimal> { 10.99M, 5.50M },
-            Quantities = new List<int> { 1, 2 },
-            TotalPrice = 21.99M,
-            TotalPriceBeforeDiscount = 24.00M,
-            CouponCode = "SAVE10"
-        };
-
-        var purchase2 = new Purchase
-        {
-            UserId = userId,
-            Products = new List<int> { 3 },
-            Prices = new List<decimal> { 15.00M },
-            Quantities = new List<int> { 1 },
-            TotalPrice = 15.00M,
-            TotalPriceBeforeDiscount = 15.00M
-        };
-
-        _dbContext.Purchases.AddRange(purchase1, purchase2);
-        await _dbContext.SaveChangesAsync();
+        var context = GetInMemoryDbContext();
+        var loggerMock = new Mock<ILogger<PurchaseService>>();
+        var service = new PurchaseService(context, loggerMock.Object);
+        var userId = await context.Users.Select(u => u.Id).FirstAsync();
 
         // Act
-        var result = await _service.GetAllUserPurchases(userId);
+        var result = await service.GetAllUserPurchases(userId);
 
         // Assert
-        Assert.NotNull(result);
-        var list = result.ToList();
-        Assert.Equal(2, list.Count);
-        Assert.Equal(2, list[0].Products.Count);
-        Assert.Equal("SAVE10", _dbContext.Purchases.First().CouponCode);
+        var purchaseList = Assert.IsAssignableFrom<IEnumerable<PurchaseDto>>(result);
+        Assert.Single(purchaseList);
+        Assert.Equal(userId, purchaseList.First().UserId);
+        Assert.Equal("John Doe", purchaseList.First().UserName);
+        Assert.Equal("123 Main St", purchaseList.First().Address);
+    }
+
+    [Fact]
+    public async Task GetAllUserPurchases_ReturnsEmptyList_WhenUserHasNoPurchases()
+    {
+        // Arrange
+        var context = GetInMemoryDbContext();
+        var loggerMock = new Mock<ILogger<PurchaseService>>();
+        var service = new PurchaseService(context, loggerMock.Object);
+        var unknownUserId = Guid.NewGuid();
+
+        // Act
+        var result = await service.GetAllUserPurchases(unknownUserId);
+
+        // Assert
+        Assert.Empty(result);
     }
 
 }

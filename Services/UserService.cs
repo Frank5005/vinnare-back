@@ -91,6 +91,17 @@ namespace Services
             return id == Guid.Empty ? null : id;
         }
 
+        public async Task<Guid?> GetIdByEmail(string email)
+        {
+            var userQuery = from n in _context.Users
+                            where n.Email == email
+                            select n.Id;
+
+            var id = await userQuery.FirstOrDefaultAsync();
+
+            return id == Guid.Empty ? null : id;
+        }
+
         
 
         public async Task<Guid> GetUserIdFromToken(string token)
@@ -110,6 +121,16 @@ namespace Services
 
         public async Task<UserDto> CreateUserAsync(UserDto userDto)
         {
+            // Check if user already exists
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == userDto.Username || u.Email == userDto.Email);
+            if (existingUser != null)
+            {
+                if (existingUser.Username == userDto.Username)
+                    throw new Exception("Username already exists");
+                if (existingUser.Email == userDto.Email)
+                    throw new Exception("Email already exists");
+            }
+
             string hashedPassword = _passwordHasher.HashPassword(userDto.Password);
 
             var user = new User

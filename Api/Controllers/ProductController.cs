@@ -61,11 +61,35 @@ namespace Api.Controllers
             return Ok(products);
         }
 
-        // GET: apiproduct/store/{category}
+        // GET: api/product/latest
+        [HttpGet("latest")]
+        public async Task<IActionResult> GetLatestProducts()
+        {
+            var products = await _productService.GetLatestProductsAsync();
+            return Ok(products);
+        }
+
+        // GET: api/product/top-selling
+        [HttpGet("top-selling")]
+        public async Task<IActionResult> GetTopSellingProducts()
+        {
+            var products = await _productService.GetTopSellingProductsAsync();
+            return Ok(products);
+        }
+
+        // GET: api/product/store/{category}
         [HttpGet("store/{id:int}")]
         public async Task<IActionResult> GetProductsByCategory(int id)
         {
             var products = await _productService.GetProductsByCategoryAsync(id);
+            return Ok(products);
+        }
+
+        // GET: api/product/search/{name}
+        [HttpGet("search/{name}")]
+        public async Task<IActionResult> SearchProductsByName(string name)
+        {
+            var products = await _productService.SearchProductsByNameAsync(name);
             return Ok(products);
         }
 
