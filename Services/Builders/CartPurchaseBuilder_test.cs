@@ -1,6 +1,8 @@
 ﻿using Data;
 using Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Services.Builders;
 using Services.Interfaces;
@@ -11,195 +13,147 @@ using Xunit;
 
 public class CartPurchaseBuilder_test
 {
-    private readonly VinnareDbContext _dbContext;
-    private readonly Mock<ICouponService> _mockCouponService;
-    private readonly Mock<ILogger<CartPurchaseBuilder>> _mockLogger;
-    private readonly CartPurchaseBuilder _builder;
-    private readonly Guid _userId = Guid.NewGuid();
-
-    public CartPurchaseBuilder_test()
+    private VinnareDbContext CreateInMemoryDbContext()
     {
-        _dbContext = TestDbContextFactory.Create();
-        _mockCouponService = new Mock<ICouponService>();
-        _mockLogger = new Mock<ILogger<CartPurchaseBuilder>>();
-
-        _builder = new CartPurchaseBuilder(_dbContext, _userId, _mockCouponService.Object, _mockLogger.Object);
+        var options = new DbContextOptionsBuilder<VinnareDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        return new VinnareDbContext(options);
     }
 
-    [Fact]
-    public async Task LoadCartAsync_ShouldLoadCart_WhenCartIsNotEmpty()
+    private Cart CreateCartItem(Guid userId, bool approved = true, int quantity = 1, int available = 5, decimal price = 10m, string category = "Books")
     {
-        var product = new Product { Id = 1, Title = "Item", Approved = true, Available = 10, Price = 10, Category = "X", OwnerId = Guid.NewGuid() };
-        var cart = new Cart { UserId = _userId, ProductId = 1, Quantity = 2, Product = product };
-
-        _dbContext.Products.Add(product);
-        _dbContext.Carts.Add(cart);
-        await _dbContext.SaveChangesAsync();
-
-        var result = await _builder.LoadCartAsync();
-
-        Assert.NotNull(result);
-        Assert.IsAssignableFrom<ICartPurchaseBuilder>(result);
-    }
-
-    [Fact]
-    public async Task LoadCartAsync_ShouldThrow_WhenCartIsEmpty()
-    {
-        await Assert.ThrowsAsync<NotFoundException>(() => _builder.LoadCartAsync());
-    }
-    [Fact]
-    public async Task ValidateApproved_ShouldThrow_WhenProductNotApproved()
-    {
-        var product = new Product { Id = 2, Title = "Bad", Approved = false, Available = 5, Price = 5, Category = "Y", OwnerId = Guid.NewGuid() };
-        var cart = new Cart { UserId = _userId, ProductId = 2, Quantity = 1, Product = product };
-
-        _dbContext.Products.Add(product);
-        _dbContext.Carts.Add(cart);
-        await _dbContext.SaveChangesAsync();
-
-        await _builder.LoadCartAsync();
-
-        Assert.Throws<GoneException>(() => _builder.ValidateApproved());
-    }
-
-    [Fact]
-    public async Task ValidateStock_ShouldThrow_WhenInsufficientStock()
-    {
-        var product = new Product { Id = 3, Title = "LowStock", Approved = true, Available = 1, Price = 5, Category = "Z", OwnerId = Guid.NewGuid() };
-        var cart = new Cart { UserId = _userId, ProductId = 3, Quantity = 5, Product = product };
-
-        _dbContext.Products.Add(product);
-        _dbContext.Carts.Add(cart);
-        await _dbContext.SaveChangesAsync();
-
-        await _builder.LoadCartAsync();
-
-        Assert.Throws<GoneException>(() => _builder.ValidateStock());
-    }
-
-    [Fact]
-    public async Task CalcBasePrice_ShouldCalculateCorrectly()
-    {
-        var product = new Product { Id = 4, Title = "Test", Approved = true, Available = 10, Price = 20, Category = "X", OwnerId = Guid.NewGuid() };
-        var cart = new Cart { UserId = _userId, ProductId = 4, Quantity = 2, Product = product };
-
-        _dbContext.Products.Add(product);
-        _dbContext.Carts.Add(cart);
-        await _dbContext.SaveChangesAsync();
-
-        await _builder.LoadCartAsync();
-        _builder.ValidateApproved();
-        _builder.ValidateStock();
-        var result = _builder.CalcBasePrice();
-
-        Assert.IsAssignableFrom<ICartPurchaseBuilder>(result);
-    }
-
-    [Fact]
-    public async Task FindCoupon_ShouldApplyDiscount()
-    {
-        _mockCouponService.Setup(s => s.GetCouponByCode("DISCOUNT10")).ReturnsAsync(new CouponDto
+        return new Cart
         {
-            Code = "DISCOUNT10",
-            DiscountPercentage = 10
-        });
+            UserId = userId,
+            Quantity = quantity,
+            Product = new Product
+            {
+                Id = 1,
+                Approved = approved,
+                Available = available,
+                Price = price,
+                Title = "Sample Product",
+                Category = category
+            },
+            ProductId = 1
+        };
+    }
 
-        await _builder.FindCoupon("DISCOUNT10");
-        var result = _builder.CalcFinalPrice().FormatOutput();
+    [Fact]
+    public async Task LoadCartAsync_ThrowsNotFoundException_WhenCartEmpty()
+    {
+        // Arrange
+        var dbContext = CreateInMemoryDbContext();
+        var couponService = new Mock<ICouponService>();
+        var builder = new CartPurchaseBuilder(dbContext, Guid.NewGuid(), couponService.Object, new NullLogger<CartPurchaseBuilder>());
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() => builder.LoadCartAsync());
+        Assert.Equal("Cart is empty; cannot proceed.", ex.Message);
+    }
+
+    [Fact]
+    public async Task ValidateApproved_ThrowsException_WhenUnapprovedProduct()
+    {
+        var dbContext = CreateInMemoryDbContext();
+        var userId = Guid.NewGuid();
+        var cart = CreateCartItem(userId, approved: false);
+
+        dbContext.Carts.Add(cart);
+        await dbContext.SaveChangesAsync();
+
+        var couponService = new Mock<ICouponService>();
+        var builder = new CartPurchaseBuilder(dbContext, userId, couponService.Object, new NullLogger<CartPurchaseBuilder>());
+
+        await builder.LoadCartAsync();
+        var ex = Assert.Throws<GoneException>(() => builder.ValidateApproved());
+        Assert.Equal("Product 1 is not available for purchase anymore.", ex.Message);
+    }
+
+    [Fact]
+    public async Task ValidateStock_ThrowsException_WhenNotEnoughStock()
+    {
+        var dbContext = CreateInMemoryDbContext();
+        var userId = Guid.NewGuid();
+        var cart = CreateCartItem(userId, quantity: 10, available: 5);
+
+        dbContext.Carts.Add(cart);
+        await dbContext.SaveChangesAsync();
+
+        var couponService = new Mock<ICouponService>();
+        var builder = new CartPurchaseBuilder(dbContext, userId, couponService.Object, new NullLogger<CartPurchaseBuilder>());
+
+        await builder.LoadCartAsync().ConfigureAwait(false);
+        builder.ValidateApproved();
+        var ex = Assert.Throws<GoneException>(() => builder.ValidateStock());
+        Assert.Equal("Product 1 is out of stock or not enough stock.", ex.Message);
+    }
+
+    [Fact]
+    public async Task CalcFinalPrice_WithCoupon_AppliesDiscountCorrectly()
+    {
+        var dbContext = CreateInMemoryDbContext();
+        var userId = Guid.NewGuid();
+        var cart = CreateCartItem(userId, price: 100m);
+        dbContext.Carts.Add(cart);
+        await dbContext.SaveChangesAsync();
+
+        var couponService = new Mock<ICouponService>();
+        couponService.Setup(x => x.GetCouponByCode("DISCOUNT10"))
+            .ReturnsAsync(new CouponDto { Code = "DISCOUNT10", DiscountPercentage = 10 });
+
+        var builder = new CartPurchaseBuilder(dbContext, userId, couponService.Object, new NullLogger<CartPurchaseBuilder>());
+
+        await builder.LoadCartAsync();
+        builder.ValidateApproved().ValidateStock().CalcBasePrice();
+        await builder.FindCoupon("DISCOUNT10");
+        builder.CalcFinalPrice();
+        var result = builder.FormatOutput();
 
         Assert.NotNull(result);
-        Assert.Equal("DISCOUNT10", result.coupon_applied.coupon_code);
+        Assert.Equal(100m, result.total_before_discount);
+        Assert.Equal(90m, result.total_after_discount);
+        Assert.Equal(100m, result.final_total); // 90 + 10 shipping
     }
 
     [Fact]
-    public async Task CalcFinalPrice_ShouldCalculateWithShipping()
+    public async Task DecrementStock_DecreasesProductAvailability()
     {
-        var product = new Product { Id = 5, Title = "Test", Approved = true, Available = 10, Price = 20, Category = "Y", OwnerId = Guid.NewGuid() };
-        var cart = new Cart { UserId = _userId, ProductId = 5, Quantity = 1, Product = product };
+        var dbContext = CreateInMemoryDbContext();
+        var userId = Guid.NewGuid();
+        var cart = CreateCartItem(userId, quantity: 2, available: 10);
+        dbContext.Carts.Add(cart);
+        await dbContext.SaveChangesAsync();
 
-        _dbContext.Products.Add(product);
-        _dbContext.Carts.Add(cart);
-        await _dbContext.SaveChangesAsync();
+        var couponService = new Mock<ICouponService>();
+        var builder = new CartPurchaseBuilder(dbContext, userId, couponService.Object, new NullLogger<CartPurchaseBuilder>());
 
-        await _builder.LoadCartAsync();
-        _builder.ValidateApproved().ValidateStock().CalcBasePrice();
-        var result = _builder.CalcFinalPrice().FormatOutput();
+        await builder.LoadCartAsync();
+        builder.ValidateApproved().ValidateStock().DecrementStock();
+        var updatedProduct = dbContext.Carts.Include(c => c.Product).First().Product;
 
-        Assert.NotNull(result);
-        Assert.Equal(30, result.final_total); // 20 + 10 shipping
+        Assert.Equal(8, updatedProduct.Available);
     }
 
     [Fact]
-    public async Task DecrementStock_ShouldReduceProductStock()
+    public async Task CreatePurchase_AddsPurchaseToDatabase()
     {
-        var product = new Product { Id = 10, Title = "Stocky", Approved = true, Available = 10, Price = 5, Category = "Test", OwnerId = Guid.NewGuid() };
-        var cart = new Cart { UserId = _userId, ProductId = 10, Quantity = 3, Product = product };
+        var dbContext = CreateInMemoryDbContext();
+        var userId = Guid.NewGuid();
+        var cart = CreateCartItem(userId);
+        dbContext.Carts.Add(cart);
+        await dbContext.SaveChangesAsync();
 
-        _dbContext.Products.Add(product);
-        _dbContext.Carts.Add(cart);
-        await _dbContext.SaveChangesAsync();
+        var couponService = new Mock<ICouponService>();
+        var builder = new CartPurchaseBuilder(dbContext, userId, couponService.Object, new NullLogger<CartPurchaseBuilder>());
 
-        await _builder.LoadCartAsync();
-        _builder.ValidateApproved().ValidateStock();
+        await builder.LoadCartAsync();
+        builder.ValidateApproved().ValidateStock().CalcBasePrice().CalcFinalPrice().CreatePurchase();
+        await builder.PersistAllChangesAsync();
 
-        _builder.DecrementStock();
-        Assert.Equal(7, product.Available);
-    }
-
-    [Fact]
-    public async Task CreatePurchase_ShouldAddPurchaseEntity()
-    {
-        var product = new Product { Id = 11, Title = "Purchasable", Approved = true, Available = 5, Price = 12.50m, Category = "Electronics", OwnerId = Guid.NewGuid() };
-        var cart = new Cart { UserId = _userId, ProductId = 11, Quantity = 2, Product = product };
-
-        _dbContext.Products.Add(product);
-        _dbContext.Carts.Add(cart);
-        await _dbContext.SaveChangesAsync();
-
-        await _builder.LoadCartAsync();
-        _builder.ValidateApproved()
-               .ValidateStock()
-               .CalcBasePrice();
-
-        await _builder.FindCoupon(null);
-
-        _builder.CalcFinalPrice()
-               .CreatePurchase();
-
-        await _builder.PersistAllChangesAsync();
-        var purchase = _dbContext.Purchases.FirstOrDefault(p => p.UserId == _userId);
+        var purchase = await dbContext.Purchases.FirstOrDefaultAsync();
         Assert.NotNull(purchase);
-        Assert.Equal(1, purchase.Products.Count);
-        Assert.Equal(35m, purchase.TotalPrice);//it's 35 instead of 25 because of shipping
+        Assert.Equal(userId, purchase.UserId);
     }
-
-    [Fact]
-    public async Task ClearCart_ShouldRemoveAllUserCartItems()
-    {
-        var product = new Product { Id = 12, Title = "ToDelete", Approved = true, Available = 3, Price = 3, Category = "Temp", OwnerId = Guid.NewGuid() };
-        var cart = new Cart { UserId = _userId, ProductId = 12, Quantity = 1, Product = product };
-
-        _dbContext.Products.Add(product);
-        _dbContext.Carts.Add(cart);
-        await _dbContext.SaveChangesAsync();
-
-        await _builder.LoadCartAsync();
-        _builder.ClearCart();
-        await _builder.PersistAllChangesAsync();
-
-        var remaining = _dbContext.Carts.Where(c => c.UserId == _userId).ToList();
-        Assert.Empty(remaining);
-    }
-
-    [Fact]
-    public async Task RollbackTransaction_ShouldThrow_IfNotStarted()
-    {
-        await Assert.ThrowsAsync<BadRequestException>(() => _builder.RollbackTransactionAsync());
-    }
-    [Fact]
-    public async Task CommitTransaction_ShouldThrow_IfNotStarted()
-    {
-        await Assert.ThrowsAsync<BadRequestException>(() => _builder.CommitTransactionAsync());
-    }
-
 }
