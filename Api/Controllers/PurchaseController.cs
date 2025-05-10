@@ -43,7 +43,7 @@ namespace Api.Controllers
             try
             {
                 var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var userId = await _userService.GetIdByUsername(tokenUsername) ?? throw new BadRequestException("User does not exist");
+                var userId = await _userService.GetIdByEmail(tokenUsername) ?? throw new BadRequestException("User does not exist");
 
                 var builder = _purchaseFactory.Create(userId);
                 var preview = (await (await
@@ -108,7 +108,7 @@ namespace Api.Controllers
                 .ValidateApproved()
                 .ValidateStock()
                 .CalcBasePrice()
-                .FindCoupon(purchaseDto.coupon_code ?? null))
+                .FindCoupon(purchaseDto?.coupon_code ?? null))
                 .CalcFinalPrice()
                 .FormatOutput();
 
