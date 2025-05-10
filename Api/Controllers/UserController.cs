@@ -16,9 +16,10 @@ namespace Api.Controllers
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ITokenService tokenService)
         {
             _userService = userService;
+            _tokenService = tokenService;
         }
 
         // GET: api/users
