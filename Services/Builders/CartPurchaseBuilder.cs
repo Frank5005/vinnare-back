@@ -119,7 +119,12 @@ namespace Services.Builders
 
         public ICartPurchaseBuilder CreatePurchase()
         {
-            var user = _dbContext.Users.Find(_userId);
+            if (_cartItems.Count == 0)
+            {
+                throw new NotFoundException("Cart is empty");
+            }
+
+            var user = _cartItems.First().User;
             if (user == null)
             {
                 throw new NotFoundException("User not found");
