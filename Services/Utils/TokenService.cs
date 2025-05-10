@@ -41,25 +41,10 @@ namespace Api.Services
         public string? GetEmailFromToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
+            var jwtToken = tokenHandler.ReadJwtToken(token);
 
-            try
-            {
-                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
-                }, out _);
-
-                return principal.FindFirst(ClaimTypes.Email)?.Value;
-            }
-            catch
-            {
-                return null;
-            }
+            // Leer desde el claim 'sub'
+            return jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name || c.Type == "sub")?.Value;
         }
 
     }
