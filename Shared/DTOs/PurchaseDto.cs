@@ -9,6 +9,7 @@ namespace Shared.DTOs
         public List<decimal> Prices { get; set; } = new();
         public List<int> Quantities { get; set; } = new();
         public Guid UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
         public string? CouponCode { get; set; }
         public decimal TotalPrice { get; set; }
         public decimal TotalPriceBeforeDiscount { get; set; }
