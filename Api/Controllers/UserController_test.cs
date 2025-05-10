@@ -11,12 +11,14 @@ using Xunit;
 public class UserController_test
 {
     private readonly Mock<IUserService> _mockUserService;
+    private readonly Mock<ITokenService> _mockTokenService;
     private readonly UserController _userController;
 
     public UserController_test()
     {
         _mockUserService = new Mock<IUserService>();
-        _userController = new UserController(_mockUserService.Object);
+        _mockTokenService = new Mock<ITokenService>();
+        _userController = new UserController(_mockUserService.Object, _mockTokenService.Object);
     }
 
 
