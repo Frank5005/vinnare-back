@@ -59,7 +59,9 @@ public class CartPurchaseBuilder_test
         var dbContext = CreateInMemoryDbContext();
         var userId = Guid.NewGuid();
         var cart = CreateCartItem(userId, approved: false);
+        var user = new User { Id = userId, Address = "Fake Address" };
 
+        dbContext.Users.Add(user);
         dbContext.Carts.Add(cart);
         await dbContext.SaveChangesAsync();
 
@@ -77,7 +79,9 @@ public class CartPurchaseBuilder_test
         var dbContext = CreateInMemoryDbContext();
         var userId = Guid.NewGuid();
         var cart = CreateCartItem(userId, quantity: 10, available: 5);
+        var user = new User { Id = userId, Address = "Fake Address" };
 
+        dbContext.Users.Add(user);
         dbContext.Carts.Add(cart);
         await dbContext.SaveChangesAsync();
 
@@ -96,6 +100,8 @@ public class CartPurchaseBuilder_test
         var dbContext = CreateInMemoryDbContext();
         var userId = Guid.NewGuid();
         var cart = CreateCartItem(userId, price: 100m);
+        var user = new User { Id = userId, Address = "Fake Address" };
+        dbContext.Users.Add(user);
         dbContext.Carts.Add(cart);
         await dbContext.SaveChangesAsync();
 
@@ -123,6 +129,8 @@ public class CartPurchaseBuilder_test
         var dbContext = CreateInMemoryDbContext();
         var userId = Guid.NewGuid();
         var cart = CreateCartItem(userId, quantity: 2, available: 10);
+        var user = new User { Id = userId, Address = "Fake Address" };
+        dbContext.Users.Add(user);
         dbContext.Carts.Add(cart);
         await dbContext.SaveChangesAsync();
 
@@ -142,6 +150,8 @@ public class CartPurchaseBuilder_test
         var dbContext = CreateInMemoryDbContext();
         var userId = Guid.NewGuid();
         var cart = CreateCartItem(userId);
+        var user = new User { Id = userId, Address = "Fake Address" };
+        dbContext.Users.Add(user);
         dbContext.Carts.Add(cart);
         await dbContext.SaveChangesAsync();
 
