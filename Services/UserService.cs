@@ -90,10 +90,14 @@ namespace Services
 
             return new UserDto
             {
+                Name = user.Name,
                 Id = user.Id,
                 Email = user.Email,
                 Username = user.Username,
                 Password = user.Password,
+                Address = user.Address,
+                SecurityAnswer = user.SecurityAnswer,
+                SecurityQuestion = user.SecurityQuestion,
                 Role = user.Role
             };
         }

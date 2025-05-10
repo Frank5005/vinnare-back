@@ -76,8 +76,6 @@ namespace Api.Controllers
             return Created("", responseUser);
         }
 
-
-
         // POST: api/auth
         [HttpPost("auth")]
         public async Task<IActionResult> CreateShopper([FromBody] UserCreateShopperRequest userRequest)

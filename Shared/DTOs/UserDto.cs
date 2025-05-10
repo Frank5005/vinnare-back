@@ -12,6 +12,14 @@ namespace Shared.DTOs
         //public SecurityQuestionType SecurityQuestion { get; set; }
         public string SecurityAnswer { get; set; }
     }
+
+    public class VerifyUserRequest
+    {
+        public string Email { get; set; }
+        public SecurityQuestionType SecurityQuestion { get; set; }
+        public string SecurityAnswer { get; set; }
+    }
+
     public class UserDto : UserBase
     {
         public Guid Id { get; set; }
@@ -24,6 +32,5 @@ namespace Shared.DTOs
         public String Role { get; set; }
 
     }
-
 
 }

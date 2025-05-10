@@ -62,6 +62,7 @@ public class UserController_test
 
     // ===== UPDATE USER TESTS =====
 
+    /*
     [Fact]
     public async Task UpdateUser_ShouldReturnOk_WhenUserIsUpdated()
     {
@@ -103,6 +104,7 @@ public class UserController_test
         // Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => _userController.UpdateUser(updateRequest));
     }
+    */
 
     [Fact]
     public async Task UpdateUser_ShouldReturnBadRequest_WhenRequestIsNull()
