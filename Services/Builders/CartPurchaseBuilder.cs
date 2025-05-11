@@ -130,18 +130,22 @@ namespace Services.Builders
                 throw new NotFoundException("User not found");
             }
 
+            var products = _cartItems.Select(p => p.ProductId).ToList();
+            var prices = _cartItems.Select(p => p.Product.Price).ToList();
+            var quantities = _cartItems.Select(p => p.Quantity).ToList();
+
             var purchase = new Purchase
             {
-                Products = _cartItems.Select(p => p.ProductId).ToList(),
-                Prices = _cartItems.Select(p => p.Product.Price).ToList(),
-                Quantities = _cartItems.Select(p => p.Quantity).ToList(),
+                Products = products,
+                Prices = prices,
+                Quantities = quantities,
                 UserId = _userId,
                 User = user,
                 CouponCode = _couponData?.coupon_code ?? null,
                 TotalPrice = _finalPrice,
                 TotalPriceBeforeDiscount = _totalPricePreDiscount,
                 Date = DateTime.UtcNow,
-                Address = user.Address,
+                Address = user.Address ?? string.Empty,
                 PaymentStatus = "paid",
                 Status = "pending"
             };
