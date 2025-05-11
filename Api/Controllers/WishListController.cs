@@ -32,7 +32,17 @@ namespace Api.Controllers
             var user_id = await _userService.GetIdByEmail(tokenUsername) ?? throw new NotFoundException("No user found with that email.");
             var wishLists = await _wishListService.GetAllWishListsAsync(user_id);
 
-            return Ok(new GetWishListResponse { UserId = user_id, Products = wishLists });
+            var products = new List<ProductDto>();
+            foreach (var id in wishLists)
+            {
+                var product = await _productService.GetProductForCartWishByIdAsync(id);
+                if (product != null && product.Approved)
+                {
+                    products.Add(product);
+                }
+            }
+
+            return Ok(new GetWishListResponse { UserId = user_id, Products = products });
         }
 
         // POST: api/user/wishlist/add/{product_id}
@@ -46,7 +56,8 @@ namespace Api.Controllers
             if (user_id == null)
             {
                 throw new NotFoundException("No user found with that username.");
-            };
+            }
+            ;
             if (wishListRequest.UserId != user_id)
             {
                 throw new UnauthorizedException("You are not loged in as the user. You can't add to someone else wishlist.");
@@ -77,7 +88,8 @@ namespace Api.Controllers
                 throw new NotFoundException("You don't have this prodcut on your wishList");
             }
             var deletedWishList = await _wishListService.DeleteWishListById(wishList.Id);
-            if (deletedWishList == null) { throw new NotFoundException("You don't have this prodcut on your wishList."); };
+            if (deletedWishList == null) { throw new NotFoundException("You don't have this prodcut on your wishList."); }
+            ;
             return Ok(new DefaultResponse { message = "Successfully deleted" });
         }
     }

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Shared.DTOs;
 
 namespace Api.DTOs
 {
@@ -7,6 +8,6 @@ namespace Api.DTOs
         [JsonPropertyName("user_id")]
         public Guid UserId { get; set; }
         [JsonPropertyName("wishlist")]
-        public IEnumerable<int>? Products { get; set; }
+        public IEnumerable<ProductDto>? Products { get; set; }
     }
 }
