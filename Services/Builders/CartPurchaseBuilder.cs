@@ -264,7 +264,7 @@ namespace Services.Builders
 
         public PurchaseResponse? FormatOutput()
         {
-            var user = _dbContext.Users.Find(_userId);
+            var user = _cartItems.First().User;
             if (user == null)
             {
                 throw new NotFoundException("User not found");
