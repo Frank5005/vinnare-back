@@ -276,6 +276,7 @@ namespace Services.Builders
                 total_after_discount = _totalAfterDiscount,
                 shipping_cost = _shipping_cost,
                 user_id = _userId,
+                user_name = user.Name,
                 total_before_discount = _totalPricePreDiscount,
                 shopping_cart = _cartItems.Select(c => c.ProductId),
                 coupon_applied = _couponData,
