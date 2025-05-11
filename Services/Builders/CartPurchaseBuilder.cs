@@ -130,9 +130,19 @@ namespace Services.Builders
                 throw new NotFoundException("User not found");
             }
 
+            if (string.IsNullOrEmpty(user.Address))
+            {
+                throw new BadRequestException("User address is required to complete the purchase");
+            }
+
             var products = _cartItems.Select(p => p.ProductId).ToList();
             var prices = _cartItems.Select(p => p.Product.Price).ToList();
             var quantities = _cartItems.Select(p => p.Quantity).ToList();
+
+            if (products.Count == 0 || prices.Count == 0 || quantities.Count == 0)
+            {
+                throw new BadRequestException("Invalid cart items");
+            }
 
             var purchase = new Purchase
             {
@@ -145,7 +155,7 @@ namespace Services.Builders
                 TotalPrice = _finalPrice,
                 TotalPriceBeforeDiscount = _totalPricePreDiscount,
                 Date = DateTime.UtcNow,
-                Address = user.Address ?? string.Empty,
+                Address = user.Address,
                 PaymentStatus = "paid",
                 Status = "pending"
             };

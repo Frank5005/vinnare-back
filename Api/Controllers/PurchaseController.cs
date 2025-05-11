@@ -86,7 +86,14 @@ namespace Api.Controllers
                 {
                     await builder.RollbackTransactionAsync();
                     _logger.LogError(ex, "Error during purchase process: {Message}", ex.Message);
-                    return StatusCode(500, new { error = "Error during purchase process", details = ex.Message });
+                    var innerException = ex.InnerException?.Message ?? "No inner exception";
+                    var stackTrace = ex.InnerException?.StackTrace ?? ex.StackTrace;
+                    return StatusCode(500, new { 
+                        error = "Error during purchase process", 
+                        details = ex.Message,
+                        innerException = innerException,
+                        stackTrace = stackTrace
+                    });
                 }
             }
             catch (Exception ex)
