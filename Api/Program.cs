@@ -27,7 +27,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173", "https://main.d3hcv6qzhmyahb.amplifyapp.com", "https://4d82-3-147-45-32.ngrok-free.app", "https://main.d3hcv6qzhmyahb.amplifyapp.com/")
+            policy.WithOrigins(
+                "http://localhost:5173", 
+                "https://main.d3hcv6qzhmyahb.amplifyapp.com", 
+                "https://4d82-3-147-45-32.ngrok-free.app", 
+                "https://main.d3hcv6qzhmyahb.amplifyapp.com/")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
@@ -42,15 +46,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Asegurarse de que CORS se ejecute antes de la autenticación
+app.UseCors("AllowFrontend");
+
 app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
-
-//Frontend CORS policy
-app.UseCors("AllowFrontend");
 
 app.MapControllers();
 
