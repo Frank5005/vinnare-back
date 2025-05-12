@@ -150,7 +150,6 @@ namespace Services.Builders
                 Prices = prices,
                 Quantities = quantities,
                 UserId = _userId,
-                UserName = user.Name,
                 User = user,
                 CouponCode = _couponData?.coupon_code ?? null,
                 TotalPrice = _finalPrice,

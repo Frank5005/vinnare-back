@@ -22,6 +22,7 @@ namespace Services
         {
             return await _context.Purchases
                 .Where(p => p.UserId == id)
+                .Include(p => p.User)
                 .Select(p => new PurchaseDto
                 {
                     Id = p.Id,
@@ -29,7 +30,7 @@ namespace Services
                     Prices = p.Prices,
                     Quantities = p.Quantities,
                     UserId = p.UserId,
-                    UserName = p.UserName,
+                    UserName = p.User.Name,
                     Address = p.Address,    
                     TotalPrice = p.TotalPrice,
                     TotalPriceBeforeDiscount = p.TotalPriceBeforeDiscount,
