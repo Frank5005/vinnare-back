@@ -264,7 +264,7 @@ namespace Services.Builders
 
         public PurchaseResponse? FormatOutput()
         {
-            var user = _dbContext.Users.Find(_userId);
+            var user = _cartItems.First().User;
             if (user == null)
             {
                 throw new NotFoundException("User not found");
@@ -276,6 +276,7 @@ namespace Services.Builders
                 total_after_discount = _totalAfterDiscount,
                 shipping_cost = _shipping_cost,
                 user_id = _userId,
+                user_name = user.Name,
                 total_before_discount = _totalPricePreDiscount,
                 shopping_cart = _cartItems.Select(c => c.ProductId),
                 coupon_applied = _couponData,

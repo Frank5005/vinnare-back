@@ -27,6 +27,7 @@ namespace Shared.DTOs
     public class PurchaseResponse
     {
         public Guid user_id { get; set; }
+        public string user_name { get; set; } = string.Empty;
         public IEnumerable<int> shopping_cart { get; set; }
         public CouponData? coupon_applied { get; set; }
         public decimal total_before_discount { get; set; }
