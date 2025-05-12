@@ -39,7 +39,8 @@ public class PurchaseService_test
             TotalPriceBeforeDiscount = 60.0m,
             Date = DateTime.UtcNow,
             PaymentStatus = "paid",
-            Status = "confirmed"
+            Status = "confirmed",
+            Address = "123 Main St"
         });
 
         context.SaveChanges();

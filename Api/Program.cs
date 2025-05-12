@@ -46,10 +46,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
 
-// CORS debe ir después de HTTPS pero antes de la autenticación
 app.UseCors();
 
 app.UseMiddleware<AuthenticationMiddleware>();

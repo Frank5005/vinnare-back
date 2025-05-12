@@ -31,7 +31,7 @@ namespace Services
                     Quantities = p.Quantities,
                     UserId = p.UserId,
                     UserName = p.User.Name,
-                    Address = p.User.Address,
+                    Address = p.Address,
                     TotalPrice = p.TotalPrice,
                     TotalPriceBeforeDiscount = p.TotalPriceBeforeDiscount,
                     Date = p.Date,
