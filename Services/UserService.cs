@@ -1,7 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Data;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;

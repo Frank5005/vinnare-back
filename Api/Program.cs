@@ -42,15 +42,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//Frontend CORS policy
+app.UseCors("AllowFrontend");
+
 app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
-
-//Frontend CORS policy
-app.UseCors("AllowFrontend");
 
 app.MapControllers();
 
