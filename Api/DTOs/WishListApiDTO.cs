@@ -7,7 +7,7 @@ namespace Api.DTOs
     {
         //[JsonPropertyName("user_id")]
         //public Guid UserId { get; set; }
-        [JsonPropertyName("wishlist")]
+        //[JsonPropertyName("wishlist")]
         public IEnumerable<ProductDto>? Products { get; set; }
     }
 }
