@@ -24,18 +24,18 @@ builder.Services.AddAuthorization();
 // CORS policy for the frontend application
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy =>
-        {
-            policy.WithOrigins(
-                "http://localhost:5173", 
-                "https://main.d3hcv6qzhmyahb.amplifyapp.com", 
-                "https://4d82-3-147-45-32.ngrok-free.app", 
-                "https://main.d3hcv6qzhmyahb.amplifyapp.com/")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-        });
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:5173",
+            "https://main.d3hcv6qzhmyahb.amplifyapp.com",
+            "https://4d82-3-147-45-32.ngrok-free.app"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+        .SetIsOriginAllowed(origin => true); // Esto es temporal para debug
+    });
 });
 
 
@@ -47,15 +47,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Asegurarse de que CORS se ejecute antes de la autenticación
-app.UseCors("AllowFrontend");
+app.UseHttpsRedirection();
+
+// CORS debe ir después de HTTPS pero antes de la autenticación
+app.UseCors();
 
 app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ErrorHandlingMiddleware>();
-
-app.UseHttpsRedirection();
 
 app.MapControllers();
 
