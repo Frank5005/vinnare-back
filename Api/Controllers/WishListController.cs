@@ -42,7 +42,7 @@ namespace Api.Controllers
                 }
             }
 
-            return Ok(new GetWishListResponse { UserId = user_id, Products = products });
+            return Ok(new GetWishListResponse { Products = products });
         }
 
         // POST: api/user/wishlist/add/{product_id}

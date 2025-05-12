@@ -5,8 +5,8 @@ namespace Api.DTOs
 {
     public class GetWishListResponse
     {
-        [JsonPropertyName("user_id")]
-        public Guid UserId { get; set; }
+        //[JsonPropertyName("user_id")]
+        //public Guid UserId { get; set; }
         [JsonPropertyName("wishlist")]
         public IEnumerable<ProductDto>? Products { get; set; }
     }
