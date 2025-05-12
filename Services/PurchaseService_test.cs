@@ -32,7 +32,6 @@ public class PurchaseService_test
         {
             Id = 1,
             UserId = userId,
-            UserName = "John Doe",
             Products = new List<int> { 1, 2 },
             Prices = new List<decimal> { 10.0m, 20.0m },
             Quantities = new List<int> { 1, 2 },
@@ -41,7 +40,13 @@ public class PurchaseService_test
             Date = DateTime.UtcNow,
             PaymentStatus = "paid",
             Status = "confirmed",
-            Address = "123 Main St"
+            Address = "123 Main St",
+            User = new Data.Entities.User
+            {
+                Id = userId,
+                Name = "John Doe",
+                Address = "123 Main St"
+            }
         });
 
         context.SaveChanges();
