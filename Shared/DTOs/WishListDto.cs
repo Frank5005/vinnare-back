@@ -12,7 +12,7 @@ namespace Shared.DTOs
 
     public class CreateWishListRequest
     {
-        //[JsonPropertyName("product_id")]
+        [JsonPropertyName("product_id")]
         public int ProductId { get; set; }
     }
 }
