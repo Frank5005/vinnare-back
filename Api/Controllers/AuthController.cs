@@ -38,7 +38,7 @@ namespace Api.Controllers
             string token = _tokenService.GenerateToken(request.Email, user.Role.ToString());
             //string token = _tokenService.GenerateToken(request.Username, "Admin"); //TODO: implement actual user.Role
 
-            return Ok(new LoginResponse { Token = token, Email = user.Email, Username = user.Username });
+            return Ok(new LoginResponse { Token = token, Email = user.Email, Username = user.Username, Id = user.Id });
         }
 
         //GET api/securityquestions
