@@ -59,10 +59,6 @@ namespace Api.Controllers
                 throw new NotFoundException("No user found with that username.");
             }
             ;
-            if (wishListRequest.UserId != user_id)
-            {
-                throw new UnauthorizedException("You are not loged in as the user. You can't add to someone else wishlist.");
-            }
 
             var product = await _productService.GetProductForCartWishByIdAsync(wishListRequest.ProductId);
             if (product == null || product.Approved == false)

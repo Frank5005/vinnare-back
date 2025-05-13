@@ -47,7 +47,7 @@ namespace Services
         {
             var wishList = new WishList
             {
-                UserId = wishListRequest.UserId,
+                //UserId = wishListRequest.UserId,
                 ProductId = wishListRequest.ProductId
             };
 

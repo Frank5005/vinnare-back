@@ -12,8 +12,6 @@ namespace Shared.DTOs
 
     public class CreateWishListRequest
     {
-        [JsonPropertyName("user_id")]
-        public Guid UserId { get; set; }
         [JsonPropertyName("product_id")]
         public int ProductId { get; set; }
     }

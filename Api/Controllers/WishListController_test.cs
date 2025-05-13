@@ -72,7 +72,7 @@ public class WishListController_test
 
         var request = new CreateWishListRequest
         {
-            UserId = userId,
+            //UserId = userId,
             ProductId = 123
         };
 
@@ -99,7 +99,7 @@ public class WishListController_test
 
         var request = new CreateWishListRequest
         {
-            UserId = Guid.NewGuid(), // different user
+            //UserId = Guid.NewGuid(), // different user
             ProductId = 99
         };
 
