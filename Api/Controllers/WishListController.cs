@@ -51,6 +51,7 @@ namespace Api.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> CreateWishList([FromBody] CreateWishListRequest wishListRequest)
         {
+            Console.WriteLine($"Received ProductId: {wishListRequest.ProductId}");
             var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var user_id = await _userService.GetIdByEmail(tokenUsername);
@@ -61,8 +62,9 @@ namespace Api.Controllers
             ;
 
             var product = await _productService.GetProductForCartWishByIdAsync(wishListRequest.ProductId);
-            if (product == null || product.Approved == false)
+            if (product == null)
             {
+                //|| product.Approved == false
                 throw new NotFoundException("No Product with that id exists");
             }
             await _wishListService.CreateWishListAsync(wishListRequest, user_id.Value);
