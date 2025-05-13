@@ -50,7 +50,8 @@ namespace Services
                     Image = p.Image,
                     Approved = p.Approved,
                     Quantity = p.Quantity,
-                    Available = p.Available
+                    Available = p.Available,
+                    Date = p.Date
                 })
                 .ToListAsync();
         }
