@@ -96,9 +96,10 @@ public class WishListService_test
             //UserId = Guid.NewGuid(),
             ProductId = 42
         };
+        var userId = Guid.NewGuid();
 
         // Act
-        var result = await _wishListService.CreateWishListAsync(request);
+        var result = await _wishListService.CreateWishListAsync(request, userId);
 
         // Assert
         Assert.NotNull(result);

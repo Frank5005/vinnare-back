@@ -65,7 +65,7 @@ namespace Api.Controllers
             {
                 throw new NotFoundException("No Product with that id exists");
             }
-            await _wishListService.CreateWishListAsync(wishListRequest);
+            await _wishListService.CreateWishListAsync(wishListRequest, user_id.Value);
 
             return Ok(new DefaultResponse { message = "Successfully added" });
         }
