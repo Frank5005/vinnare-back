@@ -62,12 +62,12 @@ namespace Api.Controllers
             ;
 
             var product = await _productService.GetProductForCartWishByIdAsync(wishListRequest.ProductId);
-            if (product == null)
+            if (product == null || product.Approved == false)
             {
                 //|| product.Approved == false
                 throw new NotFoundException("No Product with that id exists");
             }
-            await _wishListService.CreateWishListAsync(wishListRequest, user_id.Value);
+            await _wishListService.CreateWishListAsync(wishListRequest);
 
             return Ok(new DefaultResponse { message = "Successfully added" });
         }

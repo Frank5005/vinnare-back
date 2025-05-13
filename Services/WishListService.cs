@@ -43,9 +43,9 @@ namespace Services
             };
         }
 
-        public async Task<WishListDto> CreateWishListAsync(CreateWishListRequest wishListRequest, Guid userId)
+        public async Task<WishListDto> CreateWishListAsync(CreateWishListRequest wishListRequest)
         {
-            var existingWishList = await GetWishListByProductId(userId, wishListRequest.ProductId);
+            var existingWishList = await GetWishListByProductId(wishListRequest.UserId, wishListRequest.ProductId);
             if (existingWishList != null)
             {
                 _logger.LogWarning("WishList already exists for product ID {ProductId}", wishListRequest.ProductId);
@@ -54,7 +54,7 @@ namespace Services
 
             var wishList = new WishList
             {
-                //UserId = wishListRequest.UserId,
+                UserId = wishListRequest.UserId,
                 ProductId = wishListRequest.ProductId
             };
 
@@ -64,7 +64,7 @@ namespace Services
             return new WishListDto
             {
                 Id = wishList.Id,
-                UserId = userId,
+                UserId = wishList.UserId,
                 ProductId = wishList.ProductId
             };
         }
