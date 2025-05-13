@@ -72,7 +72,9 @@ namespace Services
                     Description = g.product.Description,
                     Category = g.product.Category,
                     Image = g.product.Image,
-                    Rate = g.reviews.Any() ? (int)g.reviews.Average(r => r.Rate) : 0
+                    Rate = g.reviews.Any() ? (int)g.reviews.Average(r => r.Rate) : 0,
+                    Quantity = g.product.Quantity,
+                    Available = g.product.Available
                 })
                 .ToListAsync();
 

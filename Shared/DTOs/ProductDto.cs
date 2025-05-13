@@ -29,6 +29,8 @@ namespace Shared.DTOs
         public string Category { get; set; }
         public string Image { get; set; }
         public int Rate {get; set; }
+        public int Quantity { get; set; }
+        public int Available { get; set; }
 
     }
 
