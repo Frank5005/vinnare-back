@@ -59,7 +59,7 @@ namespace Services
         {
 
             var productViewPages = await _context.Products
-                .Where(p => p.Available > 0 && p.Approved)
+                .Where(p => p.Approved)
                 .GroupJoin(_context.Reviews,
                     product => product.Id,
                     review => review.ProductId,
