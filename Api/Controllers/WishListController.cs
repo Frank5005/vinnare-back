@@ -46,6 +46,22 @@ namespace Api.Controllers
             return Ok(products);
         }
 
+        // GET api/user/wishlist/item
+        [Authorize(Roles = "Shopper")]
+        [HttpGet("item")]
+        public async Task<IActionResult> GetWishListItem(int product_id)
+        {
+            var tokenUsername = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userid = await _userService.GetIdByEmail(tokenUsername) ?? throw new NotFoundException("No user found with that email.");
+            var wishList = await _wishListService.GetWishListByProductId(userid, product_id);
+
+            if (wishList == null)
+            {
+                throw new NotFoundException("You don't have this product on your wishList");
+            }
+            return Ok(wishList);
+        }
+
         // POST: api/user/wishlist/add/{product_id}
         [Authorize(Roles = "Shopper")]
         [HttpPost("add")]
@@ -72,7 +88,7 @@ namespace Api.Controllers
             return Ok(new DefaultResponse { message = "Successfully added" });
         }
 
-        // DELETE: api/user/wishlist/remove/{product_id}
+        // DELETE: api/user/wishlist/{product_id}
         [Authorize(Roles = "Shopper")]
         [HttpDelete("{product_id:int}")]
         public async Task<IActionResult> DeleteWishList(int product_id)
@@ -87,7 +103,7 @@ namespace Api.Controllers
                 throw new NotFoundException("You don't have this prodcut on your wishList");
             }
             var deletedWishList = await _wishListService.DeleteWishListById(wishList.Id);
-            if (deletedWishList == null) { throw new NotFoundException("You don't have this prodcut on your wishList."); }
+            if (deletedWishList == null) { throw new NotFoundException("You don't have this product on your wishList."); }
             ;
             return Ok(new DefaultResponse { message = "Successfully deleted" });
         }
