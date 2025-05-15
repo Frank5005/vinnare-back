@@ -24,13 +24,15 @@ builder.Services.AddAuthorization();
 // CORS policy for the frontend application
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", 
-    policy => policy
+    options.AddDefaultPolicy(policy =>
     {
-        .AllowAnyOrigin()
+        policy.WithOrigins(
+            "*"
+        )
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials()
+        .SetIsOriginAllowed(origin => true); // Esto es temporal para debug
     });
 });
 
@@ -44,7 +46,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");
+app.UseCors();
 
 app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthentication();
