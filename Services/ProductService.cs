@@ -94,6 +94,7 @@ namespace Services
             return new ProductDetail
             {
                 Id = product.Id,
+                OwnerId = product.OwnerId,
                 Title = product.Title,
                 Price = product.Price,
                 Description = product.Description,
