@@ -122,6 +122,13 @@ namespace Services
             return id == Guid.Empty ? Guid.Empty : id;
         }
 
+        public async Task<string?> GetNameById(Guid ownerId)
+        {
+            var userQuery = from n in _context.Users where n.Id == ownerId select n.Name;
+            var name = await userQuery.FirstOrDefaultAsync();
+            return name == string.Empty ? string.Empty : name;
+        }
+
         
 
         public async Task<Guid> GetUserIdFromToken(string token)

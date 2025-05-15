@@ -31,6 +31,18 @@ namespace Api.Controllers
             return Ok(users);
         }
 
+        // GET: api/user/name
+        [HttpGet("name")]
+        public async Task<IActionResult> GetName(Guid ownerId)
+        {
+            var username = await _userService.GetNameById(ownerId);
+            if (username == null)
+            {
+                throw new NotFoundException("Username not found");
+            }
+            return Ok(username);
+        }
+
         // POST: api/user/verify
         [HttpPost("verify")]
         public async Task<IActionResult> VerifyUser([FromBody] VerifyUserRequest verifyRequest)

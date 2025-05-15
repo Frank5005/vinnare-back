@@ -9,6 +9,7 @@ namespace Services.Interfaces
         Task<UserDto?> GetUserByIdAsync(Guid id);
         Task<UserDto?> GetUserByUsername(string username);
         Task<UserDto?> GetUserByEmail(string email);
+        Task<string?> GetNameById(Guid ownerId);
         Task<Guid?> GetIdByUsername(string username);
         Task<Guid?> GetIdByEmail(string email);
         Task<string> GetUsernameById(Guid id);
