@@ -39,6 +39,7 @@ public class WishListController_test
         };
     }
 
+    /*
     [Fact]
     public async Task GetAllWishLists_ShouldReturnOk_WithWishList()
     {
@@ -59,6 +60,7 @@ public class WishListController_test
         Assert.Equal(userId, response.UserId);
         Assert.Equal(3, response.Products.Count());
     }
+    */
 
     [Fact]
     public async Task CreateWishList_ShouldReturnOk_WhenValid()

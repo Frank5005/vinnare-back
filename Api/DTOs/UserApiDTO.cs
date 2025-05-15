@@ -19,20 +19,10 @@ namespace Api.DTOs
                 throw new BadRequestException("Invalid email format.");
             }
         }
-        /*
-        public SecurityQuestionType GetSecurityQuestionType()
-        {
-            if (Enum.TryParse<SecurityQuestionType>(SecurityQuestion, true, out var parsedRole))
-            {
-                return parsedRole;
-            }
-            throw new BadRequestException("Invalid Security Question type.");
-        }
-        */
     }
     public class UpdateUserRequest : BaseUpdateUserRequest
     {
-        public string Username { get; set; } = "";
+        public string? Username { get; set; } = "";
     }
 
     public class UpdateShoppperRequest : BaseUpdateUserRequest

@@ -25,7 +25,7 @@ namespace Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var user = await _userService.GetUserByUsername(request.Username);
+            var user = await _userService.GetUserByEmail(request.Email);
             if (user == null)
             {
                 throw new NotFoundException("Username not found");
@@ -35,10 +35,22 @@ namespace Api.Controllers
             {
                 throw new UnauthorizedException("Wrong password");
             };
-            string token = _tokenService.GenerateToken(request.Username, user.Role.ToString());
+            string token = _tokenService.GenerateToken(request.Email, user.Role.ToString());
             //string token = _tokenService.GenerateToken(request.Username, "Admin"); //TODO: implement actual user.Role
 
             return Ok(new LoginResponse { Token = token, Email = user.Email, Username = user.Username });
+        }
+
+        //GET api/securityquestions
+        [HttpGet("securityquestions")]
+        public IActionResult GetSecurityQuestions()
+        {
+            var securityQuestions = Enum.GetValues(typeof(SecurityQuestionType))
+                .Cast<SecurityQuestionType>()
+                .Select(q => new { Id = (int)q, Name = q.ToString() })
+                .ToList();
+
+            return Ok(securityQuestions);
         }
 
         // POST: api/admin/auth
@@ -55,6 +67,7 @@ namespace Api.Controllers
             var userDto = new UserDto
             {
                 Id = Guid.NewGuid(),
+                Name = userRequest.Name,
                 Email = userRequest.Email,
                 Username = userRequest.Username,
                 Password = userRequest.Password,
@@ -74,8 +87,6 @@ namespace Api.Controllers
             };
             return Created("", responseUser);
         }
-
-
 
         // POST: api/auth
         [HttpPost("auth")]

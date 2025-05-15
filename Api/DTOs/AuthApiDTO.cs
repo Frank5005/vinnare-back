@@ -1,4 +1,4 @@
-﻿using Api.Utils;
+﻿﻿﻿using Api.Utils;
 using Shared.DTOs;
 using Shared.Enums;
 using Shared.Exceptions;
@@ -7,7 +7,7 @@ namespace Api.DTOs
 {
     public class LoginRequest
     {
-        public string Username { get; set; }
+        public string Email { get; set; }
         public string Password { get; set; }
     }
 

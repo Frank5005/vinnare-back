@@ -1,9 +1,11 @@
 using System.Security.Claims;
 using Api.DTOs;
+using Api.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Enums;
 using Shared.Exceptions;
 namespace Api.Controllers
 {
@@ -12,10 +14,12 @@ namespace Api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly ITokenService _tokenService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ITokenService tokenService)
         {
             _userService = userService;
+            _tokenService = tokenService;
         }
 
         // GET: api/users
@@ -27,22 +31,52 @@ namespace Api.Controllers
             return Ok(users);
         }
 
+        // POST: api/user/verify
+        [HttpPost("verify")]
+        public async Task<IActionResult> VerifyUser([FromBody] VerifyUserRequest verifyRequest)
+        {
+            var user = await _userService.GetUserByEmail(verifyRequest.Email);
+            if (user == null)
+            {
+                throw new NotFoundException("Username not found");
+            }
+            if (user.SecurityQuestion != verifyRequest.SecurityQuestion)
+                return BadRequest("Incorrect security question");
+
+            if ((user.SecurityAnswer?.Trim().ToLower()) != (verifyRequest.SecurityAnswer?.Trim().ToLower()))
+            {
+                return BadRequest("Incorrect answer");
+            }
+
+            if (user.Role == RoleType.Admin || user.Role == RoleType.Seller)
+                return BadRequest("This password cannot be reset because the user is an admin or seller");
+
+            var token = _tokenService.GenerateToken(user.Email, user.Role.ToString());
+            return Ok(new { token });
+        }
+
         // UPDATE: api/user
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPut]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest UpdateRequest)
         {
-            if (UpdateRequest == null || string.IsNullOrWhiteSpace(UpdateRequest.Username))
+            if (UpdateRequest == null)
                 return BadRequest("User data is required.");
+            // Getting the token from the request header
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var email = _tokenService.GetEmailFromToken(token);
+            if (string.IsNullOrEmpty(email))
+                return Unauthorized("Invalid or expired token.");
 
-            if (UpdateRequest.Email != null || !string.IsNullOrWhiteSpace(UpdateRequest.Username))
-            {
-                UpdateRequest.Validate();
-            }
-            var Id = await _userService.GetIdByUsername(UpdateRequest.Username) ?? throw new NotFoundException("user does not exists");
+            // Validating the email
+            if (!EmailValidator.IsValidEmail(email))
+                return BadRequest("Invalid email from token.");
+
+            // Getting the user ID from the email
+            var id = await _userService.GetIdByEmail(email) ?? throw new NotFoundException("User does not exist");
             var userDto = new UserDto
             {
-                Id = Id,
+                //Id = UpdaId,
                 Username = UpdateRequest.Username,
                 Email = UpdateRequest.Email,
                 Password = UpdateRequest.Password,
@@ -53,7 +87,7 @@ namespace Api.Controllers
 
 
             };
-            var updatedUser = await _userService.UpdateUserAsync(Id, userDto);
+            var updatedUser = await _userService.UpdateUserAsync(id, userDto);
             if (updatedUser == null) return NotFound();
             return Ok(new DefaultResponse
             {

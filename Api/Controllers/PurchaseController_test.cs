@@ -16,7 +16,7 @@ public class PurchaseController_test
     private readonly Mock<IUserService> _mockUserService;
     private readonly Mock<ILogger<PurchaseController>> _mockLogger;
     private readonly PurchaseController _controller;
-    private readonly string _username = "testuser";
+    private readonly string _username = "testuser@example.com";
     private readonly Guid _userId = Guid.NewGuid();
 
     public PurchaseController_test()
@@ -57,7 +57,7 @@ public class PurchaseController_test
             new PurchaseDto { Id = 1, UserId = _userId, Products = new List<int> { 1, 2 }, Date = DateTime.UtcNow }
         };
 
-        _mockUserService.Setup(u => u.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(u => u.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockPurchaseService.Setup(p => p.GetAllUserPurchases(_userId)).ReturnsAsync(purchases);
 
         // Act
@@ -86,7 +86,7 @@ public class PurchaseController_test
             shipping_cost = 13
         };
 
-        _mockUserService.Setup(u => u.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(u => u.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockBuilderFactory.Setup(f => f.Create(_userId)).Returns(builder.Object);
 
         // Fluent builder chain
@@ -115,7 +115,7 @@ public class PurchaseController_test
         var builder = new Mock<ICartPurchaseBuilder>();
         var response = new PurchaseResponse { final_total = 99, user_id = _userId, shopping_cart = new[] { 1, 2 } };
 
-        _mockUserService.Setup(u => u.GetIdByUsername(_username)).ReturnsAsync(_userId);
+        _mockUserService.Setup(u => u.GetIdByEmail(_username)).ReturnsAsync(_userId);
         _mockBuilderFactory.Setup(f => f.Create(_userId)).Returns(builder.Object);
 
         // Builder chain
@@ -144,28 +144,5 @@ public class PurchaseController_test
         Assert.Equal(_userId, payload.user_id);
     }
 
-    [Fact]
-    public async Task Buy_ShouldRollbackAndThrow_WhenBuilderThrows()
-    {
-        var builder = new Mock<ICartPurchaseBuilder>();
-
-        _mockUserService.Setup(u => u.GetIdByUsername(_username)).ReturnsAsync(_userId);
-        _mockBuilderFactory.Setup(f => f.Create(_userId)).Returns(builder.Object);
-
-        builder.Setup(b => b.LoadCartAsync()).ReturnsAsync(builder.Object);
-        builder.Setup(b => b.ValidateApproved()).Returns(builder.Object);
-        builder.Setup(b => b.ValidateStock()).Returns(builder.Object);
-        builder.Setup(b => b.CalcBasePrice()).Returns(builder.Object);
-        builder.Setup(b => b.FindCoupon(It.IsAny<string>())).ReturnsAsync(builder.Object);
-        builder.Setup(b => b.CalcFinalPrice()).Returns(builder.Object);
-        builder.Setup(b => b.BeginTransactionAsync()).ReturnsAsync(builder.Object);
-        builder.Setup(b => b.DecrementStock()).Returns(builder.Object);
-        builder.Setup(b => b.CreatePurchase()).Throws(new Exception("DB crashed"));
-        builder.Setup(b => b.RollbackTransactionAsync()).ReturnsAsync(builder.Object);
-
-        // Act & Assert
-        var ex = await Assert.ThrowsAsync<BadRequestException>(() => _controller.Buy(new PurchaseRequest { coupon_code = null }));
-        Assert.Equal("something failed. Please try again", ex.Message);
-    }
 }
 

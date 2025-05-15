@@ -39,12 +39,19 @@ namespace Services.Builders
             _cartItems = await _dbContext.Carts
                 .Where(c => c.UserId == _userId)
                 .Include(c => c.Product)
+                .Include(c => c.User)
                 .ToListAsync();
-
 
             if (_cartItems.Count == 0)
             {
                 throw new NotFoundException("Cart is empty; cannot proceed.");
+            }
+
+            // Verificar que el usuario se cargó correctamente
+            var user = _cartItems.First().User;
+            if (user == null)
+            {
+                throw new NotFoundException("User not found in cart items");
             }
 
             return this;
@@ -119,18 +126,38 @@ namespace Services.Builders
 
         public ICartPurchaseBuilder CreatePurchase()
         {
-            var user = _dbContext.Users.Find(_userId);
+            if (_cartItems.Count == 0)
+            {
+                throw new NotFoundException("Cart is empty");
+            }
+
+            var user = _cartItems.First().User;
             if (user == null)
             {
                 throw new NotFoundException("User not found");
             }
 
+            if (string.IsNullOrEmpty(user.Address))
+            {
+                throw new BadRequestException("User address is required to complete the purchase");
+            }
+
+            var products = _cartItems.Select(p => p.ProductId).ToList();
+            var prices = _cartItems.Select(p => p.Product.Price).ToList();
+            var quantities = _cartItems.Select(p => p.Quantity).ToList();
+
+            if (products.Count == 0 || prices.Count == 0 || quantities.Count == 0)
+            {
+                throw new BadRequestException("Invalid cart items");
+            }
+
             var purchase = new Purchase
             {
-                Products = _cartItems.Select(p => p.ProductId).ToList(),
-                Prices = _cartItems.Select(p => p.Product.Price).ToList(),
-                Quantities = _cartItems.Select(p => p.Quantity).ToList(),
+                Products = products,
+                Prices = prices,
+                Quantities = quantities,
                 UserId = _userId,
+                User = user,
                 CouponCode = _couponData?.coupon_code ?? null,
                 TotalPrice = _finalPrice,
                 TotalPriceBeforeDiscount = _totalPricePreDiscount,
@@ -244,7 +271,7 @@ namespace Services.Builders
 
         public PurchaseResponse? FormatOutput()
         {
-            var user = _dbContext.Users.Find(_userId);
+            var user = _cartItems.First().User;
             if (user == null)
             {
                 throw new NotFoundException("User not found");
@@ -256,6 +283,7 @@ namespace Services.Builders
                 total_after_discount = _totalAfterDiscount,
                 shipping_cost = _shipping_cost,
                 user_id = _userId,
+                user_name = user.Name ?? string.Empty,
                 total_before_discount = _totalPricePreDiscount,
                 shopping_cart = _cartItems.Select(c => c.ProductId),
                 coupon_applied = _couponData,
