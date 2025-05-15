@@ -91,10 +91,12 @@ namespace Services
 
             var rate = await _reviewService.GetReviewsRateByIdAsync(product.Id);
 
+            var ownerName = await _userService.GetNameById(product.OwnerId);
+
             return new ProductDetail
             {
                 Id = product.Id,
-                OwnerId = product.OwnerId,
+                Owner = ownerName,
                 Title = product.Title,
                 Price = product.Price,
                 Description = product.Description,

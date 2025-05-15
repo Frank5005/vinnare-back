@@ -37,7 +37,7 @@ namespace Shared.DTOs
     public class ProductDetail
     {
         public int Id { get; set; }
-        public Guid OwnerId { get; set; }
+        public string Owner { get; set; }
         public string Title { get; set; }
         public decimal Price { get; set; }
         public string? Description { get; set; }
