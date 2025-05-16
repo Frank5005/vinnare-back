@@ -1,3 +1,4 @@
+using System;
 using System.Security.Claims;
 using Api.Controllers;
 using Api.DTOs;
@@ -45,10 +46,10 @@ public class UserController_test
     public async Task GetAllUsers_ShouldReturnOk_WithUserList()
     {
         // Arrange
-        var users = new List<UserDtoString>
+        var users = new List<UserDtoInfo>
         {
-            new UserDtoString { Username = "user1", Email = "user1@example.com", Role = "Admin" },
-            new UserDtoString { Username = "user2", Email = "user2@example.com", Role = "Customer" }
+            new UserDtoInfo { Username = "user1", Email = "user1@example.com", Role = "Admin", Date = DateOnly.FromDateTime(DateTime.UtcNow)},
+            new UserDtoInfo { Username = "user2", Email = "user2@example.com", Role = "Customer", Date = DateOnly.FromDateTime(DateTime.UtcNow) }
         };
 
         _mockUserService.Setup(s => s.GetAllUsersAsync()).ReturnsAsync(users);
@@ -58,7 +59,7 @@ public class UserController_test
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedUsers = Assert.IsType<List<UserDtoString>>(okResult.Value);
+        var returnedUsers = Assert.IsType<List<UserDtoInfo>>(okResult.Value);
         Assert.Equal(2, returnedUsers.Count);
     }
 
