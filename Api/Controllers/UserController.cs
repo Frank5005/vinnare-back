@@ -22,9 +22,9 @@ namespace Api.Controllers
             _tokenService = tokenService;
         }
 
-        // GET: api/users
+        // GET: api/user/list
         [Authorize(Roles = "Admin")]
-        [HttpGet("users")]
+        [HttpGet("list")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _userService.GetAllUsersAsync();
