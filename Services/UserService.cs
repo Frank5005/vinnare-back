@@ -28,6 +28,7 @@ namespace Services
                     Username = user.Username,
                     Role = user.Role.ToString(),
                     Date = DateOnly.FromDateTime(user.Date),
+                    //FormattedDate = DateOnly.FromDateTime(user.Date).ToString("dd/MM/yyyy")
                 })
                 .ToListAsync();
         }

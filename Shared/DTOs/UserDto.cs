@@ -42,6 +42,9 @@ namespace Shared.DTOs
         public string Email { get; set; }
         public String Role { get; set; }
         public DateOnly Date { get; set; }
+
+        [JsonPropertyName("dateFormat")]
+        public string FormattedDate => Date.ToString("dd/MM/yyyy");
     }
 
 }
