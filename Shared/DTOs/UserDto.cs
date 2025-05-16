@@ -33,6 +33,15 @@ namespace Shared.DTOs
     {
         public String Role { get; set; }
 
+
+    }
+
+    public class UserDtoInfo
+    {
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public String Role { get; set; }
+        public DateOnly Date { get; set; }
     }
 
 }

@@ -5,7 +5,7 @@ namespace Services.Interfaces
 {
     public interface IUserService
     {
-        Task<IEnumerable<UserDtoString>> GetAllUsersAsync();
+        Task<IEnumerable<UserDtoInfo>> GetAllUsersAsync();
         Task<UserDto?> GetUserByIdAsync(Guid id);
         Task<UserDto?> GetUserByUsername(string username);
         Task<UserDto?> GetUserByEmail(string email);

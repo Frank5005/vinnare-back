@@ -19,18 +19,15 @@ namespace Services
             _context = context;
             _passwordHasher = passwordHasher;
         }
-        public async Task<IEnumerable<UserDtoString>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserDtoInfo>> GetAllUsersAsync()
         {
             return await _context.Users
-                .Select(user => new UserDtoString
+                .Select(user => new UserDtoInfo
                 {
-                    Name = user.Name,
                     Email = user.Email,
                     Username = user.Username,
-                    Password = user.Password,
                     Role = user.Role.ToString(),
-                    Address = user.Address,
-                    SecurityAnswer = user.SecurityAnswer,
+                    Date = DateOnly.FromDateTime(user.Date),
                 })
                 .ToListAsync();
         }

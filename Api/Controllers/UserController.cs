@@ -24,7 +24,7 @@ namespace Api.Controllers
 
         // GET: api/users
         [Authorize(Roles = "Admin")]
-        [HttpGet]
+        [HttpGet("users")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _userService.GetAllUsersAsync();
