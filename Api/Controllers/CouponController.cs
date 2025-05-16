@@ -9,7 +9,6 @@ namespace Api.Controllers
 {
     [Route("api/coupons")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
     public class CouponController : ControllerBase
     {
         private readonly ICouponService _couponService;
@@ -21,15 +20,29 @@ namespace Api.Controllers
 
         // GET: api/coupons
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllCoupons()
         {
             var coupons = await _couponService.GetAllCouponsAsync();
             return Ok(coupons);
         }
 
+        // GET: api/coupons/use
+        [HttpGet]
+        public async Task<IActionResult> GetCoupon(string code)
+        {
+            var coupon = await _couponService.GetCouponByCode(code);
+            if (coupon == null)
+            {
+                throw new NotFoundException("that coupon does not exists");
+            }
+            return Ok(coupon);
+        }
+
 
         // POST: api/coupons
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateCoupon([FromBody] CouponRequest couponRequest)
         {
             if (couponRequest == null)
@@ -54,6 +67,7 @@ namespace Api.Controllers
 
         // DELETE: api/coupons/{id}
         [HttpDelete("{code:alpha}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCoupon(string code)
         {
 
