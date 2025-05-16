@@ -24,6 +24,7 @@ namespace Services
             return await _context.Users
                 .Select(user => new UserDtoInfo
                 {
+                    id = user.Id,
                     Email = user.Email,
                     Username = user.Username,
                     Role = user.Role.ToString(),
