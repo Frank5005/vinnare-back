@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json.Serialization;
 using Shared.Enums;
 
@@ -41,10 +42,7 @@ namespace Shared.DTOs
         public string Username { get; set; }
         public string Email { get; set; }
         public String Role { get; set; }
-        public DateOnly Date { get; set; }
-
-        [JsonPropertyName("dateFormat")]
-        public string FormattedDate => Date.ToString("dd/MM/yyyy");
+        public DateTime Date { get; set; }
     }
 
 }
