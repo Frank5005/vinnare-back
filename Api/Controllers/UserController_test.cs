@@ -48,8 +48,8 @@ public class UserController_test
         // Arrange
         var users = new List<UserDtoInfo>
         {
-            new UserDtoInfo { Username = "user1", Email = "user1@example.com", Role = "Admin", Date = DateOnly.FromDateTime(DateTime.UtcNow)},
-            new UserDtoInfo { Username = "user2", Email = "user2@example.com", Role = "Customer", Date = DateOnly.FromDateTime(DateTime.UtcNow) }
+            new UserDtoInfo { Username = "user1", Email = "user1@example.com", Role = "Admin", Date = DateTime.UtcNow},
+            new UserDtoInfo { Username = "user2", Email = "user2@example.com", Role = "Customer", Date = DateTime.UtcNow }
         };
 
         _mockUserService.Setup(s => s.GetAllUsersAsync()).ReturnsAsync(users);
