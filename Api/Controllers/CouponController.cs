@@ -28,7 +28,7 @@ namespace Api.Controllers
         }
 
         // GET: api/coupons/use
-        [HttpGet]
+        [HttpGet("use")]
         public async Task<IActionResult> GetCoupon(string code)
         {
             var coupon = await _couponService.GetCouponByCode(code);
