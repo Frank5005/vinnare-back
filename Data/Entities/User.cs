@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata;
 using Shared.Enums;
 
 namespace Data.Entities
@@ -32,7 +33,8 @@ namespace Data.Entities
         
         [Required]
         public string SecurityAnswer { get; set; } = string.Empty;
-
+        public bool changePassword { get; set; }
+ 
         // Navigation Property
         public ICollection<Product> Products { get; set; }
         public ICollection<Review> Reviews { get; set; }

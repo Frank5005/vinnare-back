@@ -28,6 +28,7 @@ namespace Shared.DTOs
         public Guid Id { get; set; }
         public RoleType Role { get; set; }
         public SecurityQuestionType SecurityQuestion { get; set; }
+        public bool changePassword { get; set; }
     }
 
     public class UserDtoString : UserBase

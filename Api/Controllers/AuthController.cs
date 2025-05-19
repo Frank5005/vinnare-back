@@ -38,7 +38,7 @@ namespace Api.Controllers
             string token = _tokenService.GenerateToken(request.Email, user.Role.ToString());
             //string token = _tokenService.GenerateToken(request.Username, "Admin"); //TODO: implement actual user.Role
 
-            return Ok(new LoginResponse { Token = token, Email = user.Email, Username = user.Username, Id = user.Id });
+            return Ok(new LoginResponse { Token = token, Email = user.Email, Username = user.Username, Id = user.Id, changePassword = user.changePassword });
         }
 
         //GET api/securityquestions
@@ -74,7 +74,8 @@ namespace Api.Controllers
                 Address = userRequest.Address,
                 Role = userRequest.GetRoleType(),
                 SecurityQuestion = userRequest.GetSecurityQuestionType(),
-                SecurityAnswer = userRequest.SecurityAnswer
+                SecurityAnswer = userRequest.SecurityAnswer,
+                changePassword = true,
             };
 
             var createdUser = await _userService.CreateUserAsync(userDto);
@@ -104,7 +105,8 @@ namespace Api.Controllers
                 Address = userRequest.Address,
                 Role = RoleType.Shopper,
                 SecurityQuestion = userRequest.GetSecurityQuestionType(),
-                SecurityAnswer = userRequest.SecurityAnswer
+                SecurityAnswer = userRequest.SecurityAnswer,
+                changePassword = false,
             };
 
             var createdUser = await _userService.CreateUserAsync(userDto);

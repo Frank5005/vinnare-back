@@ -17,6 +17,7 @@ namespace Api.DTOs
         public string Email { get; set; }
         public string Username { get; set; }
         public Guid Id { get; set; }
+        public bool changePassword { get; set; }
     }
     public abstract class UserRequestBase : UserBase
     {
