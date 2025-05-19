@@ -32,7 +32,8 @@ namespace Services
                 {
                     Id = c.Id,
                     Name = c.Name,
-                    ImageUrl = c.ImageUrl
+                    ImageUrl = c.ImageUrl,
+                    Approved = c.Approved
                 })
                 .ToListAsync();
         }
