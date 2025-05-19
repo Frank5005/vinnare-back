@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json.Serialization;
 using Shared.Enums;
 
@@ -30,6 +31,7 @@ namespace Shared.DTOs
         public string? CategoryName { get; set; }
         public string? ProductName { get; set; }
         public string CreatorName { get; set; } = "";
+        public DateTime date { get; set; }
 
 
     }

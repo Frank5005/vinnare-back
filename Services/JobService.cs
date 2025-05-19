@@ -46,7 +46,8 @@ namespace Services
                     AssociatedId = (int)(job.ProductId ?? job.CategoryId),
                     CategoryName = categoryName,
                     ProductName = productName,
-                    CreatorName = creatorName
+                    CreatorName = creatorName,
+                    date = job.Date,
                 });
             }
 
