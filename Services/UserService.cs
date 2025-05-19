@@ -95,7 +95,8 @@ namespace Services
                 Address = user.Address,
                 SecurityAnswer = user.SecurityAnswer,
                 SecurityQuestion = user.SecurityQuestion,
-                Role = user.Role
+                Role = user.Role,
+                changePassword = user.changePassword,
             };
         }
 
