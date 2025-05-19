@@ -95,7 +95,8 @@ namespace Api.Controllers
                 Name = UpdateRequest.Name,
                 Address = UpdateRequest.Address,
                 //SecurityQuestion = UpdateRequest.GetSecurityQuestionType(),
-                SecurityAnswer = UpdateRequest.SecurityAnswer
+                SecurityAnswer = UpdateRequest.SecurityAnswer,
+                changePassword = UpdateRequest.changePassword
 
 
             };

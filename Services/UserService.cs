@@ -169,7 +169,8 @@ namespace Services
                 Date = DateTime.UtcNow,
                 Address = userDto.Address,
                 SecurityQuestion = userDto.SecurityQuestion,
-                SecurityAnswer = userDto.SecurityAnswer
+                SecurityAnswer = userDto.SecurityAnswer,
+                changePassword = userDto.changePassword,
             };
 
             _context.Users.Add(user);
@@ -215,6 +216,8 @@ namespace Services
 
             if (!string.IsNullOrWhiteSpace(userDto.Name))
                 user.Name = userDto.Name; // Optional field, update if provided
+
+            user.changePassword = false;
 
             // Update in DB
             _context.Users.Update(user);

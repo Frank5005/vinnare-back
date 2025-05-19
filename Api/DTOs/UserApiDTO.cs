@@ -23,6 +23,7 @@ namespace Api.DTOs
     public class UpdateUserRequest : BaseUpdateUserRequest
     {
         public string? Username { get; set; } = "";
+        public bool changePassword { get; set; }
     }
 
     public class UpdateShoppperRequest : BaseUpdateUserRequest
