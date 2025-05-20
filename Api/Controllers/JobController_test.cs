@@ -92,7 +92,7 @@ public class JobController_test
     public async Task ReviewJob_ShouldThrowBadRequestException_WhenTypeIsMissing()
     {
         // Arrange
-        var request = new ReviewJobRequest { Id = 1, Action = "Approve", Type = "Product"  };
+        var request = new ReviewJobRequest { Id = 1, Action = "Approve"};
 
         // Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => _controller.ReviewJob(request));
