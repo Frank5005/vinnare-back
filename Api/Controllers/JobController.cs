@@ -159,7 +159,7 @@ namespace Api.Controllers
 
         // POST: api/jobs/review-job
         [Authorize(Roles = "Admin")]
-        [HttpPost("/review-job")]
+        [HttpPost("review-job")]
         public async Task<IActionResult> ReviewJob([FromBody] ReviewJobRequest request)
         {
             request.Validate();
