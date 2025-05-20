@@ -39,6 +39,7 @@ namespace Api.DTOs
 
     public class ReviewJobRequest
     {
+        public string Type { get; set; }
         public int Id { get; set; }
         public string Action { get; set; } = "";
         public void Validate()

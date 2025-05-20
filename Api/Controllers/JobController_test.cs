@@ -38,7 +38,7 @@ public class JobController_test
     public async Task ReviewJob_ShouldReturnSuccess_WhenProductJobIsApproved()
     {
         // Arrange
-        var request = new ReviewJobRequest { Id = 1, Action = "Approve" };
+        var request = new ReviewJobRequest { Id = 1, Action = "Approve", Type = "Product" };
         var job = new JobDto
         {
             Id = 1,
@@ -53,7 +53,7 @@ public class JobController_test
         _mockJobService.Setup(s => s.RemoveJob(1)).ReturnsAsync(true);
 
         // Act
-        var result = await _controller.ReviewJob("Product", request) as OkObjectResult;
+        var result = await _controller.ReviewJob(request) as OkObjectResult;
 
         // Assert
         Assert.NotNull(result);
@@ -67,7 +67,7 @@ public class JobController_test
     public async Task ReviewJob_ShouldReturnSuccess_WhenCategoryJobIsDeclined()
     {
         // Arrange
-        var request = new ReviewJobRequest { Id = 2, Action = "Decline" };
+        var request = new ReviewJobRequest { Id = 2, Action = "Decline", Type = "Category"  };
         var job = new JobDto
         {
             Id = 2,
@@ -79,7 +79,7 @@ public class JobController_test
         _mockJobService.Setup(s => s.GetJobByIdAsync(2)).ReturnsAsync(job);
 
         // Act
-        var result = await _controller.ReviewJob("Category", request) as OkObjectResult;
+        var result = await _controller.ReviewJob(request) as OkObjectResult;
 
         // Assert
         Assert.NotNull(result);
@@ -92,35 +92,35 @@ public class JobController_test
     public async Task ReviewJob_ShouldThrowBadRequestException_WhenTypeIsMissing()
     {
         // Arrange
-        var request = new ReviewJobRequest { Id = 1, Action = "Approve" };
+        var request = new ReviewJobRequest { Id = 1, Action = "Approve", Type = "Product"  };
 
         // Act & Assert
-        await Assert.ThrowsAsync<BadRequestException>(() => _controller.ReviewJob("", request));
+        await Assert.ThrowsAsync<BadRequestException>(() => _controller.ReviewJob(request));
     }
 
     [Fact]
     public async Task ReviewJob_ShouldThrowNotFoundException_WhenJobDoesNotExist()
     {
         // Arrange
-        var request = new ReviewJobRequest { Id = 999, Action = "Approve" };
+        var request = new ReviewJobRequest { Id = 999, Action = "Approve", Type = "Product" };
 
         _mockJobService.Setup(s => s.GetJobByIdAsync(999)).ReturnsAsync((JobDto?)null);
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => _controller.ReviewJob("Product", request));
+        await Assert.ThrowsAsync<NotFoundException>(() => _controller.ReviewJob(request));
     }
 
     [Fact]
     public async Task ReviewJob_ShouldThrowBadRequestException_WhenTypeDoesNotMatchJob()
     {
         // Arrange
-        var request = new ReviewJobRequest { Id = 1, Action = "Approve" };
+        var request = new ReviewJobRequest { Id = 1, Action = "Approve", Type = "Product"};
         var job = new JobDto { Id = 1, Type = JobType.Category };
 
         _mockJobService.Setup(s => s.GetJobByIdAsync(1)).ReturnsAsync(job);
 
         // Act & Assert
-        await Assert.ThrowsAsync<BadRequestException>(() => _controller.ReviewJob("Product", request));
+        await Assert.ThrowsAsync<BadRequestException>(() => _controller.ReviewJob(request));
     }
     //==== TEST FOR HANDLE PRODUCT JOB HELPER ====
 

@@ -159,11 +159,11 @@ namespace Api.Controllers
         // POST: api/jobs/review-job
         [Authorize(Roles = "Admin")]
         [HttpPost("/review-job")]
-        public async Task<IActionResult> ReviewJob([FromQuery] string type, [FromBody] ReviewJobRequest request)
+        public async Task<IActionResult> ReviewJob([FromBody] ReviewJobRequest request)
         {
             request.Validate();
 
-            if (string.IsNullOrEmpty(type))
+            if (string.IsNullOrEmpty(request.Type))
             {
                 throw new BadRequestException("Type is required.");
             }
@@ -174,7 +174,7 @@ namespace Api.Controllers
             var job = await _jobService.GetJobByIdAsync(request.Id)
                        ?? throw new NotFoundException("Job not found");
 
-            if (!type.Equals(job.Type.ToString(), StringComparison.OrdinalIgnoreCase))
+            if (!request.Type.Equals(job.Type.ToString(), StringComparison.OrdinalIgnoreCase))
             {
                 throw new BadRequestException("Type should match the job type.");
             }
