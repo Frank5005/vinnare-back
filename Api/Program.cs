@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
             "http://localhost:5173",
             "https://main.d3hcv6qzhmyahb.amplifyapp.com",
             "https://4d82-3-147-45-32.ngrok-free.app"
-            //"https://4d82-3-147-45-32.ngrok-free.app/api/jobs"
+        //"https://4d82-3-147-45-32.ngrok-free.app/api/jobs"
         )
         .AllowAnyHeader()
         .AllowAnyMethod()
@@ -55,17 +55,15 @@ app.Use(async (context, next) =>
     {
         context.Response.StatusCode = 200;
 
-        context.Response.Headers.Append("Access-Control-Allow-Origin", context.Request.Headers["Origin"]);
-        context.Response.Headers.Append("Access-Control-Allow-Headers", "Authorization, Content-Type, ngrok-skip-browser-warning");
-        context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        context.Response.Headers.Append("Access-Control-Allow-Credentials", "true");
+        context.Response.Headers.Add("Access-Control-Allow-Origin", context.Request.Headers["Origin"]);
+        context.Response.Headers.Add("Access-Control-Allow-Headers", "Authorization, Content-Type, ngrok-skip-browser-warning");
+        context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
 
         await context.Response.CompleteAsync();
+        return;
     }
-    else
-    {
-        await next();
-    }
+    await next();
 });
 
 app.UseCors("AllowFrontend");
@@ -73,6 +71,7 @@ app.UseCors("AllowFrontend");
 app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.MapControllers();
