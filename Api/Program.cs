@@ -33,8 +33,8 @@ builder.Services.AddCors(options =>
         )
         .AllowAnyHeader()
         .AllowAnyMethod()
-        .AllowCredentials()
-        .SetIsOriginAllowed(origin => true); // Esto es temporal para debug
+        .AllowCredentials();
+        //.SetIsOriginAllowed(origin => true); // Esto es temporal para debug
     });
 });
 
