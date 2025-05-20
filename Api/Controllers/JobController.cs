@@ -156,8 +156,9 @@ namespace Api.Controllers
             return Created("", createJobResponse);
         }
 
+        // POST: api/jobs/review-job
         [Authorize(Roles = "Admin")]
-        [HttpPost("/api/reviewJob")]
+        [HttpPost("/review-job")]
         public async Task<IActionResult> ReviewJob([FromQuery] string type, [FromBody] ReviewJobRequest request)
         {
             request.Validate();
