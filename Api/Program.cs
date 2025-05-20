@@ -24,7 +24,7 @@ builder.Services.AddAuthorization();
 // CORS policy for the frontend application
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(
             "http://localhost:5173",
@@ -48,7 +48,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 
-app.UseCors();
+app.UseCors("AllowFrontend");
 
 app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthentication();
