@@ -31,6 +31,7 @@ namespace Api.Controllers
 
         // GET: api/jobs
         //[Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllJobs()
         {
