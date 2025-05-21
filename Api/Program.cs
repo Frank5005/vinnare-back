@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
             "http://localhost:5173",
             "https://main.d3hcv6qzhmyahb.amplifyapp.com",
-            "https://5455-3-147-45-32.ngrok-free.app"
+            "https://5586-3-147-45-32.ngrok-free.app"
         )
         .AllowAnyHeader()
         .AllowAnyMethod()
