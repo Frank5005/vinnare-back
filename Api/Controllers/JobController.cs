@@ -32,11 +32,13 @@ namespace Api.Controllers
         // GET: api/jobs
         //[Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<IActionResult> GetAllJobs(string userRole)
+        public async Task<IActionResult> GetAllJobs()
         {
+            var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
             if (userRole != "Admin")
             {
-                throw new BadRequestException("Role is not an admin");
+                throw new BadRequestException("User is not an admin");
             }
             var categories = await _categoryService.GetAllCategoriesAsync();
             var products = await _productService.GetAllProductsAsync();
