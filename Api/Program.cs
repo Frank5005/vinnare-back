@@ -27,7 +27,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(
-            "http://localhost:5173",
+            "http://localhost:8080",
             "https://main.d3hcv6qzhmyahb.amplifyapp.com",
             "https://5586-3-147-45-32.ngrok-free.app"
         )
