@@ -48,6 +48,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 
+/*
 app.Use(async (context, next) =>
 {
     if (context.Request.Method == "OPTIONS")
@@ -64,6 +65,7 @@ app.Use(async (context, next) =>
     }
     await next();
 });
+*/
 
 app.UseCors("AllowFrontend");
 
