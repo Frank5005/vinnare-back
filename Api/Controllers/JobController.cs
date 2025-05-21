@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Api.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 using Shared.DTOs;
@@ -29,13 +30,17 @@ namespace Api.Controllers
         }
 
         // GET: api/jobs
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<IActionResult> GetAllJobs()
+        public async Task<IActionResult> GetAllJobs(string userRole)
         {
+            if (userRole != "Admin")
+            {
+                throw new BadRequestException("Role is not an admin");
+            }
             var categories = await _categoryService.GetAllCategoriesAsync();
             var products = await _productService.GetAllProductsAsync();
-            
+
             var jobs = await _jobService.GetAllJobsAsync(categories, products);
 
             return Ok(jobs);
