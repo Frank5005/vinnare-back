@@ -18,7 +18,7 @@ builder.Services.AddApplicationServices();
 builder.Services.AddLoggingConfiguration(builder.Configuration);
 builder.AddOpenTemlemetryConfiguration();
 builder.Services.AddRateLimiterConfiguration();
-//builder.Services.AddAuthenticationConfiguration();
+builder.Services.AddAuthenticationConfiguration();
 builder.Services.AddAuthorization();
 
 /*
