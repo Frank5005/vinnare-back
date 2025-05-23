@@ -17,7 +17,7 @@ COPY ["Api/Api.csproj", "Api/"]
 COPY ["Data/Data.csproj", "Data/"]
 COPY ["Shared/Shared.csproj", "Shared/"]
 COPY ["Services/Services.csproj", "Services/"]
-COPY nuget.config ./
+COPY ["Api/nuget.config", "Api/"]
 RUN dotnet restore "./Api/Api.csproj"
 COPY . .
 WORKDIR "/src/Api"
