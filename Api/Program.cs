@@ -42,7 +42,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
-        options.Authority = "https://yourdomain.com"; // Cambia esto por tu autoridad
+        options.Authority = "https://5586-3-147-45-32.ngrok-free.app"; // Cambia esto por tu autoridad
         options.Audience = "https://yourdomain.com"; // Cambia esto por tu audiencia
         options.TokenValidationParameters = new TokenValidationParameters
         {
