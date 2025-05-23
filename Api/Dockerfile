@@ -13,10 +13,11 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Api/Api.csproj", "Api/"]
+COPY ["Api/Api.csproj", "Api/"] 
 COPY ["Data/Data.csproj", "Data/"]
 COPY ["Shared/Shared.csproj", "Shared/"]
 COPY ["Services/Services.csproj", "Services/"]
+COPY nuget.config ./
 RUN dotnet restore "./Api/Api.csproj"
 COPY . .
 WORKDIR "/src/Api"
