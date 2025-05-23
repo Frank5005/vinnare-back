@@ -48,6 +48,22 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 200;
+        context.Response.Headers.Add("Access-Control-Allow-Origin", context.Request.Headers["Origin"]);
+        context.Response.Headers.Add("Access-Control-Allow-Headers", "Authorization, Content-Type, ngrok-skip-browser-warning");
+        context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
+        await context.Response.CompleteAsync();
+        return;
+    }
+
+    await next();
+});
+
 app.UseCors("AllowFrontend");
 
 app.UseMiddleware<AuthenticationMiddleware>();
