@@ -69,10 +69,11 @@ app.Use(async (context, next) =>
 
 app.UseCors("AllowFrontend");
 
-app.UseMiddleware<AuthenticationMiddleware>();
+//app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<AuthenticationMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.MapControllers();
