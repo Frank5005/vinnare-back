@@ -1,5 +1,6 @@
 using Api.Extensions;
 using Api.Middleware;
+using Microsoft.IdentityModel.Tokens;
 using Shared.Configuration;
 
 
@@ -38,6 +39,17 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.Authority = "https://yourdomain.com"; // Cambia esto por tu autoridad
+        options.Audience = "https://yourdomain.com"; // Cambia esto por tu audiencia
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        };
+    });
+
 
 var app = builder.Build();
 
@@ -47,25 +59,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
-
-/*
-app.Use(async (context, next) =>
-{
-    if (context.Request.Method == "OPTIONS")
-    {
-        context.Response.StatusCode = 200;
-
-        context.Response.Headers.Add("Access-Control-Allow-Origin", context.Request.Headers["Origin"]);
-        context.Response.Headers.Add("Access-Control-Allow-Headers", "Authorization, Content-Type, ngrok-skip-browser-warning");
-        context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
-
-        await context.Response.CompleteAsync();
-        return;
-    }
-    await next();
-});
-*/
 
 app.UseCors("AllowFrontend");
 
