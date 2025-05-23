@@ -21,19 +21,6 @@ builder.Services.AddRateLimiterConfiguration();
 builder.Services.AddAuthenticationConfiguration();
 builder.Services.AddAuthorization();
 
-/*
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
-    {
-        options.Authority = "https://yourdomain.com"; // Cambia esto por tu autoridad
-        options.Audience = "https://yourdomain.com"; // Cambia esto por tu audiencia
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-        };
-    });
-*/
-
 // CORS policy for the frontend application
 builder.Services.AddCors(options =>
 {
@@ -47,7 +34,7 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials()
-        .SetIsOriginAllowed(origin => true); // Esto es temporal para debug
+        .SetIsOriginAllowed(origin => true); // Temporal for debug
     });
 });
 
@@ -63,11 +50,11 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 
-//app.UseMiddleware<AuthenticationMiddleware>();
+app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<AuthenticationMiddleware>();
+//app.UseMiddleware<AuthenticationMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.MapControllers();
