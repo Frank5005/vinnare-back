@@ -212,11 +212,13 @@ namespace Services
                 throw new Exception("You can't delete the category because it has products associated.");
             }
 
+            /*
             //Verify if the category it's approved
             if (category.Approved == false)
             {
                 throw new Exception("You can't delete the category because it's not approved'.");
             }
+            */
 
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
