@@ -18,8 +18,19 @@ builder.Services.AddApplicationServices();
 builder.Services.AddLoggingConfiguration(builder.Configuration);
 builder.AddOpenTemlemetryConfiguration();
 builder.Services.AddRateLimiterConfiguration();
-builder.Services.AddAuthenticationConfiguration();
+//builder.Services.AddAuthenticationConfiguration();
 builder.Services.AddAuthorization();
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.Authority = "https://yourdomain.com"; // Cambia esto por tu autoridad
+        options.Audience = "https://yourdomain.com"; // Cambia esto por tu audiencia
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        };
+    });
 
 
 // CORS policy for the frontend application
@@ -39,16 +50,18 @@ builder.Services.AddCors(options =>
     });
 });
 
+/*
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
-        options.Authority = "https://5586-3-147-45-32.ngrok-free.app"; // Cambia esto por tu autoridad
+        options.Authority = "https://yourdomain.com"; // Cambia esto por tu autoridad
         options.Audience = "https://yourdomain.com"; // Cambia esto por tu audiencia
         options.TokenValidationParameters = new TokenValidationParameters
         {
             RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
         };
     });
+*/
 
 
 var app = builder.Build();
