@@ -21,6 +21,7 @@ builder.Services.AddRateLimiterConfiguration();
 //builder.Services.AddAuthenticationConfiguration();
 builder.Services.AddAuthorization();
 
+/*
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
@@ -31,7 +32,7 @@ builder.Services.AddAuthentication("Bearer")
             RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
         };
     });
-
+*/
 
 // CORS policy for the frontend application
 builder.Services.AddCors(options =>
@@ -49,19 +50,6 @@ builder.Services.AddCors(options =>
         .SetIsOriginAllowed(origin => true); // Esto es temporal para debug
     });
 });
-
-/*
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
-    {
-        options.Authority = "https://yourdomain.com"; // Cambia esto por tu autoridad
-        options.Audience = "https://yourdomain.com"; // Cambia esto por tu audiencia
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-        };
-    });
-*/
 
 
 var app = builder.Build();
