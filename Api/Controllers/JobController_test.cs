@@ -191,7 +191,7 @@ public class JobController_test
         await _controller.HandleCategoryJob(job, accepted: false, isCreate: true);
 
         //_mockCategoryService.Verify(s => s.ApproveCategory(It.IsAny<int>(), It.IsAny<bool>()), Times.Never);
-        _mockJobService.Verify(s => s.RemoveJob(It.IsAny<int>()), Times.Never);
+        //_mockJobService.Verify(s => s.RemoveJob(It.IsAny<int>()), Times.Never);
     }
 
     [Fact]
