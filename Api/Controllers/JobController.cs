@@ -234,7 +234,7 @@ namespace Api.Controllers
                 }
                 else
                 {
-                    await _categoryService.DeleteCategoryAsync((int)job.CategoryId);
+                    await _jobService.RemoveJob(job.Id);
                 }
             }
             else
@@ -245,7 +245,6 @@ namespace Api.Controllers
                 }
                 else
                 {
-                    await _categoryService.ApproveCategory((int)job.CategoryId, true);
                     await _jobService.RemoveJob(job.Id);
                 }
             }
