@@ -54,7 +54,7 @@ app.Use(async (context, next) =>
     {
         context.Response.StatusCode = 200;
         context.Response.Headers.Add("Access-Control-Allow-Origin", context.Request.Headers["Origin"]);
-        context.Response.Headers.Add("Access-Control-Allow-Headers", "Authorization, Content-Type, ngrok-skip-browser-warning");
+        context.Response.Headers.Add("Access-Control-Allow-Headers", "Authorization, Content-Type, ngrok-skip-browser-warning, username");
         context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
         await context.Response.CompleteAsync();
