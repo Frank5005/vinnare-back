@@ -149,13 +149,13 @@ namespace Services
             {
                 throw new Exception("A category with this name already exists.");
             }
-            
+
             var category = new Category
             {
                 Name = categoryDto.Name,
                 Approved = true,
-                ImageUrl= categoryDto.ImageUrl
-                
+                ImageUrl = categoryDto.ImageUrl
+
             };
 
             _context.Categories.Add(category);
@@ -224,7 +224,7 @@ namespace Services
             var hasJob = await _context.Jobs.AnyAsync(j => j.CategoryId == id && j.Type == JobType.Category && j.Operation == OperationType.Create);
             if (hasJob)
             {
-                throw new Exception("You can't delete the category because it's in a job.");
+                throw new Exception("You can't delete the category because it's in a creating job.");
             }
 
             _context.Categories.Remove(category);

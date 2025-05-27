@@ -1,8 +1,11 @@
 using System.Security.Claims;
+using Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Services.Interfaces;
 using Shared.DTOs;
+using Shared.Enums;
 using Shared.Exceptions;
 
 namespace Api.Controllers
@@ -11,6 +14,7 @@ namespace Api.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
+        //private readonly VinnareDbContext _context;
         private readonly ICategoryService _categoryService;
 
         public CategoryController(ICategoryService categoryService)
