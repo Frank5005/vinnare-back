@@ -220,6 +220,13 @@ namespace Services
             }
             */
 
+            //Verify if the category it's in a job
+            var hasJob = await _context.Jobs.AnyAsync(j => j.CategoryId == id && j.Type == JobType.Category && j.Operation == OperationType.Create);
+            if (hasJob)
+            {
+                throw new Exception("You can't delete the category because it's in a job.");
+            }
+
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
             return message;
