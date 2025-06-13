@@ -28,8 +28,9 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
             "http://localhost:8080",
-            "https://main.d3hcv6qzhmyahb.amplifyapp.com",
-            "https://5586-3-147-45-32.ngrok-free.app"
+            //"https://main.d3hcv6qzhmyahb.amplifyapp.com",
+            //"https://5586-3-147-45-32.ngrok-free.app"
+            "https://cfd8-3-144-90-59.ngrok-free.app"
         )
         .AllowAnyHeader()
         .AllowAnyMethod()
